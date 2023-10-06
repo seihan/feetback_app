@@ -48,6 +48,7 @@ class LineCtrlApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
+        title: 'FeetBack',
         navigatorKey: navigatorKey,
         theme: ThemeData.dark(),
         home: Consumer<PermissionModel>(
