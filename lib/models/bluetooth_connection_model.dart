@@ -61,8 +61,6 @@ class BluetoothConnectionModel extends ChangeNotifier {
   StreamSubscription? _notifyStreamSubscription;
   StreamSubscription<String>? _errorSubscription;
   StreamSubscription? _stateSubscription;
-  BluetoothCharacteristic? _leftRxTxChar;
-  BluetoothCharacteristic? _rightRxTxChar;
 
   bool _connected = false;
   bool _isNotifying = false;
@@ -73,7 +71,6 @@ class BluetoothConnectionModel extends ChangeNotifier {
   bool get isScanning => _isScanning;
   BluetoothAdapterState get state => _state;
 
-  Stream<List<int>>? get notifyStream => _rightRxTxChar?.lastValueStream;
   Stream<String> get log => _logStream.stream;
 
   void initialize() {
@@ -143,7 +140,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
   Future<void> _startLeftNotify() async {
     List<int> bytes = _convertHexToBytes(leftStartValue);
     try {
-      await _leftRxTxChar?.write(leftStartHexValues, withoutResponse: false);
+      await devices[0].rxTxChar?.write(bytes, withoutResponse: false);
 
       debugPrint('Data sent successfully.');
     } catch (e) {
@@ -153,26 +150,33 @@ class BluetoothConnectionModel extends ChangeNotifier {
 
   Future<void> _stopLeftNotify() async {
     List<int> bytes = _convertHexToBytes(leftStartValue);
-    await _leftRxTxChar?.write(leftStopHexValues);
+    await devices[0].rxTxChar?.write(bytes);
   }
 
   Future<void> toggleNotify() async {
     _isNotifying = !_isNotifying;
-    if (!_isNotifying) {
+    if (_isNotifying) {
+      await _startLeftNotify();
+    } else {
       await _stopLeftNotify();
       _notifyStreamSubscription?.cancel();
-    } else {
-      await _startLeftNotify();
     }
     final BluetoothNotificationHandler notificationHandler =
         BluetoothNotificationHandler(
-      rxChar: _rightRxTxChar,
+      rxChar: devices[0].rxTxChar,
       setNotify: _isNotifying,
     );
     notificationHandler.startNotifications()?.listen(_handleNotifyValues);
     _logStream.add('is notifying; ${notificationHandler.isNotifying}');
     debugPrint('is notifying; ${notificationHandler.isNotifying}');
     notifyListeners();
+  }
+
+  void _handleNotifyValues(List<int> values) {
+    if (values.isNotEmpty) {
+      debugPrint(values.toString());
+      _logStream.add(values.toString());
+    }
   }
 
   void _listenConnections(List<BluetoothDevice> event) {
@@ -259,17 +263,13 @@ class BluetoothConnectionModel extends ChangeNotifier {
               }));
             } else {
               FlutterBluePlus.stopScan();
+              for (var subscription in _deviceSubscriptions) {
+                subscription?.cancel();
+              }
             }
           }
         }
       }
-    }
-  }
-
-  void _handleNotifyValues(List<int> values) {
-    if (values.isNotEmpty) {
-      debugPrint(values.toString());
-      _logStream.add(values.toString());
     }
   }
 

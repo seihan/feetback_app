@@ -1,3 +1,4 @@
+import 'package:feet_back_app/widgets/disconnect_button.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/bluetooth_connection_model.dart';
@@ -19,12 +20,16 @@ class VisualizationScreen extends StatelessWidget {
               alignment: Alignment.topRight,
               child: NotifyButton(),
             ),
+            const Align(
+              alignment: Alignment.topLeft,
+              child: DisconnectButton(),
+            ),
             if (model.connected == false)
               Container(
                 color: Colors.black.withAlpha(80),
                 child: const Center(
                   child: Icon(
-                    Icons.no_drinks_sharp,
+                    Icons.sensors_off,
                     size: 200.0,
                     color: Colors.white54,
                   ),
