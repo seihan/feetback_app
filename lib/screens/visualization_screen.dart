@@ -38,13 +38,15 @@ class VisualizationScreen extends StatelessWidget {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: model.isScanning ? null : model.startScan,
-        backgroundColor: model.isScanning ? Colors.red : Colors.green,
-        child: Icon(
-          model.isScanning ? Icons.stop : Icons.search,
-        ),
-      ),
+      floatingActionButton: !model.connected
+          ? FloatingActionButton(
+              onPressed: model.isScanning ? null : model.startScan,
+              backgroundColor: model.isScanning ? Colors.red : Colors.green,
+              child: Icon(
+                model.isScanning ? Icons.stop : Icons.search,
+              ),
+            )
+          : null,
     );
   }
 }

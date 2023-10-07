@@ -4,15 +4,14 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 class BluetoothNotificationHandler {
   final BluetoothCharacteristic? rxChar;
-  final bool setNotify;
 
-  BluetoothNotificationHandler({this.rxChar, this.setNotify = false});
+  BluetoothNotificationHandler({this.rxChar});
 
-  Stream<List<int>>? startNotifications() {
-    rxChar?.setNotifyValue(setNotify);
-    return rxChar?.lastValueStream;
+  Future<void> setNotify(bool setNotify) async {
+    await rxChar?.setNotifyValue(setNotify);
   }
 
+  Stream<List<int>>? get notifyValues => rxChar?.lastValueStream;
   bool get isNotifying => rxChar?.isNotifying ?? false;
 }
 

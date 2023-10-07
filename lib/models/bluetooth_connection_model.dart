@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
@@ -14,30 +15,16 @@ class BluetoothConnectionModel extends ChangeNotifier {
     required this.navigatorKey,
   });
 
-  static const String leftStartValue = '0x01 0x03 0x00 0x00 0xF1 0xD8';
-
-  static const List<int> leftStartHexValues = [
-    0x01,
-    0x03,
-    0x00,
-    0x00,
-    0xF1,
-    0xD8
-  ];
-  static const List<int> leftStopHexValues = [
-    0x01,
-    0x06,
-    0x00,
-    0x00,
-    0XE1,
-    0XD9
-  ];
+  static Uint8List leftStart =
+      Uint8List.fromList([0x01, 0x03, 0x00, 0x00, 0xF1, 0xD8]);
+  static Uint8List leftStop =
+      Uint8List.fromList([0x01, 0x06, 0x00, 0x00, 0xE1, 0xD9]);
 
   final Guid _serviceGuid = Guid('0000fe50-0000-1000-8000-00805f9b34fb');
   final Guid _rxTxCharGuid = Guid('0000fe51-0000-1000-8000-00805f9b34fb');
 
   // List of Bluetooth devices to manage
-  late List<BluetoothDeviceModel> devices = [
+  late final List<BluetoothDeviceModel> _devices = [
     BluetoothDeviceModel(
       name: 'CRM508-LEFT',
       serviceGuid: _serviceGuid,
@@ -58,7 +45,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
   StreamSubscription<List<ScanResult>>? _scanResultSubscription;
   StreamSubscription<bool>? _scanSubscription;
   StreamSubscription<List<BluetoothDevice>>? _connectionSubscription;
-  StreamSubscription? _notifyStreamSubscription;
+  StreamSubscription<List<int>>? _notifyStreamSubscription;
   StreamSubscription<String>? _errorSubscription;
   StreamSubscription? _stateSubscription;
 
@@ -66,7 +53,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
   bool _isNotifying = false;
   bool _isScanning = false;
   BluetoothAdapterState _state = BluetoothAdapterState.unknown;
-  bool get connected => _connected;
+  bool get connected => _devices[0].connected;
   bool get isNotifying => _isNotifying;
   bool get isScanning => _isScanning;
   BluetoothAdapterState get state => _state;
@@ -106,9 +93,17 @@ class BluetoothConnectionModel extends ChangeNotifier {
   }
 
   Future<void> disconnect() async {
-    for (var device in devices) {
+    for (var device in _devices) {
       await device.device?.disconnect();
+      device.connected = false;
+      _connected = false;
     }
+    for (var subscription in _deviceSubscriptions) {
+      subscription?.cancel();
+    }
+    _deviceSubscriptions.clear();
+    _notifyStreamSubscription?.cancel();
+    notifyListeners();
   }
 
   void startScan() {
@@ -129,46 +124,39 @@ class BluetoothConnectionModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<int> _convertHexToBytes(String hexValues) {
-    List<String> hexValueStrings = hexValues.split(' ');
-    List<int> bytes = hexValueStrings
-        .map((hex) => int.parse(hex.substring(2), radix: 16))
-        .toList();
-    return bytes;
-  }
-
   Future<void> _startLeftNotify() async {
-    List<int> bytes = _convertHexToBytes(leftStartValue);
     try {
-      await devices[0].rxTxChar?.write(bytes, withoutResponse: false);
-
-      debugPrint('Data sent successfully.');
+      await _devices[0].rxTxChar?.write(leftStart, withoutResponse: false);
+      debugPrint('Left start sent successfully.');
     } catch (e) {
       debugPrint('Error sending data: $e');
     }
   }
 
   Future<void> _stopLeftNotify() async {
-    List<int> bytes = _convertHexToBytes(leftStartValue);
-    await devices[0].rxTxChar?.write(bytes);
+    try {
+      await _devices[0].rxTxChar?.write(leftStop, withoutResponse: false);
+      debugPrint('Left stop sent successfully.');
+    } catch (e) {
+      debugPrint('Error sending data: $e');
+    }
   }
 
   Future<void> toggleNotify() async {
     _isNotifying = !_isNotifying;
+    final BluetoothNotificationHandler notificationHandler =
+        BluetoothNotificationHandler(rxChar: _devices[0].rxTxChar);
     if (_isNotifying) {
       await _startLeftNotify();
+      _notifyStreamSubscription =
+          notificationHandler.notifyValues?.listen(_handleNotifyValues);
+      await notificationHandler.setNotify(true);
     } else {
       await _stopLeftNotify();
-      _notifyStreamSubscription?.cancel();
+      await notificationHandler.setNotify(false);
     }
-    final BluetoothNotificationHandler notificationHandler =
-        BluetoothNotificationHandler(
-      rxChar: devices[0].rxTxChar,
-      setNotify: _isNotifying,
-    );
-    notificationHandler.startNotifications()?.listen(_handleNotifyValues);
-    _logStream.add('is notifying; ${notificationHandler.isNotifying}');
-    debugPrint('is notifying; ${notificationHandler.isNotifying}');
+    _logStream.add('is notifying; ${_devices[0].rxTxChar?.isNotifying}');
+    debugPrint('is notifying; ${_devices[0].rxTxChar?.isNotifying}');
     notifyListeners();
   }
 
@@ -194,23 +182,23 @@ class BluetoothConnectionModel extends ChangeNotifier {
       debugPrint('disconnected');
       _logStream.add('disconnected');
       _connected = false;
+      deviceModel.connected = false;
       notifyListeners();
       try {
         debugPrint('connecting');
         _logStream.add('connecting');
         await deviceModel.device?.connect();
-        _handleServices(
-            await deviceModel.device?.discoverServices(), deviceModel);
       } on Exception catch (error, stacktrace) {
         CustomErrorHandler.handleFlutterError(error, stacktrace);
         debugPrint('Error: $error');
         _logStream.add('Error: $error');
       }
     } else if (deviceState == BluetoothConnectionState.connected) {
-      deviceModel.connected = true;
-      _connected = true;
       debugPrint('connected');
       _logStream.add('connected');
+      _handleServices(
+          await deviceModel.device?.discoverServices(), deviceModel);
+      deviceModel.connected = true;
     }
     notifyListeners();
   }
@@ -225,19 +213,20 @@ class BluetoothConnectionModel extends ChangeNotifier {
           _logStream.add('found service for ${deviceModel.name}');
           deviceModel.service = service;
           _handleCharacteristics(deviceModel);
+          break;
         }
       }
     }
   }
 
-  void _handleCharacteristics(BluetoothDeviceModel deviceModel) {
+  void _handleCharacteristics(BluetoothDeviceModel deviceModel) async {
     if (deviceModel.service != null &&
         deviceModel.service?.characteristics != null) {
-      for (var element in deviceModel.service!.characteristics) {
-        if (element.uuid == deviceModel.rxTxCharGuid) {
+      for (var characteristic in deviceModel.service!.characteristics) {
+        if (characteristic.uuid == deviceModel.rxTxCharGuid) {
           debugPrint('found ${deviceModel.name} rx tx char');
           _logStream.add('found ${deviceModel.name}  rx tx char');
-          deviceModel.rxTxChar = element;
+          deviceModel.rxTxChar = characteristic;
         }
       }
     }
@@ -246,26 +235,20 @@ class BluetoothConnectionModel extends ChangeNotifier {
   void _onScanResult(List<ScanResult> results) {
     if (results.isNotEmpty) {
       for (var result in results) {
-        for (var device in devices) {
+        for (var device in _devices) {
           debugPrint('device ${device.device}');
           if (result.device.platformName == device.name &&
-              device.device == null) {
+              (device.device == null || device.device == result.device)) {
             device.device = result.device;
             debugPrint('found device: ${result.device.platformName}');
             _logStream.add('found device: ${result.device.platformName}');
-            device.device?.connectionState.listen((state) {
-              _handleDeviceState(state, device);
-            });
-            if (_deviceSubscriptions.length <= devices.length) {
+            if (_deviceSubscriptions.length < _devices.length) {
               _deviceSubscriptions
                   .add(device.device?.connectionState.listen((state) {
                 _handleDeviceState(state, device);
               }));
             } else {
               FlutterBluePlus.stopScan();
-              for (var subscription in _deviceSubscriptions) {
-                subscription?.cancel();
-              }
             }
           }
         }
