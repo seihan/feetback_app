@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'models/bluetooth_connection_model.dart';
 import 'models/custom_error_handler.dart';
 import 'models/permission_model.dart';
+import 'models/sensor_state_model.dart';
 
 void main() {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -44,7 +45,11 @@ class LineCtrlApp extends StatelessWidget {
         ChangeNotifierProvider<BluetoothConnectionModel>(
           create: (_) => BluetoothConnectionModel(
             navigatorKey: navigatorKey,
+            sensorStateModel: SensorStateModel(),
           )..initialize(),
+        ),
+        ChangeNotifierProvider<SensorStateModel>(
+          create: (_) => SensorStateModel(),
         ),
       ],
       child: MaterialApp(

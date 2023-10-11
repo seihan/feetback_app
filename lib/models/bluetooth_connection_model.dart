@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
+import 'package:feet_back_app/models/sensor_state_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
@@ -12,14 +13,22 @@ import 'custom_error_handler.dart';
 
 class BluetoothConnectionModel extends ChangeNotifier {
   final GlobalKey<NavigatorState> navigatorKey;
+  final SensorStateModel sensorStateModel;
+
   BluetoothConnectionModel({
     required this.navigatorKey,
+    required this.sensorStateModel,
   });
 
   static Uint8List leftStart =
       Uint8List.fromList([0x01, 0x03, 0x00, 0x00, 0xF1, 0xD8]);
   static Uint8List leftStop =
       Uint8List.fromList([0x01, 0x06, 0x00, 0x00, 0xE1, 0xD9]);
+
+  static Uint8List rightStart =
+      Uint8List.fromList([0x02, 0x03, 0x00, 0x00, 0xF1, 0x9C]);
+  static Uint8List rightStop =
+      Uint8List.fromList([0x02, 0x06, 0x00, 0x00, 0xe1, 0x9d]);
 
   final Guid _serviceGuid = Guid('0000fe50-0000-1000-8000-00805f9b34fb');
   final Guid _rxTxCharGuid = Guid('0000fe51-0000-1000-8000-00805f9b34fb');
@@ -46,16 +55,17 @@ class BluetoothConnectionModel extends ChangeNotifier {
   StreamSubscription<List<ScanResult>>? _scanResultSubscription;
   StreamSubscription<bool>? _scanSubscription;
   StreamSubscription<List<BluetoothDevice>>? _connectionSubscription;
-  StreamSubscription<List<int>>? _notifyStreamSubscription;
+  StreamSubscription<List<int>>? _leftNotifyStreamSubscription;
+  StreamSubscription<List<int>>? _rightNotifyStreamSubscription;
   StreamSubscription<String>? _errorSubscription;
   StreamSubscription? _stateSubscription;
-  BluetoothNotificationHandler? _notificationHandler;
+  BluetoothNotificationHandler? _leftNotificationHandler;
+  BluetoothNotificationHandler? _rightNotificationHandler;
 
-  bool _connected = false;
   bool _isNotifying = false;
   bool _isScanning = false;
   BluetoothAdapterState _state = BluetoothAdapterState.unknown;
-  bool get connected => _devices[0].connected;
+  bool get connected => _devices.every((device) => device.connected);
   bool get isNotifying => _isNotifying;
   bool get isScanning => _isScanning;
   BluetoothAdapterState get state => _state;
@@ -66,9 +76,6 @@ class BluetoothConnectionModel extends ChangeNotifier {
     _errorSubscription = CustomErrorHandler.errorStream.listen(_onError);
     _stateSubscription =
         FlutterBluePlus.adapterState.listen(_listenBluetoothState);
-    _connectionSubscription = Stream.periodic(const Duration(seconds: 5))
-        .asyncMap((_) => FlutterBluePlus.connectedSystemDevices)
-        .listen(_listenConnections);
     if (_state == BluetoothAdapterState.on) {
       startScan();
     }
@@ -101,10 +108,9 @@ class BluetoothConnectionModel extends ChangeNotifier {
     for (var device in _devices) {
       await device.device?.disconnect();
       device.connected = false;
-      _connected = false;
     }
     _deviceSubscriptions.clear();
-    _notifyStreamSubscription?.cancel();
+    _leftNotifyStreamSubscription?.cancel();
     notifyListeners();
   }
 
@@ -144,36 +150,71 @@ class BluetoothConnectionModel extends ChangeNotifier {
     }
   }
 
+  Future<void> _startRightNotify() async {
+    try {
+      await _devices[1].rxTxChar?.write(rightStart, withoutResponse: false);
+      debugPrint('Right start sent successfully.');
+    } catch (e) {
+      debugPrint('Error sending data: $e');
+    }
+  }
+
+  Future<void> _stopRightNotify() async {
+    try {
+      await _devices[1].rxTxChar?.write(rightStop, withoutResponse: false);
+      debugPrint('Right stop sent successfully.');
+    } catch (e) {
+      debugPrint('Error sending data: $e');
+    }
+  }
+
   Future<void> toggleNotify() async {
     _isNotifying = !_isNotifying;
     if (_isNotifying) {
-      _notificationHandler =
-          BluetoothNotificationHandler(rxChar: _devices[0].rxTxChar);
-      await _startLeftNotify();
-      _notifyStreamSubscription =
-          _notificationHandler?.notifyValues?.listen(_handleNotifyValues);
-      await _notificationHandler?.setNotify(true);
+      if (_devices[0].connected) {
+        _leftNotificationHandler =
+            BluetoothNotificationHandler(rxChar: _devices[0].rxTxChar);
+        await _startLeftNotify();
+        _leftNotifyStreamSubscription = _leftNotificationHandler?.notifyValues
+            ?.listen(_handleLeftNotifyValues);
+        await _leftNotificationHandler?.setNotify(true);
+      }
+      if (_devices[1].connected) {
+        _rightNotificationHandler =
+            BluetoothNotificationHandler(rxChar: _devices[1].rxTxChar);
+        await _startRightNotify();
+        _rightNotifyStreamSubscription = _rightNotificationHandler?.notifyValues
+            ?.listen(_handleRightNotifyValues);
+        await _rightNotificationHandler?.setNotify(true);
+      }
     } else {
-      _notifyStreamSubscription?.cancel();
-      await _stopLeftNotify();
-      await _notificationHandler?.setNotify(false);
+      if (_devices[0].connected) {
+        _leftNotifyStreamSubscription?.cancel();
+        await _stopLeftNotify();
+        await _leftNotificationHandler?.setNotify(false);
+      }
+      if (_devices[1].connected) {
+        _rightNotifyStreamSubscription?.cancel();
+        await _stopRightNotify();
+        await _rightNotificationHandler?.setNotify(false);
+      }
     }
     _logStream.add('is notifying; ${_devices[0].rxTxChar?.isNotifying}');
     debugPrint('is notifying; ${_devices[0].rxTxChar?.isNotifying}');
     notifyListeners();
   }
 
-  void _handleNotifyValues(List<int> values) {
+  void _handleLeftNotifyValues(List<int> values) {
     if (values.isNotEmpty) {
-      debugPrint(values.toString());
       _logStream.add(values.toString());
+      sensorStateModel.updateLeft(values);
     }
   }
 
-  void _listenConnections(List<BluetoothDevice> event) {
-    bool hasConnections = event.isNotEmpty;
-    if (_connected != hasConnections) {
-      _connected = hasConnections;
+  void _handleRightNotifyValues(List<int> values) {
+    if (values.isNotEmpty) {
+      _logStream.add(values.toString());
+      sensorStateModel.updateRight(values);
     }
   }
 
@@ -184,7 +225,6 @@ class BluetoothConnectionModel extends ChangeNotifier {
     if (deviceState != BluetoothConnectionState.connected) {
       debugPrint('disconnected');
       _logStream.add('disconnected');
-      _connected = false;
       deviceModel.connected = false;
       notifyListeners();
       try {
@@ -264,7 +304,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
   void dispose() {
     _scanSubscription?.cancel();
     _scanResultSubscription?.cancel();
-    _notifyStreamSubscription?.cancel();
+    _leftNotifyStreamSubscription?.cancel();
     _connectionSubscription?.cancel();
     _errorSubscription?.cancel();
     _stateSubscription?.cancel();
