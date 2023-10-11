@@ -13,7 +13,13 @@ class SensorStateModel extends ChangeNotifier {
   List<int> _leftValues = List.generate(12, (index) => 0);
   List<int> _rightValues = List.generate(12, (index) => 0);
   List<int> get leftValues => _leftValues;
+  List<double> get leftResistance => _leftValues.map((item) {
+        return _getResistance(item);
+      }).toList();
   List<int> get rightValues => _rightValues;
+  List<double> get rightResistance => _rightValues.map((item) {
+        return _getResistance(item);
+      }).toList();
 
   List<int> _combineUInt8Values(List<int> uInt8List) {
     List<int> result = [];
@@ -35,11 +41,14 @@ class SensorStateModel extends ChangeNotifier {
     return result;
   }
 
+  double _getResistance(int value) {
+    return (value / (4096 - value)) * 1000000;
+  }
+
   updateLeft(List<int> data) {
     var uInt8List = Uint8List.fromList(data);
     int start = uInt8List.first;
     int crc = 0;
-    debugPrint('start: $start');
 
     switch (start) {
       case 0x01:
@@ -54,22 +63,20 @@ class SensorStateModel extends ChangeNotifier {
           debugPrint('got remaining left values');
           final List<int> intValues = _combineUInt8Values(uInt8List);
           crc = intValues.last;
-          debugPrint('length = ${_leftValues.length}');
           if (_leftValues.length == 9) {
             _leftValues.addAll(intValues.sublist(0, intValues.length - 1));
           }
         }
     }
-    debugPrint('crc = $crc');
-    debugPrint('all values = $_leftValues');
-    notifyListeners();
+    if (crc != 0 && _leftValues.length == 12) {
+      notifyListeners();
+    }
   }
 
   updateRight(List<int> data) {
     var uInt8List = Uint8List.fromList(data);
     int start = uInt8List.first;
     int crc = 0;
-    debugPrint('start: $start');
 
     switch (start) {
       case 0x02:
@@ -89,8 +96,8 @@ class SensorStateModel extends ChangeNotifier {
           }
         }
     }
-    debugPrint('crc = $crc');
-    debugPrint('all values = $_leftValues');
-    notifyListeners();
+    if (crc != 0 && _rightValues.length == 12) {
+      notifyListeners();
+    }
   }
 }

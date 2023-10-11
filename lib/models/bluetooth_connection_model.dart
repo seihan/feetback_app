@@ -206,14 +206,12 @@ class BluetoothConnectionModel extends ChangeNotifier {
 
   void _handleLeftNotifyValues(List<int> values) {
     if (values.isNotEmpty) {
-      _logStream.add(values.toString());
       sensorStateModel.updateLeft(values);
     }
   }
 
   void _handleRightNotifyValues(List<int> values) {
     if (values.isNotEmpty) {
-      _logStream.add(values.toString());
       sensorStateModel.updateRight(values);
     }
   }

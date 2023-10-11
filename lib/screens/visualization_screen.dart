@@ -1,4 +1,5 @@
 import 'package:feet_back_app/widgets/disconnect_button.dart';
+import 'package:feet_back_app/widgets/sensor_values.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/bluetooth_connection_model.dart';
@@ -13,17 +14,17 @@ class VisualizationScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
-        child: Stack(
-          children: <Widget>[
-            const Row(),
-            const Align(
-              alignment: Alignment.topRight,
-              child: NotifyButton(),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                DisconnectButton(),
+                NotifyButton(),
+              ],
             ),
-            const Align(
-              alignment: Alignment.topLeft,
-              child: DisconnectButton(),
-            ),
+            const Spacer(),
             if (model.connected == false)
               Container(
                 color: Colors.black.withAlpha(80),
@@ -35,6 +36,8 @@ class VisualizationScreen extends StatelessWidget {
                   ),
                 ),
               ),
+            const Spacer(),
+            const SensorValuesWidget(),
           ],
         ),
       ),
