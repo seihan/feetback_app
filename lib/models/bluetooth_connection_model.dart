@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
@@ -48,6 +49,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
   StreamSubscription<List<int>>? _notifyStreamSubscription;
   StreamSubscription<String>? _errorSubscription;
   StreamSubscription? _stateSubscription;
+  BluetoothNotificationHandler? _notificationHandler;
 
   bool _connected = false;
   bool _isNotifying = false;
@@ -93,13 +95,13 @@ class BluetoothConnectionModel extends ChangeNotifier {
   }
 
   Future<void> disconnect() async {
+    for (var subscription in _deviceSubscriptions) {
+      subscription?.cancel();
+    }
     for (var device in _devices) {
       await device.device?.disconnect();
       device.connected = false;
       _connected = false;
-    }
-    for (var subscription in _deviceSubscriptions) {
-      subscription?.cancel();
     }
     _deviceSubscriptions.clear();
     _notifyStreamSubscription?.cancel();
@@ -144,16 +146,17 @@ class BluetoothConnectionModel extends ChangeNotifier {
 
   Future<void> toggleNotify() async {
     _isNotifying = !_isNotifying;
-    final BluetoothNotificationHandler notificationHandler =
-        BluetoothNotificationHandler(rxChar: _devices[0].rxTxChar);
     if (_isNotifying) {
+      _notificationHandler =
+          BluetoothNotificationHandler(rxChar: _devices[0].rxTxChar);
       await _startLeftNotify();
       _notifyStreamSubscription =
-          notificationHandler.notifyValues?.listen(_handleNotifyValues);
-      await notificationHandler.setNotify(true);
+          _notificationHandler?.notifyValues?.listen(_handleNotifyValues);
+      await _notificationHandler?.setNotify(true);
     } else {
+      _notifyStreamSubscription?.cancel();
       await _stopLeftNotify();
-      await notificationHandler.setNotify(false);
+      await _notificationHandler?.setNotify(false);
     }
     _logStream.add('is notifying; ${_devices[0].rxTxChar?.isNotifying}');
     debugPrint('is notifying; ${_devices[0].rxTxChar?.isNotifying}');
@@ -206,15 +209,12 @@ class BluetoothConnectionModel extends ChangeNotifier {
   void _handleServices(
       List<BluetoothService>? services, BluetoothDeviceModel deviceModel) {
     if (services != null) {
-      for (var service in services) {
-        debugPrint('${service.uuid}');
-        if (service.uuid == deviceModel.serviceGuid) {
-          debugPrint('found service for ${deviceModel.name}');
-          _logStream.add('found service for ${deviceModel.name}');
-          deviceModel.service = service;
-          _handleCharacteristics(deviceModel);
-          break;
-        }
+      deviceModel.service =
+          services.firstWhereOrNull((element) => element.uuid == _serviceGuid);
+      if (deviceModel.service != null) {
+        debugPrint('found service for ${deviceModel.name}');
+        _logStream.add('found service for ${deviceModel.name}');
+        _handleCharacteristics(deviceModel);
       }
     }
   }
@@ -234,22 +234,26 @@ class BluetoothConnectionModel extends ChangeNotifier {
 
   void _onScanResult(List<ScanResult> results) {
     if (results.isNotEmpty) {
-      for (var result in results) {
-        for (var device in _devices) {
-          debugPrint('device ${device.device}');
-          if (result.device.platformName == device.name &&
-              (device.device == null || device.device == result.device)) {
-            device.device = result.device;
-            debugPrint('found device: ${result.device.platformName}');
-            _logStream.add('found device: ${result.device.platformName}');
-            if (_deviceSubscriptions.length < _devices.length) {
-              _deviceSubscriptions
-                  .add(device.device?.connectionState.listen((state) {
-                _handleDeviceState(state, device);
-              }));
-            } else {
-              FlutterBluePlus.stopScan();
-            }
+      List<ScanResult> processedResults = [];
+
+      for (var device in _devices) {
+        final result = results.firstWhereOrNull((result) =>
+            result.device.platformName == device.name &&
+            (device.device == null || device.device == result.device));
+
+        if (result != null && !processedResults.contains(result)) {
+          debugPrint('found device: ${result.device.platformName}');
+          _logStream.add('found device: ${result.device.platformName}');
+          device.device = result.device;
+          processedResults.add(result);
+
+          if (_deviceSubscriptions.length < _devices.length) {
+            _deviceSubscriptions
+                .add(device.device?.connectionState.listen((state) {
+              _handleDeviceState(state, device);
+            }));
+          } else {
+            FlutterBluePlus.stopScan();
           }
         }
       }

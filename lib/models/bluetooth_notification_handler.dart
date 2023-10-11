@@ -14,9 +14,3 @@ class BluetoothNotificationHandler {
   Stream<List<int>>? get notifyValues => rxChar?.lastValueStream;
   bool get isNotifying => rxChar?.isNotifying ?? false;
 }
-
-class BluetoothWriteHandler {
-  final BluetoothCharacteristic? characteristic;
-
-  BluetoothWriteHandler({this.characteristic});
-}
