@@ -55,6 +55,11 @@ class SensorStateModel extends ChangeNotifier {
         {
           debugPrint('got left values');
           final List<int> intValues = _combineUInt8Values(uInt8List.sublist(2));
+          if (intValues.length > 12) {
+            debugPrint('values length = ${intValues.length}');
+            crc = intValues.last;
+            intValues.removeLast();
+          }
           _leftValues = intValues;
           break;
         }
@@ -63,7 +68,8 @@ class SensorStateModel extends ChangeNotifier {
           debugPrint('got remaining left values');
           final List<int> intValues = _combineUInt8Values(uInt8List);
           crc = intValues.last;
-          if (_leftValues.length == 9) {
+          if (_leftValues.length != 12) {
+            debugPrint('values length = ${intValues.length}');
             _leftValues.addAll(intValues.sublist(0, intValues.length - 1));
           }
         }
@@ -83,6 +89,11 @@ class SensorStateModel extends ChangeNotifier {
         {
           debugPrint('got right values');
           final List<int> intValues = _combineUInt8Values(uInt8List.sublist(2));
+          if (intValues.length > 12) {
+            debugPrint('values length = ${intValues.length}');
+            crc = intValues.last;
+            intValues.removeLast();
+          }
           _rightValues = intValues;
           break;
         }
@@ -91,8 +102,9 @@ class SensorStateModel extends ChangeNotifier {
           debugPrint('got remaining right values');
           final List<int> intValues = _combineUInt8Values(uInt8List);
           crc = intValues.last;
-          if (_rightValues.length == 9) {
+          if (_rightValues.length != 12) {
             _rightValues.addAll(intValues.sublist(0, intValues.length - 1));
+            debugPrint('values length = ${intValues.length}');
           }
         }
     }
