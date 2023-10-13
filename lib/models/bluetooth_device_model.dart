@@ -1,12 +1,14 @@
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 class BluetoothDeviceModel {
-  final String name;
+  final DeviceIdentifier? id;
+  final String? name;
   final Guid serviceGuid;
   final Guid rxTxCharGuid;
 
   BluetoothDeviceModel({
-    required this.name,
+    this.id,
+    this.name,
     required this.serviceGuid,
     required this.rxTxCharGuid,
   });

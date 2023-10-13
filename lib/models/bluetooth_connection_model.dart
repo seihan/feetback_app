@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
@@ -20,30 +21,60 @@ class BluetoothConnectionModel extends ChangeNotifier {
     required this.sensorStateModel,
   });
 
-  static Uint8List leftStart =
+  /// Sensor config
+  static final Uint8List _leftStart =
       Uint8List.fromList([0x01, 0x03, 0x00, 0x00, 0xF1, 0xD8]);
-  static Uint8List leftStop =
+  static final Uint8List _leftStop =
       Uint8List.fromList([0x01, 0x06, 0x00, 0x00, 0xE1, 0xD9]);
 
-  static Uint8List rightStart =
+  static final Uint8List _rightStart =
       Uint8List.fromList([0x02, 0x03, 0x00, 0x00, 0xF1, 0x9C]);
-  static Uint8List rightStop =
+  static final Uint8List _rightStop =
       Uint8List.fromList([0x02, 0x06, 0x00, 0x00, 0xe1, 0x9d]);
 
-  final Guid _serviceGuid = Guid('0000fe50-0000-1000-8000-00805f9b34fb');
-  final Guid _rxTxCharGuid = Guid('0000fe51-0000-1000-8000-00805f9b34fb');
+  static final Guid _sensorServiceGuid =
+      Guid('0000fe50-0000-1000-8000-00805f9b34fb');
+  static final Guid _sensorRxTxCharGuid =
+      Guid('0000fe51-0000-1000-8000-00805f9b34fb');
 
-  // List of Bluetooth devices to manage
+  /// Actor config
+  static const DeviceIdentifier _actorLeftId =
+      DeviceIdentifier('EA:3F:FA:39:89:E4');
+  static const DeviceIdentifier _actorRightId =
+      DeviceIdentifier('FC:77:F8:3E:B8:DA');
+
+  static final Guid _actorServiceGuid =
+      Guid('0000190b-0000-1000-8000-00805f9b34fb');
+  static final Guid _actorRxTxCharGuid =
+      Guid('00000003-0000-1000-8000-00805f9b34fb');
+
+  static const String _motorOn = 'AT+MOTOR=1'; // start vibration
+  static const String _buzzOne = 'AT+MOTOR=11'; // 50ms vibration
+  static const String _buzzTwo = 'AT+MOTOR=12'; // 100ms vibration
+  static const String _buzzThree = 'AT+MOTOR=13'; // 150ms vibration
+  static const String _motorOff = 'AT+MOTOR=00'; // stop vibration
+  static const String bat = 'AT+BATT0\n'; // get battery state %
+
   late final List<BluetoothDeviceModel> _devices = [
     BluetoothDeviceModel(
       name: 'CRM508-LEFT',
-      serviceGuid: _serviceGuid,
-      rxTxCharGuid: _rxTxCharGuid,
+      serviceGuid: _sensorServiceGuid,
+      rxTxCharGuid: _sensorRxTxCharGuid,
     ),
     BluetoothDeviceModel(
       name: 'CRM508-RIGHT',
-      serviceGuid: _serviceGuid,
-      rxTxCharGuid: _rxTxCharGuid,
+      serviceGuid: _sensorServiceGuid,
+      rxTxCharGuid: _sensorRxTxCharGuid,
+    ),
+    BluetoothDeviceModel(
+      id: _actorLeftId,
+      serviceGuid: _actorServiceGuid,
+      rxTxCharGuid: _actorRxTxCharGuid,
+    ),
+    BluetoothDeviceModel(
+      id: _actorRightId,
+      serviceGuid: _actorServiceGuid,
+      rxTxCharGuid: _actorRxTxCharGuid,
     ),
   ];
 
@@ -64,12 +95,14 @@ class BluetoothConnectionModel extends ChangeNotifier {
 
   bool _isNotifying = false;
   bool _isScanning = false;
-  int _reconnectCount = 0;
+  final List<bool> _activated = [false, false];
   final List<ScanResult> _processedResults = [];
   BluetoothAdapterState _state = BluetoothAdapterState.unknown;
   bool get connected => _devices.every((device) => device.connected);
   bool get isNotifying => _isNotifying;
   bool get isScanning => _isScanning;
+  List<bool> get activated => _activated;
+  List<BluetoothDeviceModel> get devices => _devices;
 
   Stream<String> get log => _logStream.stream;
 
@@ -112,6 +145,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
     }
     _deviceSubscriptions.clear();
     _leftNotifyStreamSubscription?.cancel();
+    _rightNotifyStreamSubscription?.cancel();
     notifyListeners();
   }
 
@@ -119,10 +153,13 @@ class BluetoothConnectionModel extends ChangeNotifier {
     if (_isScanning) {
       return;
     }
-    _reconnectCount = 0;
     _processedResults.clear();
     _scanSubscription?.cancel();
     _scanResultSubscription?.cancel();
+    for (var subscription in _deviceSubscriptions) {
+      subscription?.cancel();
+    }
+    _deviceSubscriptions.clear();
     _scanResultSubscription = FlutterBluePlus.scanResults.listen(_onScanResult);
     _scanSubscription = FlutterBluePlus.isScanning.listen(_handleScanState);
     debugPrint('start scanning');
@@ -135,37 +172,23 @@ class BluetoothConnectionModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _startLeftNotify() async {
+  Future<void> _startNotify({required int device}) async {
     try {
-      await _devices[0].rxTxChar?.write(leftStart, withoutResponse: false);
-      debugPrint('Left start sent successfully.');
+      await _devices[device].rxTxChar?.write(
+          device == 0 ? _leftStart : _rightStart,
+          withoutResponse: false);
+      debugPrint('${device == 0 ? 'Left' : 'Right'} start sent successfully.');
     } catch (e) {
       debugPrint('Error sending data: $e');
     }
   }
 
-  Future<void> _stopLeftNotify() async {
+  Future<void> _stopNotify({required int device}) async {
     try {
-      await _devices[0].rxTxChar?.write(leftStop, withoutResponse: false);
-      debugPrint('Left stop sent successfully.');
-    } catch (e) {
-      debugPrint('Error sending data: $e');
-    }
-  }
-
-  Future<void> _startRightNotify() async {
-    try {
-      await _devices[1].rxTxChar?.write(rightStart, withoutResponse: false);
-      debugPrint('Right start sent successfully.');
-    } catch (e) {
-      debugPrint('Error sending data: $e');
-    }
-  }
-
-  Future<void> _stopRightNotify() async {
-    try {
-      await _devices[1].rxTxChar?.write(rightStop, withoutResponse: false);
-      debugPrint('Right stop sent successfully.');
+      await _devices[device]
+          .rxTxChar
+          ?.write(device == 0 ? _leftStop : _rightStop, withoutResponse: false);
+      debugPrint('${device == 0 ? 'Left' : 'Right'} stop sent successfully.');
     } catch (e) {
       debugPrint('Error sending data: $e');
     }
@@ -177,7 +200,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
       if (_devices[0].connected) {
         _leftNotificationHandler =
             BluetoothNotificationHandler(rxChar: _devices[0].rxTxChar);
-        await _startLeftNotify();
+        await _startNotify(device: 0);
         _leftNotifyStreamSubscription = _leftNotificationHandler?.notifyValues
             ?.listen(_handleLeftNotifyValues);
         await _leftNotificationHandler?.setNotify(true);
@@ -185,7 +208,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
       if (_devices[1].connected) {
         _rightNotificationHandler =
             BluetoothNotificationHandler(rxChar: _devices[1].rxTxChar);
-        await _startRightNotify();
+        await _startNotify(device: 1);
         _rightNotifyStreamSubscription = _rightNotificationHandler?.notifyValues
             ?.listen(_handleRightNotifyValues);
         await _rightNotificationHandler?.setNotify(true);
@@ -193,17 +216,19 @@ class BluetoothConnectionModel extends ChangeNotifier {
     } else {
       if (_devices[0].connected) {
         _leftNotifyStreamSubscription?.cancel();
-        await _stopLeftNotify();
+        await _stopNotify(device: 0);
         await _leftNotificationHandler?.setNotify(false);
       }
       if (_devices[1].connected) {
         _rightNotifyStreamSubscription?.cancel();
-        await _stopRightNotify();
+        await _stopNotify(device: 0);
         await _rightNotificationHandler?.setNotify(false);
       }
     }
-    _logStream.add('is notifying; ${_devices[0].rxTxChar?.isNotifying}');
-    debugPrint('is notifying; ${_devices[0].rxTxChar?.isNotifying}');
+    _logStream.add(
+        'is notifying; ${_devices.every((device) => device.rxTxChar?.isNotifying ?? false)}');
+    debugPrint(
+        'is notifying; ${_devices.every((device) => device.rxTxChar?.isNotifying ?? false)}');
     notifyListeners();
   }
 
@@ -240,43 +265,37 @@ class BluetoothConnectionModel extends ChangeNotifier {
   }
 
   Future<void> _connect(BluetoothDeviceModel deviceModel) async {
-    if (_reconnectCount < 3) {
-      _reconnectCount++;
-      try {
-        debugPrint('connecting');
-        _logStream.add('connecting');
-        await deviceModel.device?.connect();
-      } on Exception catch (error, stacktrace) {
-        CustomErrorHandler.handleFlutterError(error, stacktrace);
-        debugPrint('Error: $error');
-        _logStream.add('Error: $error');
-      }
+    try {
+      debugPrint('connecting');
+      _logStream.add('connecting');
+      await deviceModel.device?.connect();
+    } on Exception catch (error, stacktrace) {
+      CustomErrorHandler.handleFlutterError(error, stacktrace);
+      debugPrint('Error: $error');
+      _logStream.add('Error: $error');
     }
   }
 
   void _handleServices(
       List<BluetoothService>? services, BluetoothDeviceModel deviceModel) {
     if (services != null) {
-      deviceModel.service =
-          services.firstWhereOrNull((element) => element.uuid == _serviceGuid);
+      deviceModel.service = services.firstWhereOrNull(
+          (service) => service.uuid == deviceModel.serviceGuid);
       if (deviceModel.service != null) {
-        debugPrint('found service for ${deviceModel.name}');
-        _logStream.add('found service for ${deviceModel.name}');
+        debugPrint('found service for ${deviceModel.device?.platformName}');
+        _logStream.add('found service for ${deviceModel.device?.platformName}');
         _handleCharacteristics(deviceModel);
       }
     }
   }
 
   void _handleCharacteristics(BluetoothDeviceModel deviceModel) async {
-    if (deviceModel.service != null &&
-        deviceModel.service?.characteristics != null) {
-      for (var characteristic in deviceModel.service!.characteristics) {
-        if (characteristic.uuid == deviceModel.rxTxCharGuid) {
-          debugPrint('found ${deviceModel.name} rx tx char');
-          _logStream.add('found ${deviceModel.name}  rx tx char');
-          deviceModel.rxTxChar = characteristic;
-        }
-      }
+    deviceModel.rxTxChar = deviceModel.service?.characteristics
+        .firstWhereOrNull((characteristic) =>
+            characteristic.uuid == deviceModel.rxTxCharGuid);
+    if (deviceModel.rxTxChar != null) {
+      debugPrint('found ${deviceModel.device?.platformName} rx tx char');
+      _logStream.add('found ${deviceModel.device?.platformName}  rx tx char');
     }
   }
 
@@ -284,7 +303,8 @@ class BluetoothConnectionModel extends ChangeNotifier {
     if (results.isNotEmpty) {
       for (var result in results) {
         for (var device in _devices) {
-          if (result.device.platformName == device.name &&
+          if ((result.device.platformName == device.name ||
+                  result.device.remoteId == device.id) &&
               (device.device == null || device.device == result.device) &&
               !_processedResults.contains(result)) {
             debugPrint('found device: ${result.device.platformName}');
@@ -302,6 +322,58 @@ class BluetoothConnectionModel extends ChangeNotifier {
           }
         }
       }
+    }
+  }
+
+  void activate({required int device}) async {
+    int selection = 0;
+    switch (device) {
+      case 2:
+        selection = 0;
+        break;
+      case 3:
+        selection = 1;
+        break;
+    }
+    if (_devices[device].connected) {
+      _activated[selection] = true;
+      await _devices[device].rxTxChar?.write(utf8.encode(_motorOn));
+      notifyListeners();
+    }
+  }
+
+  void deactivate({required int device}) async {
+    int selection = 0;
+    switch (device) {
+      case 2:
+        selection = 0;
+        break;
+      case 3:
+        selection = 1;
+        break;
+    }
+    if (_devices[device].connected) {
+      _activated[selection] = false;
+      await _devices[device].rxTxChar?.write(utf8.encode(_motorOff));
+      notifyListeners();
+    }
+  }
+
+  void buzzOne({required int device}) async {
+    if (_devices[device].connected) {
+      await _devices[device].rxTxChar?.write(utf8.encode(_buzzOne));
+    }
+  }
+
+  void buzzTwo({required int device}) async {
+    if (_devices[device].connected) {
+      await _devices[device].rxTxChar?.write(utf8.encode(_buzzTwo));
+    }
+  }
+
+  void buzzThree({required int device}) async {
+    if (_devices[device].connected) {
+      await _devices[device].rxTxChar?.write(utf8.encode(_buzzThree));
     }
   }
 

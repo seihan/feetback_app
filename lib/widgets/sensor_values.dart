@@ -22,10 +22,7 @@ class SensorValuesWidget extends StatelessWidget {
                 (index) {
                   // Add 1 to index to have leading numerization
                   int numerization = index + 1;
-                  return Text(
-                    '$numerization. ${leftSensorValues[index]}',
-                    style: const TextStyle(fontSize: 16.0),
-                  );
+                  return Text('$numerization. ${leftSensorValues[index]}');
                 },
               ),
             ),
@@ -35,10 +32,7 @@ class SensorValuesWidget extends StatelessWidget {
                 (index) {
                   // Add 1 to index to have leading numerization
                   int numerization = index + 1;
-                  return Text(
-                    '$numerization. ${rightSensorValues[index]}',
-                    style: const TextStyle(fontSize: 16.0),
-                  );
+                  return Text('$numerization. ${rightSensorValues[index]}');
                 },
               ),
             )

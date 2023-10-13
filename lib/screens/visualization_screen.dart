@@ -1,8 +1,11 @@
+import 'package:feet_back_app/widgets/activate_switch.dart';
+import 'package:feet_back_app/widgets/devices.dart';
 import 'package:feet_back_app/widgets/disconnect_button.dart';
 import 'package:feet_back_app/widgets/sensor_values.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/bluetooth_connection_model.dart';
+import '../widgets/buzz_button.dart';
 import '../widgets/notify_button.dart';
 
 class VisualizationScreen extends StatelessWidget {
@@ -24,6 +27,7 @@ class VisualizationScreen extends StatelessWidget {
                 NotifyButton(),
               ],
             ),
+            const DeviceWidget(),
             const Spacer(),
             if (model.connected == false)
               Container(
@@ -31,13 +35,33 @@ class VisualizationScreen extends StatelessWidget {
                 child: const Center(
                   child: Icon(
                     Icons.sensors_off,
-                    size: 200.0,
+                    size: 100.0,
                     color: Colors.white54,
                   ),
                 ),
               ),
             const Spacer(),
             const SensorValuesWidget(),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                BuzzButton(mode: 0, device: 2),
+                BuzzButton(mode: 1, device: 2),
+                BuzzButton(mode: 2, device: 2),
+                Spacer(),
+                BuzzButton(mode: 0, device: 3),
+                BuzzButton(mode: 1, device: 3),
+                BuzzButton(mode: 2, device: 3),
+              ],
+            ),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ActivateSwitch(device: 2),
+                ActivateSwitch(device: 3),
+              ],
+            ),
+            const Spacer(),
           ],
         ),
       ),
