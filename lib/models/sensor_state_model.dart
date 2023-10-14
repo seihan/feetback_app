@@ -12,11 +12,14 @@ class SensorStateModel extends ChangeNotifier {
 
   List<int> _leftValues = List.generate(12, (index) => 0);
   List<int> _rightValues = List.generate(12, (index) => 0);
-  List<int> get leftValues => _leftValues;
+  List<int> get leftValues =>
+      _leftValues.length == 12 ? _leftValues : List.generate(12, (index) => 0);
   List<double> get leftResistance => _leftValues.map((item) {
         return _getResistance(item);
       }).toList();
-  List<int> get rightValues => _rightValues;
+  List<int> get rightValues => _rightValues.length == 12
+      ? _rightValues
+      : List.generate(12, (index) => 0);
   List<double> get rightResistance => _rightValues.map((item) {
         return _getResistance(item);
       }).toList();
