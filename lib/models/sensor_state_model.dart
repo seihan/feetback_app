@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -5,10 +6,14 @@ import 'package:flutter/material.dart';
 class SensorStateModel extends ChangeNotifier {
   static final SensorStateModel _instance = SensorStateModel._internal();
   SensorStateModel._internal();
-
   factory SensorStateModel() {
     return _instance;
   }
+
+  static final StreamController<List<int>> _leftValuesStream =
+      StreamController<List<int>>.broadcast();
+  static final StreamController<List<int>> _rightValuesStream =
+      StreamController<List<int>>.broadcast();
 
   List<int> _leftValues = List.generate(12, (index) => 0);
   List<int> _rightValues = List.generate(12, (index) => 0);
@@ -23,7 +28,8 @@ class SensorStateModel extends ChangeNotifier {
   List<double> get rightResistance => _rightValues.map((item) {
         return _getResistance(item);
       }).toList();
-
+  Stream<List<int>> get leftValuesStream => _leftValuesStream.stream;
+  Stream<List<int>> get rightValuesStream => _rightValuesStream.stream;
   List<int> _combineUInt8Values(List<int> uInt8List) {
     List<int> result = [];
     int value = 0;
@@ -78,6 +84,7 @@ class SensorStateModel extends ChangeNotifier {
         }
     }
     if (crc != 0 && _leftValues.length == 12) {
+      _leftValuesStream.add(_leftValues);
       notifyListeners();
     }
   }
@@ -112,6 +119,7 @@ class SensorStateModel extends ChangeNotifier {
         }
     }
     if (crc != 0 && _rightValues.length == 12) {
+      _rightValuesStream.add(_rightValues);
       notifyListeners();
     }
   }

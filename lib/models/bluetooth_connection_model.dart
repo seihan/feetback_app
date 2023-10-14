@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 import 'package:feet_back_app/models/sensor_state_model.dart';
+import 'package:feet_back_app/models/transmission_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
@@ -78,6 +79,9 @@ class BluetoothConnectionModel extends ChangeNotifier {
     ),
   ];
 
+  late final TransmissionHandler _leftHandler;
+  late final TransmissionHandler _rightHandler;
+
   final StreamController<String> _logStream =
       StreamController<String>.broadcast();
 
@@ -113,6 +117,12 @@ class BluetoothConnectionModel extends ChangeNotifier {
     if (_state == BluetoothAdapterState.on) {
       startScan();
     }
+    _leftHandler =
+        TransmissionHandler(device: 'LEFT', outputDevice: _devices[2])
+          ..initialize();
+    _rightHandler =
+        TransmissionHandler(device: 'RIGHT', outputDevice: _devices[3])
+          ..initialize();
   }
 
   void _onError(String error) {
@@ -388,6 +398,8 @@ class BluetoothConnectionModel extends ChangeNotifier {
     for (var subscription in _deviceSubscriptions) {
       subscription?.cancel();
     }
+    _leftHandler.dispose();
+    _rightHandler.dispose();
     super.dispose();
   }
 }
