@@ -1,3 +1,4 @@
+import 'package:feet_back_app/models/sensor_state_model.dart';
 import 'package:feet_back_app/widgets/activate_switch.dart';
 import 'package:feet_back_app/widgets/devices.dart';
 import 'package:feet_back_app/widgets/disconnect_button.dart';
@@ -14,6 +15,7 @@ class VisualizationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final SensorStateModel stateModel = SensorStateModel();
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
@@ -43,13 +45,15 @@ class VisualizationScreen extends StatelessWidget {
                   ),
                 ),
               const Spacer(),
-              const Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   SensorSole(
+                    stream: stateModel.leftDisplayStream,
                     device: 0,
                   ),
                   SensorSole(
+                    stream: stateModel.rightDisplayStream,
                     device: 1,
                   ),
                 ],

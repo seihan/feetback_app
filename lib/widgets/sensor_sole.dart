@@ -1,14 +1,12 @@
 import 'package:feet_back_app/widgets/sensor_point.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:provider/provider.dart';
-
-import '../models/sensor_state_model.dart';
 
 class SensorSole extends StatelessWidget {
   final int device;
   final String assetName = 'assets/sole.svg';
-  const SensorSole({required this.device, super.key});
+  final Stream<List<int>> stream;
+  const SensorSole({required this.device, required this.stream, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,16 +17,17 @@ class SensorSole extends StatelessWidget {
       colorFilter: const ColorFilter.mode(Colors.red, BlendMode.srcIn),
       height: 450,
     );
-    return Consumer<SensorStateModel>(
-      builder: (context, sensorState, child) {
+    return StreamBuilder(
+      stream: stream,
+      builder: (
+        BuildContext context,
+        AsyncSnapshot<List<int>> sensorState,
+      ) {
         List<int> sensorValues = [];
-        switch (device) {
-          case 0:
-            sensorValues = sensorState.leftValues;
-            break;
-          case 1:
-            sensorValues = sensorState.rightValues;
-            break;
+        if (sensorState.hasData && sensorState.data?.length == 12) {
+          sensorValues = sensorState.data!;
+        } else {
+          sensorValues = List.generate(12, (index) => 0);
         }
 
         return Stack(

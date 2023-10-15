@@ -21,7 +21,7 @@ void main() {
   };
   runZonedGuarded(() {
     runApp(
-      LineCtrlApp(
+      FeetBackApp(
         navigatorKey: navigatorKey,
       ),
     );
@@ -31,9 +31,9 @@ void main() {
   });
 }
 
-class LineCtrlApp extends StatelessWidget {
+class FeetBackApp extends StatelessWidget {
   final GlobalKey<NavigatorState> navigatorKey;
-  const LineCtrlApp({Key? key, required this.navigatorKey}) : super(key: key);
+  const FeetBackApp({Key? key, required this.navigatorKey}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -47,9 +47,6 @@ class LineCtrlApp extends StatelessWidget {
             navigatorKey: navigatorKey,
             sensorStateModel: SensorStateModel(),
           )..initialize(),
-        ),
-        ChangeNotifierProvider<SensorStateModel>(
-          create: (_) => SensorStateModel(),
         ),
       ],
       child: MaterialApp(

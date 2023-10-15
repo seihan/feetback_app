@@ -2,8 +2,9 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:rxdart/rxdart.dart';
 
-class SensorStateModel extends ChangeNotifier {
+class SensorStateModel {
   static final SensorStateModel _instance = SensorStateModel._internal();
   SensorStateModel._internal();
   factory SensorStateModel() {
@@ -17,19 +18,13 @@ class SensorStateModel extends ChangeNotifier {
 
   List<int> _leftValues = List.generate(12, (index) => 0);
   List<int> _rightValues = List.generate(12, (index) => 0);
-  List<int> get leftValues =>
-      _leftValues.length == 12 ? _leftValues : List.generate(12, (index) => 0);
-  List<double> get leftResistance => _leftValues.map((item) {
-        return _getResistance(item);
-      }).toList();
-  List<int> get rightValues => _rightValues.length == 12
-      ? _rightValues
-      : List.generate(12, (index) => 0);
-  List<double> get rightResistance => _rightValues.map((item) {
-        return _getResistance(item);
-      }).toList();
+
   Stream<List<int>> get leftValuesStream => _leftValuesStream.stream;
+  Stream<List<int>> get leftDisplayStream => leftValuesStream
+      .throttleTime(const Duration(milliseconds: 33), trailing: true);
   Stream<List<int>> get rightValuesStream => _rightValuesStream.stream;
+  Stream<List<int>> get rightDisplayStream => rightValuesStream
+      .throttleTime(const Duration(milliseconds: 33), trailing: true);
   List<int> _combineUInt8Values(List<int> uInt8List) {
     List<int> result = [];
     int value = 0;
@@ -50,9 +45,11 @@ class SensorStateModel extends ChangeNotifier {
     return result;
   }
 
+  /*
   double _getResistance(int value) {
     return (value / (4096 - value)) * 1000000;
   }
+   */
 
   updateLeft(List<int> data) {
     var uInt8List = Uint8List.fromList(data);
@@ -85,7 +82,6 @@ class SensorStateModel extends ChangeNotifier {
     }
     if (crc != 0 && _leftValues.length == 12) {
       _leftValuesStream.add(_leftValues);
-      notifyListeners();
     }
   }
 
@@ -120,7 +116,6 @@ class SensorStateModel extends ChangeNotifier {
     }
     if (crc != 0 && _rightValues.length == 12) {
       _rightValuesStream.add(_rightValues);
-      notifyListeners();
     }
   }
 }
