@@ -40,7 +40,7 @@ class SensorChart extends StatelessWidget {
             seconds: 1)); // Set the minimum time to 10 seconds ago
 
         return Container(
-          height: 500,
+          height: 250,
           padding: const EdgeInsets.all(16.0),
           child: charts.TimeSeriesChart(
             _createChartData(chartData),
@@ -72,7 +72,7 @@ class SensorChart extends StatelessWidget {
               charts.SeriesLegend(
                 position: charts.BehaviorPosition.end,
                 horizontalFirst: false,
-                cellPadding: const EdgeInsets.all(4.0),
+                cellPadding: const EdgeInsets.all(2.0),
                 showMeasures: true,
                 measureFormatter: (num? value) {
                   return value != null ? value.toStringAsFixed(2) : '-';

@@ -1,9 +1,8 @@
-import 'package:feet_back_app/widgets/sensor_chart.dart';
+import 'package:feet_back_app/widgets/charts_widget.dart';
 import 'package:feet_back_app/widgets/sensor_soles.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/bluetooth_connection_model.dart';
-import '../models/sensor_state_model.dart';
 import '../widgets/connection_widgets.dart';
 
 class VisualizationScreen extends StatefulWidget {
@@ -18,12 +17,9 @@ class _VisualizationScreenState extends State<VisualizationScreen> {
   int _selectedIndex = 0;
   @override
   Widget build(BuildContext context) {
-    final SensorStateModel stateModel = SensorStateModel();
     List<Widget> tabPages = [
       SensorSoles(bluetoothConnectionModel: widget.model),
-      SensorChart(
-        stream: stateModel.leftDisplayStream,
-      ),
+      const ChartsWidget(),
     ];
     return Scaffold(
       backgroundColor: Colors.transparent,

@@ -18,9 +18,13 @@ class SensorStateModel {
       StreamController<SensorValues>.broadcast();
 
   SensorValues _leftValues = SensorValues(
-      time: DateTime(1900), values: List.generate(12, (index) => 0));
+    time: DateTime(1900),
+    values: List.generate(12, (index) => 0),
+  );
   SensorValues _rightValues = SensorValues(
-      time: DateTime(1900), values: List.generate(12, (index) => 0));
+    time: DateTime(1900),
+    values: List.generate(12, (index) => 0),
+  );
 
   Stream<SensorValues> get leftValuesStream => _leftValuesStream.stream;
   Stream<SensorValues> get leftDisplayStream => leftValuesStream
@@ -101,6 +105,7 @@ class SensorStateModel {
     int start = uInt8List.first;
     int crc = 0;
 
+    final DateTime now = DateTime.now();
     switch (start) {
       case 0x02:
         {
@@ -108,15 +113,13 @@ class SensorStateModel {
           final List<int> intValues = _combineUInt8Values(
             uInt8List.sublist(2),
           );
-          SensorValues sensorValues =
-              SensorValues(time: DateTime(1900), values: []);
-          final DateTime now = DateTime.now();
           debugPrint('values length = ${intValues.length}');
           if (intValues.length > 12) {
             crc = intValues.last;
             intValues.removeLast();
           }
-          sensorValues = SensorValues(time: now, values: intValues);
+          final SensorValues sensorValues =
+              SensorValues(time: now, values: intValues);
           _rightValues = sensorValues;
           break;
         }
@@ -124,7 +127,7 @@ class SensorStateModel {
         {
           debugPrint('got remaining right values');
           final List<int> intValues = _combineUInt8Values(uInt8List);
-          final SensorValues sensorValues = _leftValues;
+          final SensorValues sensorValues = _rightValues;
           crc = intValues.last;
           intValues.removeLast();
           if (_rightValues.values.length != 12) {
