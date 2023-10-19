@@ -108,7 +108,7 @@ class SensorSole extends StatelessWidget {
         break;
       case 6:
         {
-          x = device == 0 ? 50 : 40;
+          x = device == 0 ? 55 : 40;
           y = 250;
         }
         break;
@@ -120,7 +120,7 @@ class SensorSole extends StatelessWidget {
         break;
       case 8:
         {
-          x = device == 0 ? 70 : 25;
+          x = device == 0 ? 75 : 25;
           y = 320;
         }
         break;

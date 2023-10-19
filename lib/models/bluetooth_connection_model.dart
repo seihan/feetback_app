@@ -118,10 +118,10 @@ class BluetoothConnectionModel extends ChangeNotifier {
       startScan();
     }
     _leftHandler =
-        TransmissionHandler(device: 'LEFT', outputDevice: _devices[2])
+        TransmissionHandler(inputDevice: _devices[0], outputDevice: _devices[2])
           ..initialize();
     _rightHandler =
-        TransmissionHandler(device: 'RIGHT', outputDevice: _devices[3])
+        TransmissionHandler(inputDevice: _devices[1], outputDevice: _devices[3])
           ..initialize();
   }
 
