@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 
 import 'activate_switch.dart';
 import 'buzz_button.dart';
-import 'connection_widgets.dart';
 
 class SensorSoles extends StatelessWidget {
   final BluetoothConnectionModel bluetoothConnectionModel;
@@ -14,48 +13,41 @@ class SensorSoles extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final SensorStateModel stateModel = SensorStateModel();
-    return SafeArea(
-      child: Center(
-        child: ListView(
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            ConnectionWidgets(
-                bluetoothConnectionModel: bluetoothConnectionModel),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                SensorSole(
-                  stream: stateModel.leftDisplayStream,
-                  device: 0,
-                ),
-                SensorSole(
-                  stream: stateModel.rightDisplayStream,
-                  device: 1,
-                ),
-              ],
+            SensorSole(
+              stream: stateModel.leftDisplayStream,
+              device: 0,
             ),
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                BuzzButton(mode: 0, device: 2),
-                BuzzButton(mode: 1, device: 2),
-                BuzzButton(mode: 2, device: 2),
-                Spacer(),
-                BuzzButton(mode: 0, device: 3),
-                BuzzButton(mode: 1, device: 3),
-                BuzzButton(mode: 2, device: 3),
-              ],
+            SensorSole(
+              stream: stateModel.rightDisplayStream,
+              device: 1,
             ),
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ActivateSwitch(device: 2),
-                ActivateSwitch(device: 3),
-              ],
-            ),
-            //  const Spacer(),
           ],
         ),
-      ),
+        const Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            BuzzButton(mode: 0, device: 2),
+            BuzzButton(mode: 1, device: 2),
+            BuzzButton(mode: 2, device: 2),
+            Spacer(),
+            BuzzButton(mode: 0, device: 3),
+            BuzzButton(mode: 1, device: 3),
+            BuzzButton(mode: 2, device: 3),
+          ],
+        ),
+        const Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            ActivateSwitch(device: 2),
+            ActivateSwitch(device: 3),
+          ],
+        ),
+      ],
     );
   }
 }

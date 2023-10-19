@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/bluetooth_connection_model.dart';
 import '../models/sensor_state_model.dart';
+import '../widgets/connection_widgets.dart';
 
 class VisualizationScreen extends StatefulWidget {
   final BluetoothConnectionModel model;
@@ -26,7 +27,16 @@ class _VisualizationScreenState extends State<VisualizationScreen> {
     ];
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: tabPages[_selectedIndex],
+      body: SafeArea(
+        child: Center(
+          child: ListView(
+            children: [
+              ConnectionWidgets(bluetoothConnectionModel: widget.model),
+              tabPages[_selectedIndex],
+            ],
+          ),
+        ),
+      ),
       floatingActionButton: !widget.model.connected
           ? FloatingActionButton(
               onPressed:

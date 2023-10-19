@@ -17,8 +17,9 @@ class SensorChart extends StatelessWidget {
     return StreamBuilder<SensorValues>(
       stream: stream,
       initialData: SensorValues(
-          time: DateTime(1900),
-          values: List.filled(12, 0)), // Initialize with 12 zeros
+        time: DateTime(1900),
+        values: List.filled(12, 0),
+      ), // Initialize with 12 zeros
       builder: (context, snapshot) {
         if (snapshot.data == null) {
           return Container(); // Return an empty Container if snapshot data is null
@@ -39,6 +40,7 @@ class SensorChart extends StatelessWidget {
             seconds: 1)); // Set the minimum time to 10 seconds ago
 
         return Container(
+          height: 500,
           padding: const EdgeInsets.all(16.0),
           child: charts.TimeSeriesChart(
             _createChartData(chartData),
@@ -60,8 +62,8 @@ class SensorChart extends StatelessWidget {
               ),
             ),
             defaultRenderer: charts.LineRendererConfig(
-              includeArea: true,
-              stacked: true,
+              includeArea: false,
+              stacked: false,
             ),
             behaviors: [
               charts.LinePointHighlighter(
@@ -89,24 +91,44 @@ class SensorChart extends StatelessWidget {
     final List<charts.Series<SensorValues, DateTime>> seriesList = [];
 
     for (int i = 0; i < 12; i++) {
-      final List<SensorValues> seriesData = data.map((value) {
+      final List<SensorValues> seriesData = data.map((SensorValues values) {
         return SensorValues(
-          time: value.time,
-          values: [value.values[i]],
+          time: values.time,
+          values: [values.values[i]],
         );
       }).toList();
 
       seriesList.add(
         charts.Series<SensorValues, DateTime>(
-          id: 'Sensor $i',
-          colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
+          id: 'Sensor ${i + 1}',
+          colorFn: (SensorValues data, _) => _getUniqueColor(i),
           domainFn: (SensorValues data, _) => data.time,
           measureFn: (SensorValues data, _) => data.values[0],
           data: seriesData,
         ),
       );
     }
-
     return seriesList;
+  }
+
+  charts.Color _getUniqueColor(int index) {
+    // Define a list of unique colors for each series
+    final List<charts.Color> uniqueColors = [
+      charts.MaterialPalette.blue.shadeDefault,
+      charts.MaterialPalette.red.shadeDefault,
+      charts.MaterialPalette.green.shadeDefault,
+      charts.MaterialPalette.purple.shadeDefault,
+      charts.MaterialPalette.yellow.shadeDefault,
+      charts.MaterialPalette.cyan.shadeDefault,
+      charts.MaterialPalette.indigo.shadeDefault,
+      charts.MaterialPalette.lime.shadeDefault,
+      charts.MaterialPalette.teal.shadeDefault,
+      charts.MaterialPalette.pink.shadeDefault,
+      charts.MaterialPalette.deepOrange.shadeDefault,
+      charts.MaterialPalette.gray.shadeDefault,
+    ];
+
+    // Use the index to select a unique color from the list
+    return uniqueColors[index % uniqueColors.length];
   }
 }
