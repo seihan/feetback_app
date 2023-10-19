@@ -1,3 +1,4 @@
+import 'package:feet_back_app/models/sensor_values.dart';
 import 'package:feet_back_app/widgets/sensor_point.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -5,7 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 class SensorSole extends StatelessWidget {
   final int device;
   final String assetName = 'assets/sole.svg';
-  final Stream<List<int>> stream;
+  final Stream<SensorValues> stream;
   const SensorSole({required this.device, required this.stream, super.key});
 
   @override
@@ -21,11 +22,11 @@ class SensorSole extends StatelessWidget {
       stream: stream,
       builder: (
         BuildContext context,
-        AsyncSnapshot<List<int>> sensorState,
+        AsyncSnapshot<SensorValues> sensorState,
       ) {
         List<int> sensorValues = [];
-        if (sensorState.hasData && sensorState.data?.length == 12) {
-          sensorValues = sensorState.data!;
+        if (sensorState.hasData && sensorState.data?.values.length == 12) {
+          sensorValues = sensorState.data!.values;
         } else {
           sensorValues = List.generate(12, (index) => 0);
         }

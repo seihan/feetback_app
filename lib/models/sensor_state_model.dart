@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:feet_back_app/models/sensor_values.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -11,19 +12,21 @@ class SensorStateModel {
     return _instance;
   }
 
-  static final StreamController<List<int>> _leftValuesStream =
-      StreamController<List<int>>.broadcast();
-  static final StreamController<List<int>> _rightValuesStream =
-      StreamController<List<int>>.broadcast();
+  static final StreamController<SensorValues> _leftValuesStream =
+      StreamController<SensorValues>.broadcast();
+  static final StreamController<SensorValues> _rightValuesStream =
+      StreamController<SensorValues>.broadcast();
 
-  List<int> _leftValues = List.generate(12, (index) => 0);
-  List<int> _rightValues = List.generate(12, (index) => 0);
+  SensorValues _leftValues = SensorValues(
+      time: DateTime(1900), values: List.generate(12, (index) => 0));
+  SensorValues _rightValues = SensorValues(
+      time: DateTime(1900), values: List.generate(12, (index) => 0));
 
-  Stream<List<int>> get leftValuesStream => _leftValuesStream.stream;
-  Stream<List<int>> get leftDisplayStream => leftValuesStream
+  Stream<SensorValues> get leftValuesStream => _leftValuesStream.stream;
+  Stream<SensorValues> get leftDisplayStream => leftValuesStream
       .throttleTime(const Duration(milliseconds: 33), trailing: true);
-  Stream<List<int>> get rightValuesStream => _rightValuesStream.stream;
-  Stream<List<int>> get rightDisplayStream => rightValuesStream
+  Stream<SensorValues> get rightValuesStream => _rightValuesStream.stream;
+  Stream<SensorValues> get rightDisplayStream => rightValuesStream
       .throttleTime(const Duration(milliseconds: 33), trailing: true);
   List<int> _combineUInt8Values(List<int> uInt8List) {
     List<int> result = [];
@@ -52,41 +55,49 @@ class SensorStateModel {
    */
 
   updateLeft(List<int> data) {
-    var uInt8List = Uint8List.fromList(data);
+    final Uint8List uInt8List = Uint8List.fromList(data);
     int start = uInt8List.first;
     int crc = 0;
 
+    final DateTime now = DateTime.now();
     switch (start) {
       case 0x01:
         {
           debugPrint('got left values');
-          final List<int> intValues = _combineUInt8Values(uInt8List.sublist(2));
+          final List<int> intValues = _combineUInt8Values(
+            uInt8List.sublist(2),
+          );
+          debugPrint('values length = ${intValues.length}');
           if (intValues.length > 12) {
-            debugPrint('values length = ${intValues.length}');
             crc = intValues.last;
             intValues.removeLast();
           }
-          _leftValues = intValues;
+          final SensorValues sensorValues =
+              SensorValues(time: now, values: intValues);
+          _leftValues = sensorValues;
           break;
         }
       default:
         {
           debugPrint('got remaining left values');
           final List<int> intValues = _combineUInt8Values(uInt8List);
+          final SensorValues sensorValues = _leftValues;
           crc = intValues.last;
-          if (_leftValues.length != 12) {
+          intValues.removeLast();
+          if (_leftValues.values.length != 12) {
             debugPrint('values length = ${intValues.length}');
-            _leftValues.addAll(intValues.sublist(0, intValues.length - 1));
+            sensorValues.values.addAll(intValues);
+            _leftValues = sensorValues;
           }
         }
     }
-    if (crc != 0 && _leftValues.length == 12) {
+    if (crc != 0 && _leftValues.values.length == 12) {
       _leftValuesStream.add(_leftValues);
     }
   }
 
   updateRight(List<int> data) {
-    var uInt8List = Uint8List.fromList(data);
+    final Uint8List uInt8List = Uint8List.fromList(data);
     int start = uInt8List.first;
     int crc = 0;
 
@@ -94,27 +105,36 @@ class SensorStateModel {
       case 0x02:
         {
           debugPrint('got right values');
-          final List<int> intValues = _combineUInt8Values(uInt8List.sublist(2));
+          final List<int> intValues = _combineUInt8Values(
+            uInt8List.sublist(2),
+          );
+          SensorValues sensorValues =
+              SensorValues(time: DateTime(1900), values: []);
+          final DateTime now = DateTime.now();
+          debugPrint('values length = ${intValues.length}');
           if (intValues.length > 12) {
-            debugPrint('values length = ${intValues.length}');
             crc = intValues.last;
             intValues.removeLast();
           }
-          _rightValues = intValues;
+          sensorValues = SensorValues(time: now, values: intValues);
+          _rightValues = sensorValues;
           break;
         }
       default:
         {
           debugPrint('got remaining right values');
           final List<int> intValues = _combineUInt8Values(uInt8List);
+          final SensorValues sensorValues = _leftValues;
           crc = intValues.last;
-          if (_rightValues.length != 12) {
-            _rightValues.addAll(intValues.sublist(0, intValues.length - 1));
+          intValues.removeLast();
+          if (_rightValues.values.length != 12) {
             debugPrint('values length = ${intValues.length}');
+            sensorValues.values.addAll(intValues);
+            _rightValues = sensorValues;
           }
         }
     }
-    if (crc != 0 && _rightValues.length == 12) {
+    if (crc != 0 && _rightValues.values.length == 12) {
       _rightValuesStream.add(_rightValues);
     }
   }

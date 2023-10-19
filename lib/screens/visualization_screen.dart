@@ -1,96 +1,63 @@
-import 'package:feet_back_app/models/sensor_state_model.dart';
-import 'package:feet_back_app/widgets/activate_switch.dart';
-import 'package:feet_back_app/widgets/devices.dart';
-import 'package:feet_back_app/widgets/disconnect_button.dart';
+import 'package:feet_back_app/widgets/sensor_chart.dart';
+import 'package:feet_back_app/widgets/sensor_soles.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/bluetooth_connection_model.dart';
-import '../widgets/buzz_button.dart';
-import '../widgets/notify_button.dart';
-import '../widgets/sensor_sole.dart';
+import '../models/sensor_state_model.dart';
 
-class VisualizationScreen extends StatelessWidget {
+class VisualizationScreen extends StatefulWidget {
   final BluetoothConnectionModel model;
   const VisualizationScreen({Key? key, required this.model}) : super(key: key);
 
   @override
+  State<VisualizationScreen> createState() => _VisualizationScreenState();
+}
+
+class _VisualizationScreenState extends State<VisualizationScreen> {
+  int _selectedIndex = 0;
+  @override
   Widget build(BuildContext context) {
     final SensorStateModel stateModel = SensorStateModel();
+    List<Widget> tabPages = [
+      SensorSoles(bluetoothConnectionModel: widget.model),
+      SensorChart(
+        stream: stateModel.leftDisplayStream,
+      ),
+    ];
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: SafeArea(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  NotifyButton(),
-                  DisconnectButton(),
-                ],
-              ),
-              const DeviceWidget(),
-              const Spacer(),
-              if (model.connected == false)
-                Container(
-                  color: Colors.black.withAlpha(80),
-                  child: const Center(
-                    child: Icon(
-                      Icons.sensors_off,
-                      size: 50.0,
-                      color: Colors.white54,
-                    ),
-                  ),
-                ),
-              const Spacer(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  SensorSole(
-                    stream: stateModel.leftDisplayStream,
-                    device: 0,
-                  ),
-                  SensorSole(
-                    stream: stateModel.rightDisplayStream,
-                    device: 1,
-                  ),
-                ],
-              ),
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  BuzzButton(mode: 0, device: 2),
-                  BuzzButton(mode: 1, device: 2),
-                  BuzzButton(mode: 2, device: 2),
-                  Spacer(),
-                  BuzzButton(mode: 0, device: 3),
-                  BuzzButton(mode: 1, device: 3),
-                  BuzzButton(mode: 2, device: 3),
-                ],
-              ),
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  ActivateSwitch(device: 2),
-                  ActivateSwitch(device: 3),
-                ],
-              ),
-              const Spacer(),
-            ],
-          ),
-        ),
-      ),
-      floatingActionButton: !model.connected
+      body: tabPages[_selectedIndex],
+      floatingActionButton: !widget.model.connected
           ? FloatingActionButton(
-              onPressed: model.isScanning ? null : model.startScan,
-              backgroundColor: model.isScanning ? Colors.red : Colors.green,
+              onPressed:
+                  widget.model.isScanning ? null : widget.model.startScan,
+              backgroundColor:
+                  widget.model.isScanning ? Colors.red : Colors.green,
               child: Icon(
-                model.isScanning ? Icons.stop : Icons.search,
+                widget.model.isScanning ? Icons.stop : Icons.search,
               ),
             )
           : null,
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.display_settings),
+            label: 'Soles',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.area_chart),
+            label: 'Chart',
+          ),
+        ],
+      ),
     );
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 }

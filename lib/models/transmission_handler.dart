@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:feet_back_app/models/bluetooth_device_model.dart';
 import 'package:feet_back_app/models/sensor_state_model.dart';
+import 'package:feet_back_app/models/sensor_values.dart';
 
 class TransmissionHandler {
   final String device;
@@ -35,17 +35,17 @@ class TransmissionHandler {
     _canWrite = !_canWrite;
   }
 
-  void _onNewValue(List<int> values) {
-    if (values.isNotEmpty && values.length == 12) {
-      final int highestFront = values.sublist(0, 5).min;
-      final int highestRear = values.sublist(6).min;
+  void _onNewValue(SensorValues sensorValues) {
+    if (sensorValues.values.isNotEmpty && sensorValues.values.length == 12) {
+      final int highestFront = sensorValues.values.sublist(0, 5).min;
+      final int highestRear = sensorValues.values.sublist(6).min;
       if ((highestFront > highestRear) &&
           _canWrite &&
           outputDevice.connected &&
           (highestRear < 2000)) {
-        outputDevice.rxTxChar?.write(utf8.encode(_buzzThree));
+        // outputDevice.rxTxChar?.write(utf8.encode(_buzzThree));
       } else if (_canWrite && outputDevice.connected && (highestFront < 2000)) {
-        outputDevice.rxTxChar?.write(utf8.encode(_buzzOne));
+        // outputDevice.rxTxChar?.write(utf8.encode(_buzzOne));
       }
     }
   }
