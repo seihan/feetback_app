@@ -18,13 +18,13 @@ class SensorStateModel {
       StreamController<SensorValues>.broadcast();
 
   SensorValues _leftValues = SensorValues(
-    time: DateTime(1900),
-    values: List.generate(12, (index) => 0),
-  );
+      time: DateTime(1900),
+      data: List.generate(12, (index) => 0),
+      side: 'LEFT');
   SensorValues _rightValues = SensorValues(
-    time: DateTime(1900),
-    values: List.generate(12, (index) => 0),
-  );
+      time: DateTime(1900),
+      data: List.generate(12, (index) => 0),
+      side: 'RIGHT');
 
   Stream<SensorValues> get leftValuesStream => _leftValuesStream.stream;
   Stream<SensorValues> get leftDisplayStream => leftValuesStream
@@ -77,7 +77,7 @@ class SensorStateModel {
             intValues.removeLast();
           }
           final SensorValues sensorValues =
-              SensorValues(time: now, values: intValues);
+              SensorValues(time: now, data: intValues, side: 'LEFT');
           _leftValues = sensorValues;
           break;
         }
@@ -88,14 +88,14 @@ class SensorStateModel {
           final SensorValues sensorValues = _leftValues;
           crc = intValues.last;
           intValues.removeLast();
-          if (_leftValues.values.length != 12) {
+          if (_leftValues.data.length != 12) {
             debugPrint('values length = ${intValues.length}');
-            sensorValues.values.addAll(intValues);
+            sensorValues.data.addAll(intValues);
             _leftValues = sensorValues;
           }
         }
     }
-    if (crc != 0 && _leftValues.values.length == 12) {
+    if (crc != 0 && _leftValues.data.length == 12) {
       _leftValuesStream.add(_leftValues);
     }
   }
@@ -119,7 +119,7 @@ class SensorStateModel {
             intValues.removeLast();
           }
           final SensorValues sensorValues =
-              SensorValues(time: now, values: intValues);
+              SensorValues(time: now, data: intValues, side: 'RIGHT');
           _rightValues = sensorValues;
           break;
         }
@@ -130,14 +130,14 @@ class SensorStateModel {
           final SensorValues sensorValues = _rightValues;
           crc = intValues.last;
           intValues.removeLast();
-          if (_rightValues.values.length != 12) {
+          if (_rightValues.data.length != 12) {
             debugPrint('values length = ${intValues.length}');
-            sensorValues.values.addAll(intValues);
+            sensorValues.data.addAll(intValues);
             _rightValues = sensorValues;
           }
         }
     }
-    if (crc != 0 && _rightValues.values.length == 12) {
+    if (crc != 0 && _rightValues.data.length == 12) {
       _rightValuesStream.add(_rightValues);
     }
   }

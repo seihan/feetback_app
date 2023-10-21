@@ -17,9 +17,9 @@ class SensorChart extends StatelessWidget {
     return StreamBuilder<SensorValues>(
       stream: stream,
       initialData: SensorValues(
-        time: DateTime(1900),
-        values: List.filled(12, 0),
-      ), // Initialize with 12 zeros
+          time: DateTime(1900),
+          data: List.filled(12, 0),
+          side: 'UNKNOWN'), // Initialize with 12 zeros
       builder: (context, snapshot) {
         if (snapshot.data == null) {
           return Container(); // Return an empty Container if snapshot data is null
@@ -94,7 +94,8 @@ class SensorChart extends StatelessWidget {
       final List<SensorValues> seriesData = data.map((SensorValues values) {
         return SensorValues(
           time: values.time,
-          values: [values.values[i]],
+          data: [values.data[i]],
+          side: values.side,
         );
       }).toList();
 
@@ -103,7 +104,7 @@ class SensorChart extends StatelessWidget {
           id: 'Sensor ${i + 1}',
           colorFn: (SensorValues data, _) => _getUniqueColor(i),
           domainFn: (SensorValues data, _) => data.time,
-          measureFn: (SensorValues data, _) => data.values[0],
+          measureFn: (SensorValues data, _) => data.data[0],
           data: seriesData,
         ),
       );

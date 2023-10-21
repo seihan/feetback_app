@@ -25,8 +25,8 @@ class SensorSole extends StatelessWidget {
         AsyncSnapshot<SensorValues> sensorState,
       ) {
         List<int> sensorValues = [];
-        if (sensorState.hasData && sensorState.data?.values.length == 12) {
-          sensorValues = sensorState.data!.values;
+        if (sensorState.hasData && sensorState.data?.data.length == 12) {
+          sensorValues = sensorState.data!.data;
         } else {
           sensorValues = List.generate(12, (index) => 0);
         }

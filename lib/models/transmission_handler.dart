@@ -44,9 +44,9 @@ class TransmissionHandler {
   }
 
   void _onNewValue(SensorValues sensorValues) {
-    if (sensorValues.values.isNotEmpty && sensorValues.values.length == 12) {
-      final int highestFront = sensorValues.values.sublist(0, 5).min;
-      final int highestRear = sensorValues.values.sublist(6).min;
+    if (sensorValues.data.isNotEmpty && sensorValues.data.length == 12) {
+      final int highestFront = sensorValues.data.sublist(0, 5).min;
+      final int highestRear = sensorValues.data.sublist(6).min;
       if (outputDevice.connected) {
         if ((highestFront > highestRear) && _canWrite && (highestRear < 2000)) {
           outputDevice.rxTxChar

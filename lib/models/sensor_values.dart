@@ -1,6 +1,16 @@
+import 'dart:convert';
+
 class SensorValues {
   final DateTime time;
-  final List<int> values;
+  final List<int> data;
+  final String side;
+  SensorValues({required this.time, required this.data, required this.side});
 
-  SensorValues({required this.time, required this.values});
+  Map<String, dynamic> toMap() {
+    return {
+      'time': time.toIso8601String(), // Convert DateTime to a string.
+      'data': json.encode(data), // Convert List<int> to a JSON string.
+      'side': side,
+    };
+  }
 }

@@ -1,5 +1,7 @@
 import 'package:feet_back_app/widgets/charts_widget.dart';
+import 'package:feet_back_app/widgets/notify_button.dart';
 import 'package:feet_back_app/widgets/sensor_soles.dart';
+import 'package:feet_back_app/widgets/side_menu.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/bluetooth_connection_model.dart';
@@ -22,6 +24,13 @@ class _VisualizationScreenState extends State<VisualizationScreen> {
       const ChartsWidget(),
     ];
     return Scaffold(
+      endDrawer: SideMenu(
+        model: widget.model,
+      ),
+      appBar: AppBar(
+        leading: const NotifyButton(),
+        backgroundColor: Colors.transparent,
+      ),
       backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Center(
