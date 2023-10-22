@@ -1,16 +1,115 @@
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:charts_flutter/flutter.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 import '../models/sensor_values.dart';
 
 class SensorChart extends StatelessWidget {
+  final List<SensorValues> values;
+
+  const SensorChart({Key? key, required this.values}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 250,
+      padding: const EdgeInsets.all(16.0),
+      child: charts.TimeSeriesChart(
+        _createChartData(values),
+        animate: false,
+        // Disable animation for smoother scrolling
+        primaryMeasureAxis: const charts.NumericAxisSpec(
+          renderSpec: charts.GridlineRendererSpec(
+            labelAnchor: charts.TickLabelAnchor.before,
+          ),
+        ),
+        domainAxis: charts.DateTimeAxisSpec(
+          viewport: charts.DateTimeExtents(
+            start: values.first.time,
+            end: values.last.time,
+          ),
+          renderSpec: const charts.SmallTickRendererSpec(
+            labelAnchor: charts.TickLabelAnchor.before,
+            labelJustification: charts.TickLabelJustification.outside,
+          ),
+        ),
+        defaultRenderer: charts.LineRendererConfig(
+          includeArea: false,
+          stacked: false,
+        ),
+        behaviors: [
+          charts.LinePointHighlighter(
+            symbolRenderer: CircleSymbolRenderer(),
+          ),
+          charts.SeriesLegend(
+            position: charts.BehaviorPosition.end,
+            horizontalFirst: false,
+            cellPadding: const EdgeInsets.all(2.0),
+            showMeasures: true,
+            measureFormatter: (num? value) {
+              return value != null ? value.toStringAsFixed(2) : '-';
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<charts.Series<SensorValues, DateTime>> _createChartData(
+    List<SensorValues> data,
+  ) {
+    final List<charts.Series<SensorValues, DateTime>> seriesList = [];
+
+    for (int i = 0; i < 12; i++) {
+      final List<SensorValues> seriesData = data.map((SensorValues values) {
+        return SensorValues(
+          time: values.time,
+          data: [values.data[i]],
+          side: values.side,
+        );
+      }).toList();
+
+      seriesList.add(
+        charts.Series<SensorValues, DateTime>(
+          id: 'Sensor ${i + 1}',
+          colorFn: (SensorValues data, _) => _getUniqueColor(i),
+          domainFn: (SensorValues data, _) => data.time,
+          measureFn: (SensorValues data, _) => data.data[0],
+          data: seriesData,
+        ),
+      );
+    }
+    return seriesList;
+  }
+
+  charts.Color _getUniqueColor(int index) {
+    // Define a list of unique colors for each series
+    final List<charts.Color> uniqueColors = [
+      charts.MaterialPalette.blue.shadeDefault,
+      charts.MaterialPalette.red.shadeDefault,
+      charts.MaterialPalette.green.shadeDefault,
+      charts.MaterialPalette.purple.shadeDefault,
+      charts.MaterialPalette.yellow.shadeDefault,
+      charts.MaterialPalette.cyan.shadeDefault,
+      charts.MaterialPalette.indigo.shadeDefault,
+      charts.MaterialPalette.lime.shadeDefault,
+      charts.MaterialPalette.teal.shadeDefault,
+      charts.MaterialPalette.pink.shadeDefault,
+      charts.MaterialPalette.deepOrange.shadeDefault,
+      charts.MaterialPalette.gray.shadeDefault,
+    ];
+
+    // Use the index to select a unique color from the list
+    return uniqueColors[index % uniqueColors.length];
+  }
+}
+
+class RealTimeSensorChart extends StatelessWidget {
   final Stream<SensorValues> stream;
   final int maxDataPoints = 100;
   final List<SensorValues> chartData = [];
 
-  SensorChart({Key? key, required this.stream}) : super(key: key);
+  RealTimeSensorChart({Key? key, required this.stream}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -73,10 +172,6 @@ class SensorChart extends StatelessWidget {
                 position: charts.BehaviorPosition.end,
                 horizontalFirst: false,
                 cellPadding: const EdgeInsets.all(2.0),
-                showMeasures: true,
-                measureFormatter: (num? value) {
-                  return value != null ? value.toStringAsFixed(2) : '-';
-                },
               ),
             ],
           ),

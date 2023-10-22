@@ -1,7 +1,10 @@
 import 'package:feet_back_app/models/database_helper.dart';
 import 'package:feet_back_app/models/sensor_values.dart';
+import 'package:feet_back_app/screens/charts_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
+import '../models/aligned_entry_info.dart';
 
 class DatabaseListViewForDate extends StatelessWidget {
   final DateTime date;
@@ -121,6 +124,55 @@ class DatabaseLookupByDate extends StatelessWidget {
               return entry != null
                   ? ListTile(
                       title: Text('Date: ${entry.toIso8601String()}'),
+                    )
+                  : const ListTile(
+                      title: Text('no data'),
+                    );
+            },
+          );
+        }
+      },
+    );
+  }
+}
+
+class DatabaseLookupByAlignedTime extends StatelessWidget {
+  const DatabaseLookupByAlignedTime({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final DatabaseHelper database = DatabaseHelper();
+    return FutureBuilder<List<AlignedEntryInfo>>(
+      future: database.getAlignedEntryInfo(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || (snapshot.data?.isEmpty ?? false)) {
+          return const Center(
+            child: Text(
+              'No data available.',
+            ),
+          );
+        } else {
+          final List<AlignedEntryInfo>? entriesList = snapshot.data;
+          return ListView.builder(
+            itemCount: entriesList?.length,
+            itemBuilder: (context, index) {
+              final entry = entriesList?[index];
+              return entry != null
+                  ? ListTile(
+                      title: Text('Date: ${entry.startTime.toIso8601String()}'),
+                      subtitle: Text(
+                          'Length: ${(entry.length * 0.001).toStringAsFixed(3)}s'),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => ChartsScreen(
+                            alignedEntryInfo: entry,
+                          ),
+                        ),
+                      ),
                     )
                   : const ListTile(
                       title: Text('no data'),

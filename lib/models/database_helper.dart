@@ -5,6 +5,8 @@ import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
+import 'aligned_entry_info.dart';
+
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
 
@@ -93,5 +95,57 @@ class DatabaseHelper {
 
     // Extract the 'name' property from the query results.
     return result.map((entry) => DateTime.parse(entry['time'])).toList();
+  }
+
+  Future<List<AlignedEntryInfo>> getAlignedEntryInfo() async {
+    final db = await database;
+
+    const query = '''
+    SELECT
+  MIN(start_time) as start_time,
+  SUM(length) as length
+FROM
+  (
+    SELECT
+      side,
+      MIN(time) as start_time,
+      (julianday(MAX(time)) - julianday(MIN(time))) * 86400000 as length
+    FROM sensor_values
+    GROUP BY strftime('%s', time) / 1
+  ) AS aligned_values;
+
+  ''';
+
+    final List<Map<String, dynamic>> result = await db.rawQuery(query);
+
+    // Map the query results to AlignedEntryInfo objects.
+    return result.map((entry) => AlignedEntryInfo.fromMap(entry)).toList();
+  }
+
+  Future<List<SensorValues>> getEntriesByTimeSpan(
+    DateTime startTime,
+    int length,
+  ) async {
+    final db = await database;
+
+    const query = '''
+    SELECT * FROM sensor_values
+    WHERE time >= ? AND time <= ?
+    ORDER BY time;
+  ''';
+
+    final List<Map<String, dynamic>> result = await db.rawQuery(query, [
+      startTime.toIso8601String(),
+      startTime
+          .add(Duration(milliseconds: length))
+          .toIso8601String(), // Add the 'side' parameter
+    ]);
+
+    // Map the query results to your model.
+    return result
+        .map(
+          (entry) => SensorValues.fromMap(entry),
+        )
+        .toList();
   }
 }

@@ -13,4 +13,13 @@ class SensorValues {
       'side': side,
     };
   }
+
+  factory SensorValues.fromMap(Map<String, dynamic> map) {
+    return SensorValues(
+        time: DateTime.parse(map['time']),
+        data: List<int>.from(
+          json.decode(map['data']),
+        ),
+        side: map['side']);
+  }
 }

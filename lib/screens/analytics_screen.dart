@@ -8,9 +8,9 @@ class AnalyticsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Analysis'),
+        title: const Text('Analytics'),
       ),
-      body: const DatabaseLookupByDate(),
+      body: const DatabaseLookupByAlignedTime(),
     );
   }
 }

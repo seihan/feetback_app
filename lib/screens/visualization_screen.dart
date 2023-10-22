@@ -21,7 +21,7 @@ class _VisualizationScreenState extends State<VisualizationScreen> {
   Widget build(BuildContext context) {
     List<Widget> tabPages = [
       SensorSoles(bluetoothConnectionModel: widget.model),
-      const ChartsWidget(),
+      const RealTimeChartsWidget(),
     ];
     return Scaffold(
       endDrawer: SideMenu(
