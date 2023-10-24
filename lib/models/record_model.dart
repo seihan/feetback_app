@@ -13,6 +13,11 @@ class RecordModel extends ChangeNotifier {
   bool _record = false;
 
   bool get record => _record;
+
+  int _duration = 0;
+  int get duration => _duration;
+
+  DateTime _startTime = DateTime(1900);
   final List<SensorValues> _buffer = [];
 
   // Adjust the batch size according to your requirements.
@@ -20,6 +25,7 @@ class RecordModel extends ChangeNotifier {
 
   void startRecord() {
     if (!_record) {
+      _startTime = DateTime.now();
       _leftSubscription = sensorStateModel.leftValuesStream.listen(
         _onValue,
       );
@@ -41,9 +47,15 @@ class RecordModel extends ChangeNotifier {
 
   void _onValue(SensorValues values) {
     if (_record && values.data.isNotEmpty) {
+      final Duration difference = DateTime.now().difference(_startTime);
+      final int previousDuration = _duration;
+      _duration = difference.inSeconds;
       _buffer.add(values);
       if (_buffer.length >= batchSize) {
         _insertBufferedValues();
+      }
+      if (_duration > previousDuration) {
+        notifyListeners();
       }
     }
   }

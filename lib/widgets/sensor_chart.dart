@@ -47,7 +47,7 @@ class SensorChart extends StatelessWidget {
             cellPadding: const EdgeInsets.all(2.0),
             showMeasures: true,
             measureFormatter: (num? value) {
-              return value != null ? value.toStringAsFixed(2) : '-';
+              return value != null ? value.toStringAsFixed(0) : '-';
             },
           ),
         ],

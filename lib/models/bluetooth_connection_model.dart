@@ -102,7 +102,8 @@ class BluetoothConnectionModel extends ChangeNotifier {
   final List<bool> _activated = [false, false];
   final List<ScanResult> _processedResults = [];
   BluetoothAdapterState _state = BluetoothAdapterState.unknown;
-  bool get connected => _devices.every((device) => device.connected);
+  bool get connected =>
+      _devices.every((BluetoothDeviceModel device) => device.connected);
   bool get isNotifying => _isNotifying;
   bool get isScanning => _isScanning;
   List<bool> get activated => _activated;
@@ -173,7 +174,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
     _scanResultSubscription = FlutterBluePlus.scanResults.listen(_onScanResult);
     _scanSubscription = FlutterBluePlus.isScanning.listen(_handleScanState);
     debugPrint('start scanning');
-    FlutterBluePlus.startScan(timeout: const Duration(seconds: 5));
+    FlutterBluePlus.startScan(timeout: const Duration(seconds: 6));
   }
 
   void _handleScanState(bool event) {
@@ -313,10 +314,14 @@ class BluetoothConnectionModel extends ChangeNotifier {
     if (results.isNotEmpty) {
       for (var result in results) {
         for (var device in _devices) {
-          if ((result.device.platformName == device.name ||
-                  result.device.remoteId == device.id) &&
-              (device.device == null || device.device == result.device) &&
-              !_processedResults.contains(result)) {
+          bool sameId = result.device.remoteId == device.id;
+          bool sameName = result.device.platformName == device.name;
+          bool nullDevice = device.device == null;
+          bool existingDevice = device.device == result.device;
+          bool processedResult = _processedResults.contains(result);
+          if ((sameName || sameId) &&
+              (nullDevice || existingDevice) &&
+              !processedResult) {
             debugPrint('found device: ${result.device.platformName}');
             _logStream.add('found device: ${result.device.platformName}');
             device.device = result.device;

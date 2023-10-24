@@ -19,7 +19,8 @@ class ActivateSwitch extends StatelessWidget {
         break;
     }
     return Consumer<BluetoothConnectionModel>(
-      builder: (context, model, child) {
+      builder: (BuildContext context, BluetoothConnectionModel model,
+          Widget? child) {
         return Switch(
           value: model.activated[selection],
           onChanged: (newValue) => newValue

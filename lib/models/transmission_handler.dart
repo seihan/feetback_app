@@ -30,17 +30,22 @@ class TransmissionHandler {
   }
 
   void _startWriteTimer(int highestValue) {
-    if (_writeTimer != null && _writeTimer!.isActive) {
-      _writeTimer!.cancel();
+    if (_writeTimer != null && (_writeTimer?.isActive ?? false)) {
+      _writeTimer?.cancel();
     }
+    final int durationMilliseconds = _getTimerDuration(highestValue);
+    _writeTimer = Timer(Duration(milliseconds: durationMilliseconds), () {
+      _canWrite = true;
+    });
+  }
+
+  int _getTimerDuration(int highestValue) {
     int durationMilliseconds = 2000;
     if (highestValue <= 2000 && highestValue >= 1) {
       // Adjust the timer duration based on the highestValue.
       durationMilliseconds = ((highestValue - 1) / 1500 * 1500 + 1).round();
     }
-    _writeTimer = Timer(Duration(milliseconds: durationMilliseconds), () {
-      _canWrite = true;
-    });
+    return durationMilliseconds;
   }
 
   void _onNewValue(SensorValues sensorValues) {
@@ -49,14 +54,18 @@ class TransmissionHandler {
       final int highestRear = sensorValues.data.sublist(6).min;
       if (outputDevice.connected) {
         if ((highestFront > highestRear) && _canWrite && (highestRear < 2000)) {
-          outputDevice.rxTxChar
-              ?.write(utf8.encode(_buzzThree), withoutResponse: true);
+          outputDevice.rxTxChar?.write(
+            utf8.encode(_buzzThree),
+            withoutResponse: true,
+          );
           _canWrite = false;
           _startWriteTimer(
               highestRear); // Start the timer after a write operation.
         } else if (_canWrite && (highestFront < 2000)) {
-          outputDevice.rxTxChar
-              ?.write(utf8.encode(_buzzOne), withoutResponse: true);
+          outputDevice.rxTxChar?.write(
+            utf8.encode(_buzzOne),
+            withoutResponse: true,
+          );
           _canWrite = false;
           _startWriteTimer(
               highestFront); // Start the timer after a write operation.

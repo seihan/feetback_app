@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../models/bluetooth_connection_model.dart';
+import '../models/record_model.dart';
 import '../models/sensor_state_model.dart';
 import '../widgets/connection_log_viewer.dart';
 
@@ -13,12 +14,24 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    return ChangeNotifierProvider<BluetoothConnectionModel>(
-      create: (_) => BluetoothConnectionModel(
-        navigatorKey: navigatorKey,
-        sensorStateModel: SensorStateModel(),
-      )..initialize(),
+    SystemChrome.setPreferredOrientations(
+      [
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.landscapeLeft,
+      ],
+    );
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<BluetoothConnectionModel>(
+          create: (_) => BluetoothConnectionModel(
+            navigatorKey: navigatorKey,
+            sensorStateModel: SensorStateModel(),
+          )..initialize(),
+        ),
+        ChangeNotifierProvider(
+          create: (BuildContext context) => RecordModel(),
+        ),
+      ],
       child: Consumer<BluetoothConnectionModel>(
         builder: (BuildContext context,
             BluetoothConnectionModel connectionModel, Widget? child) {
