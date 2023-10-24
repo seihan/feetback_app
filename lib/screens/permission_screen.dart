@@ -6,7 +6,9 @@ import '../models/permission_model.dart';
 import 'home.dart';
 
 class PermissionScreen extends StatefulWidget {
-  const PermissionScreen({Key? key}) : super(key: key);
+  final GlobalKey<NavigatorState> navigatorKey;
+  const PermissionScreen({Key? key, required this.navigatorKey})
+      : super(key: key);
 
   @override
   State<PermissionScreen> createState() => _PermissionScreenState();
@@ -106,7 +108,10 @@ class _PermissionScreenState extends State<PermissionScreen>
   /// route will be removed
   void _goToHomeScreen() {
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => const HomeScreen()),
+      MaterialPageRoute(
+          builder: (context) => HomeScreen(
+                navigatorKey: widget.navigatorKey,
+              )),
       (route) => false,
     );
   }

@@ -22,18 +22,17 @@ class PermissionModel extends ChangeNotifier {
   }
 
   /// Request the location permission and updates the UI accordingly
-  Future<bool> requestLocationPermission() async {
+  Future<PermissionSection> requestLocationPermission() async {
     PermissionStatus result;
     result = await Permission.location.request();
 
     if (result.isGranted) {
-      permissionSection = PermissionSection.permissionGranted;
-      return true;
+      _permissionSection = PermissionSection.permissionGranted;
     } else if (result.isPermanentlyDenied) {
-      permissionSection = PermissionSection.noLocationPermissionPermanent;
+      _permissionSection = PermissionSection.noLocationPermissionPermanent;
     } else {
-      permissionSection = PermissionSection.noLocationPermission;
+      _permissionSection = PermissionSection.noLocationPermission;
     }
-    return false;
+    return _permissionSection;
   }
 }

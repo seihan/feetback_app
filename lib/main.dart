@@ -3,12 +3,9 @@ import 'dart:async';
 import 'package:feet_back_app/screens/home.dart';
 import 'package:feet_back_app/screens/permission_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import 'models/bluetooth_connection_model.dart';
 import 'models/custom_error_handler.dart';
 import 'models/permission_model.dart';
-import 'models/sensor_state_model.dart';
 
 void main() {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -37,30 +34,31 @@ class FeetBackApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (_) => PermissionModel()..requestLocationPermission(),
-        ),
-        ChangeNotifierProvider<BluetoothConnectionModel>(
-          create: (_) => BluetoothConnectionModel(
-            navigatorKey: navigatorKey,
-            sensorStateModel: SensorStateModel(),
-          )..initialize(),
-        ),
-      ],
-      child: MaterialApp(
-        title: 'FeetBack',
-        navigatorKey: navigatorKey,
-        theme: ThemeData.dark(),
-        home: Consumer<PermissionModel>(
-          builder: (context, permissionModel, child) {
-            return permissionModel.permissionSection ==
-                    PermissionSection.permissionGranted
-                ? const HomeScreen()
-                : const PermissionScreen();
-          },
-        ),
+    final PermissionModel permissionModel = PermissionModel();
+    return MaterialApp(
+      title: 'FeetBack',
+      navigatorKey: navigatorKey,
+      theme: ThemeData.dark(),
+      home: FutureBuilder<PermissionSection>(
+        future: permissionModel.requestLocationPermission(),
+        builder:
+            (BuildContext context, AsyncSnapshot<PermissionSection> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData) {
+            return const Center(
+              child: Text(
+                'No data available.',
+              ),
+            );
+          } else {
+            return snapshot.data == PermissionSection.permissionGranted
+                ? HomeScreen(navigatorKey: navigatorKey)
+                : PermissionScreen(navigatorKey: navigatorKey);
+          }
+        },
       ),
     );
   }
