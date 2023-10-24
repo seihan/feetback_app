@@ -1,5 +1,6 @@
 import 'package:feet_back_app/models/bluetooth_connection_model.dart';
 import 'package:feet_back_app/screens/analytics_screen.dart';
+import 'package:feet_back_app/screens/calibration_screen.dart';
 import 'package:feet_back_app/widgets/record_list_tile.dart';
 import 'package:flutter/material.dart';
 
@@ -29,6 +30,15 @@ class SideMenu extends StatelessWidget {
               ),
             ),
             const RecordListTile(),
+            ListTile(
+              leading: const Icon(Icons.calculate),
+              title: const Text('Calibration'),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const CalibrationScreen(),
+                ),
+              ),
+            ),
             const Spacer(),
             ListTile(
               leading: const Icon(Icons.arrow_forward),
