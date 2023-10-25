@@ -1,6 +1,7 @@
 import 'package:feet_back_app/models/bluetooth_connection_model.dart';
 import 'package:feet_back_app/screens/analytics_screen.dart';
 import 'package:feet_back_app/screens/calibration_screen.dart';
+import 'package:feet_back_app/screens/feedback_settings.dart';
 import 'package:feet_back_app/widgets/record_list_tile.dart';
 import 'package:flutter/material.dart';
 
@@ -36,6 +37,15 @@ class SideMenu extends StatelessWidget {
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => const CalibrationScreen(),
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Feedback Settings'),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const FeedbackSettings(),
                 ),
               ),
             ),

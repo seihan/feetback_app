@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:feet_back_app/models/bluetooth_device_model.dart';
+import 'package:feet_back_app/models/feedback_model.dart';
 import 'package:feet_back_app/models/sensor_state_model.dart';
 import 'package:feet_back_app/models/sensor_values.dart';
 
@@ -10,6 +11,8 @@ class TransmissionHandler {
   final BluetoothDeviceModel inputDevice;
   final BluetoothDeviceModel outputDevice;
   final SensorStateModel sensorStateModel = SensorStateModel();
+
+  final FeedbackModel feedbackModel = FeedbackModel();
   late final StreamSubscription? _sensorSubscription;
 
   TransmissionHandler({required this.inputDevice, required this.outputDevice});
@@ -27,6 +30,7 @@ class TransmissionHandler {
       _sensorSubscription =
           sensorStateModel.rightDisplayStream.listen(_onNewValue);
     }
+    feedbackModel.initialize();
   }
 
   void _startWriteTimer(int highestValue) {
@@ -41,10 +45,14 @@ class TransmissionHandler {
 
   int _getTimerDuration(int highestValue) {
     int durationMilliseconds = 2000;
-    if (highestValue <= 2000 && highestValue >= 1) {
-      // Adjust the timer duration based on the highestValue.
-      durationMilliseconds = ((highestValue - 1) / 1500 * 1500 + 1).round();
-    }
+    final double duration = feedbackModel.mapValueToRange(
+      value: highestValue,
+      inMin: 0,
+      inMax: 4096,
+      outMin: feedbackModel.minDuration,
+      outMax: feedbackModel.maxDuration,
+    );
+    durationMilliseconds = duration.toInt();
     return durationMilliseconds;
   }
 
@@ -53,7 +61,9 @@ class TransmissionHandler {
       final int highestFront = sensorValues.data.sublist(0, 5).min;
       final int highestRear = sensorValues.data.sublist(6).min;
       if (outputDevice.connected) {
-        if ((highestFront > highestRear) && _canWrite && (highestRear < 2000)) {
+        if ((highestFront > highestRear) &&
+            _canWrite &&
+            (highestRear < feedbackModel.threshold)) {
           outputDevice.rxTxChar?.write(
             utf8.encode(_buzzThree),
             withoutResponse: true,
@@ -61,7 +71,7 @@ class TransmissionHandler {
           _canWrite = false;
           _startWriteTimer(
               highestRear); // Start the timer after a write operation.
-        } else if (_canWrite && (highestFront < 2000)) {
+        } else if (_canWrite && (highestFront < feedbackModel.threshold)) {
           outputDevice.rxTxChar?.write(
             utf8.encode(_buzzOne),
             withoutResponse: true,
