@@ -32,6 +32,7 @@ class SensorStateModel {
   Stream<SensorValues> get rightValuesStream => _rightValuesStream.stream;
   Stream<SensorValues> get rightDisplayStream => rightValuesStream
       .throttleTime(const Duration(milliseconds: 33), trailing: true);
+
   List<int> _combineUInt8Values(List<int> uInt8List) {
     List<int> result = [];
     int value = 0;
