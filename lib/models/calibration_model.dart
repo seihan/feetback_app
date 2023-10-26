@@ -26,6 +26,12 @@ class CalibrationModel {
   bool _canTested = false;
   bool get canTested => _canTested;
 
+  double? _xTestValue;
+  double? _yTestValue;
+
+  double? get xTestValue => _xTestValue;
+  double? get yTestValue => _yTestValue;
+
   Future<void> initialize() async {
     if (_calibrationTable.values.length != _calibrationTable.samples.length) {
       clearTable();
@@ -61,22 +67,44 @@ class CalibrationModel {
     }
   }
 
-  void test() {
+  double _mapValueToRange({
+    double value = 0,
+    int inMin = 0,
+    int inMax = 0,
+    int outMin = 0,
+    int outMax = 0,
+  }) {
+    // Check if the input value is within the specified input range.
+    if (value >= inMin && value <= inMax) {
+      // Perform linear interpolation to map the value to the output range.
+      return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+    } else {
+      // The input value is outside the input range, so return 0.
+      return 0;
+    }
+  }
+
+  void test(double sample) {
     const int degree = 2; // Degree of the polynomial (e.g., 2 for quadratic)
     final List<double> coefficients =
         _performPolynomialRegression(_calibrationTable, degree);
 
-    // Sample value for which you want to find the corresponding x-coordinate
-    const double targetSample = 200.0;
-    const double initialGuess = 200.0; // Initial guess for Newton's method
+    final double initialGuess = _mapValueToRange(
+      value: sample,
+      inMin: 0,
+      inMax: 4096,
+      outMin: 0,
+      outMax: 500,
+    ); // Initial guess for Newton's method
 
     final double xFound = _findXFromSample(
       coefficients,
-      targetSample,
+      sample,
       initialGuess,
     );
-
-    debugPrint("Estimated x-coordinate for sample $targetSample: $xFound");
+    _yTestValue = sample;
+    _xTestValue = xFound;
+    debugPrint("Estimated x-coordinate for sample $sample: $xFound");
   }
 
   Future<CalibrationTable?> _getCalibrationTable() async {

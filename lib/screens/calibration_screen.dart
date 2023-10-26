@@ -123,6 +123,8 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
             child: LineChartWidget(
               xValues: model.calibrationTable.values,
               yValues: model.calibrationTable.samples,
+              xTestValue: model.xTestValue,
+              yTestValue: model.yTestValue,
             ),
           ),
         ],
@@ -130,7 +132,7 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
       floatingActionButton: model.calibrationTable.values.length >= 10
           ? FloatingActionButton(
               onPressed: model.canTested
-                  ? model.test
+                  ? _getSample
                   : () async => model
                       .saveCalibrationTable()
                       .then((value) => setState(() {})),
@@ -160,6 +162,27 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
       _samples = [];
       _subscription?.cancel();
       _busy = false;
+    }
+  }
+
+  void _getSample() {
+    if (!_busy) {
+      _busy = true;
+      _subscription = sensorStateModel.leftValuesStream.listen(
+        (_onSampleValue),
+      );
+    }
+  }
+
+  void _onSampleValue(SensorValues values) {
+    _samples.add(values.data.min);
+    if (_samples.length == sampleRate) {
+      _sample = (_samples.sum / sampleRate);
+      _samples = [];
+      _subscription?.cancel();
+      _busy = false;
+      model.test(_sample);
+      setState(() {});
     }
   }
 
