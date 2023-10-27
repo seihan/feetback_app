@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 
 class ScrollableVerticalWidget extends StatelessWidget {
+  final MainAxisAlignment? mainAxisAlignment;
+  final CrossAxisAlignment? crossAxisAlignment;
   final List<Widget> children;
 
-  const ScrollableVerticalWidget({Key? key, required this.children})
-      : super(key: key);
+  const ScrollableVerticalWidget({
+    Key? key,
+    required this.children,
+    this.mainAxisAlignment,
+    this.crossAxisAlignment,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +20,9 @@ class ScrollableVerticalWidget extends StatelessWidget {
           child: ConstrainedBox(
             constraints: BoxConstraints(minHeight: constraints.maxHeight),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: mainAxisAlignment ?? MainAxisAlignment.center,
+              crossAxisAlignment:
+                  crossAxisAlignment ?? CrossAxisAlignment.center,
               children: children,
             ),
           ),

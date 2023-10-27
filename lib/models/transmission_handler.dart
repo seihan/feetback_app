@@ -21,6 +21,14 @@ class TransmissionHandler {
 
   Timer? _writeTimer;
   bool _canWrite = true;
+  bool _enableFeedback = false;
+  bool get enableFeedback => _enableFeedback;
+  set enableFeedback(bool value) {
+    if (value == _enableFeedback) {
+      return;
+    }
+    _enableFeedback = value;
+  }
 
   void initialize() {
     if (inputDevice.name == 'CRM508-LEFT') {
@@ -57,7 +65,9 @@ class TransmissionHandler {
   }
 
   void _onNewValue(SensorValues sensorValues) {
-    if (sensorValues.data.isNotEmpty && sensorValues.data.length == 12) {
+    if (sensorValues.data.isNotEmpty &&
+        sensorValues.data.length == 12 &&
+        _enableFeedback) {
       final int highestFront = sensorValues.data.sublist(0, 5).min;
       final int highestRear = sensorValues.data.sublist(6).min;
       if (outputDevice.connected) {

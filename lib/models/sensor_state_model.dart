@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:feet_back_app/models/sensor_values.dart';
-import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
 class SensorStateModel {
@@ -68,11 +67,9 @@ class SensorStateModel {
     switch (start) {
       case 0x01:
         {
-          debugPrint('got left values');
           final List<int> intValues = _combineUInt8Values(
             uInt8List.sublist(2),
           );
-          debugPrint('values length = ${intValues.length}');
           if (intValues.length > 12) {
             crc = intValues.last;
             intValues.removeLast();
@@ -84,13 +81,11 @@ class SensorStateModel {
         }
       default:
         {
-          debugPrint('got remaining left values');
           final List<int> intValues = _combineUInt8Values(uInt8List);
           final SensorValues sensorValues = _leftValues;
           crc = intValues.last;
           intValues.removeLast();
           if (_leftValues.data.length != 12) {
-            debugPrint('values length = ${intValues.length}');
             sensorValues.data.addAll(intValues);
             _leftValues = sensorValues;
           }
@@ -110,11 +105,9 @@ class SensorStateModel {
     switch (start) {
       case 0x02:
         {
-          debugPrint('got right values');
           final List<int> intValues = _combineUInt8Values(
             uInt8List.sublist(2),
           );
-          debugPrint('values length = ${intValues.length}');
           if (intValues.length > 12) {
             crc = intValues.last;
             intValues.removeLast();
@@ -126,13 +119,11 @@ class SensorStateModel {
         }
       default:
         {
-          debugPrint('got remaining right values');
           final List<int> intValues = _combineUInt8Values(uInt8List);
           final SensorValues sensorValues = _rightValues;
           crc = intValues.last;
           intValues.removeLast();
           if (_rightValues.data.length != 12) {
-            debugPrint('values length = ${intValues.length}');
             sensorValues.data.addAll(intValues);
             _rightValues = sensorValues;
           }

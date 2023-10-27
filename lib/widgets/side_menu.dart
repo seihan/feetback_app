@@ -26,7 +26,7 @@ class SideMenu extends StatelessWidget {
               title: const Text('Analytics'),
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => const AnalyticsScreen(),
+                  builder: (BuildContext context) => const AnalyticsScreen(),
                 ),
               ),
             ),
@@ -36,7 +36,7 @@ class SideMenu extends StatelessWidget {
               title: const Text('Calibration'),
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => const CalibrationScreen(),
+                  builder: (BuildContext context) => const CalibrationScreen(),
                 ),
               ),
             ),
@@ -45,7 +45,9 @@ class SideMenu extends StatelessWidget {
               title: const Text('Feedback Settings'),
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => const FeedbackSettings(),
+                  builder: (BuildContext context) => FeedbackSettings(
+                    bluetoothConnectionModel: model,
+                  ),
                 ),
               ),
             ),

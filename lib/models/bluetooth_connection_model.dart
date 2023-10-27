@@ -15,11 +15,10 @@ import 'custom_error_handler.dart';
 
 class BluetoothConnectionModel extends ChangeNotifier {
   final GlobalKey<NavigatorState> navigatorKey;
-  final SensorStateModel sensorStateModel;
+  final SensorStateModel sensorStateModel = SensorStateModel();
 
   BluetoothConnectionModel({
     required this.navigatorKey,
-    required this.sensorStateModel,
   });
 
   static final List<BluetoothDeviceModel> _devices = [
@@ -74,8 +73,9 @@ class BluetoothConnectionModel extends ChangeNotifier {
   bool get isScanning => _isScanning;
   List<bool> get activated => _activated;
   List<BluetoothDeviceModel> get devices => _devices;
-
   Stream<String> get log => _logStream.stream;
+  bool _feedback = true;
+  bool get feedback => _feedback;
 
   void initialize() {
     _errorSubscription = CustomErrorHandler.errorStream.listen(_onError);
@@ -210,6 +210,13 @@ class BluetoothConnectionModel extends ChangeNotifier {
         'is notifying; ${_devices.every((device) => device.rxTxChar?.isNotifying ?? false)}');
     debugPrint(
         'is notifying; ${_devices.every((device) => device.rxTxChar?.isNotifying ?? false)}');
+    notifyListeners();
+  }
+
+  void toggleFeedback(bool value) {
+    _leftHandler.enableFeedback = value;
+    _rightHandler.enableFeedback = value;
+    _feedback = value;
     notifyListeners();
   }
 
@@ -387,6 +394,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
     _scanSubscription?.cancel();
     _scanResultSubscription?.cancel();
     _leftNotifyStreamSubscription?.cancel();
+    _rightNotifyStreamSubscription?.cancel();
     _connectionSubscription?.cancel();
     _errorSubscription?.cancel();
     _stateSubscription?.cancel();

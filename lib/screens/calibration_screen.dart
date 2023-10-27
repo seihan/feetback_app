@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:feet_back_app/models/calibration_model.dart';
 import 'package:feet_back_app/models/sensor_state_model.dart';
+import 'package:feet_back_app/widgets/scrollable_vertical_widget.dart';
 import 'package:feet_back_app/widgets/xy_chart.dart';
 import 'package:flutter/material.dart';
 
@@ -49,8 +50,7 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
             ),
         ],
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
+      body: ScrollableVerticalWidget(
         children: [
           ListTile(
             title: Row(
@@ -75,27 +75,32 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
               ],
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 40, vertical: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '#',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  'Value',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  'Sample [Nm]',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ],
+          const SizedBox(
+            width: 300,
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '#',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    'Value',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    'Sample [Nm]',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
             ),
           ),
-          Expanded(
+          SizedBox(
+            height: 200,
+            width: 300,
             child: ListView.builder(
                 itemCount: model.calibrationTable.values.length,
                 itemBuilder: (BuildContext context, int index) {
@@ -105,20 +110,15 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
                   );
                   final String sample =
                       model.calibrationTable.samples[index].toStringAsFixed(
-                    2,
+                    0,
                   );
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 40,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('${index + 1}'),
-                        Text(value),
-                        Text(sample),
-                      ],
-                    ),
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('${index + 1}'),
+                      Text(value),
+                      Text(sample),
+                    ],
                   );
                 }),
           ),
