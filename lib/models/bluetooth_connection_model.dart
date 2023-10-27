@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
+import 'package:feet_back_app/models/peripheral_constants.dart';
 import 'package:feet_back_app/models/sensor_state_model.dart';
 import 'package:feet_back_app/models/transmission_handler.dart';
 import 'package:flutter/material.dart';
@@ -22,60 +22,26 @@ class BluetoothConnectionModel extends ChangeNotifier {
     required this.sensorStateModel,
   });
 
-  /// Sensor config
-  static final Uint8List _leftStart =
-      Uint8List.fromList([0x01, 0x03, 0x00, 0x00, 0xF1, 0xD8]);
-  static final Uint8List _leftStop =
-      Uint8List.fromList([0x01, 0x06, 0x00, 0x00, 0xE1, 0xD9]);
-
-  static final Uint8List _rightStart =
-      Uint8List.fromList([0x02, 0x03, 0x00, 0x00, 0xF1, 0x9C]);
-  static final Uint8List _rightStop =
-      Uint8List.fromList([0x02, 0x06, 0x00, 0x00, 0xe1, 0x9d]);
-
-  static final Guid _sensorServiceGuid =
-      Guid('0000fe50-0000-1000-8000-00805f9b34fb');
-  static final Guid _sensorRxTxCharGuid =
-      Guid('0000fe51-0000-1000-8000-00805f9b34fb');
-
-  /// Actor config
-  static const DeviceIdentifier _actorLeftId =
-      DeviceIdentifier('EA:3F:FA:39:89:E4');
-  static const DeviceIdentifier _actorRightId =
-      DeviceIdentifier('FC:77:F8:3E:B8:DA');
-
-  static final Guid _actorServiceGuid =
-      Guid('0000190b-0000-1000-8000-00805f9b34fb');
-  static final Guid _actorRxTxCharGuid =
-      Guid('00000003-0000-1000-8000-00805f9b34fb');
-
-  static const String _motorOn = 'AT+MOTOR=1'; // start vibration
-  static const String _buzzOne = 'AT+MOTOR=11'; // 50ms vibration
-  static const String _buzzTwo = 'AT+MOTOR=12'; // 100ms vibration
-  static const String _buzzThree = 'AT+MOTOR=13'; // 150ms vibration
-  static const String _motorOff = 'AT+MOTOR=00'; // stop vibration
-  static const String bat = 'AT+BATT0\n'; // get battery state %
-
-  late final List<BluetoothDeviceModel> _devices = [
+  static final List<BluetoothDeviceModel> _devices = [
     BluetoothDeviceModel(
-      name: 'CRM508-LEFT',
-      serviceGuid: _sensorServiceGuid,
-      rxTxCharGuid: _sensorRxTxCharGuid,
+      name: PeripheralConstants.leftName,
+      serviceGuid: PeripheralConstants.sensorServiceGuid,
+      rxTxCharGuid: PeripheralConstants.sensorRxTxCharGuid,
     ),
     BluetoothDeviceModel(
-      name: 'CRM508-RIGHT',
-      serviceGuid: _sensorServiceGuid,
-      rxTxCharGuid: _sensorRxTxCharGuid,
+      name: PeripheralConstants.rightName,
+      serviceGuid: PeripheralConstants.sensorServiceGuid,
+      rxTxCharGuid: PeripheralConstants.sensorRxTxCharGuid,
     ),
     BluetoothDeviceModel(
-      id: _actorLeftId,
-      serviceGuid: _actorServiceGuid,
-      rxTxCharGuid: _actorRxTxCharGuid,
+      id: PeripheralConstants.actorLeftId,
+      serviceGuid: PeripheralConstants.actorServiceGuid,
+      rxTxCharGuid: PeripheralConstants.actorRxTxCharGuid,
     ),
     BluetoothDeviceModel(
-      id: _actorRightId,
-      serviceGuid: _actorServiceGuid,
-      rxTxCharGuid: _actorRxTxCharGuid,
+      id: PeripheralConstants.actorRightId,
+      serviceGuid: PeripheralConstants.actorServiceGuid,
+      rxTxCharGuid: PeripheralConstants.actorRxTxCharGuid,
     ),
   ];
 
@@ -186,7 +152,9 @@ class BluetoothConnectionModel extends ChangeNotifier {
   Future<void> _startNotify({required int device}) async {
     try {
       await _devices[device].rxTxChar?.write(
-          device == 0 ? _leftStart : _rightStart,
+          device == 0
+              ? PeripheralConstants.leftStart
+              : PeripheralConstants.rightStart,
           withoutResponse: false);
       debugPrint('${device == 0 ? 'Left' : 'Right'} start sent successfully.');
     } catch (e) {
@@ -196,9 +164,11 @@ class BluetoothConnectionModel extends ChangeNotifier {
 
   Future<void> _stopNotify({required int device}) async {
     try {
-      await _devices[device]
-          .rxTxChar
-          ?.write(device == 0 ? _leftStop : _rightStop, withoutResponse: false);
+      await _devices[device].rxTxChar?.write(
+          device == 0
+              ? PeripheralConstants.leftStop
+              : PeripheralConstants.rightStop,
+          withoutResponse: false);
       debugPrint('${device == 0 ? 'Left' : 'Right'} stop sent successfully.');
     } catch (e) {
       debugPrint('Error sending data: $e');
@@ -352,7 +322,11 @@ class BluetoothConnectionModel extends ChangeNotifier {
     }
     if (_devices[device].connected) {
       _activated[selection] = true;
-      await _devices[device].rxTxChar?.write(utf8.encode(_motorOn));
+      await _devices[device].rxTxChar?.write(
+            utf8.encode(
+              PeripheralConstants.motorOn,
+            ),
+          );
       notifyListeners();
     }
   }
@@ -369,26 +343,42 @@ class BluetoothConnectionModel extends ChangeNotifier {
     }
     if (_devices[device].connected) {
       _activated[selection] = false;
-      await _devices[device].rxTxChar?.write(utf8.encode(_motorOff));
+      await _devices[device].rxTxChar?.write(
+            utf8.encode(
+              PeripheralConstants.motorOff,
+            ),
+          );
       notifyListeners();
     }
   }
 
   void buzzOne({required int device}) async {
     if (_devices[device].connected) {
-      await _devices[device].rxTxChar?.write(utf8.encode(_buzzOne));
+      await _devices[device].rxTxChar?.write(
+            utf8.encode(
+              PeripheralConstants.buzzOne,
+            ),
+          );
     }
   }
 
   void buzzTwo({required int device}) async {
     if (_devices[device].connected) {
-      await _devices[device].rxTxChar?.write(utf8.encode(_buzzTwo));
+      await _devices[device].rxTxChar?.write(
+            utf8.encode(
+              PeripheralConstants.buzzTwo,
+            ),
+          );
     }
   }
 
   void buzzThree({required int device}) async {
     if (_devices[device].connected) {
-      await _devices[device].rxTxChar?.write(utf8.encode(_buzzThree));
+      await _devices[device].rxTxChar?.write(
+            utf8.encode(
+              PeripheralConstants.buzzThree,
+            ),
+          );
     }
   }
 
