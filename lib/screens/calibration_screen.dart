@@ -19,9 +19,9 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
   final CalibrationModel model = CalibrationModel();
   final SensorStateModel sensorStateModel = SensorStateModel();
   StreamSubscription? _subscription;
-  List<int> _samples = [];
+  List<int> _values = [];
+  double _value = 0;
   double _sample = 0;
-  int _value = 0;
   bool _busy = false;
 
   static const int sampleRate = 10;
@@ -57,19 +57,19 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
               children: [
                 IconButton(
                   icon: const Icon(Icons.remove),
-                  onPressed: _decreaseValue,
+                  onPressed: _decrease,
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Text('$_value Nm'),
+                  child: Text('$_sample Nm'),
                 ),
                 IconButton(
                   icon: const Icon(Icons.add),
-                  onPressed: _increaseValue,
+                  onPressed: _increase,
                 ),
                 const Spacer(),
                 OutlinedButton(
-                  onPressed: _addSample,
+                  onPressed: _addValue,
                   child: const Text('Add sample'),
                 ),
               ],
@@ -85,11 +85,11 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  'Value [Nm]',
+                  'Value',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  'Sample',
+                  'Sample [Nm]',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ],
@@ -100,9 +100,13 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
                 itemCount: model.calibrationTable.values.length,
                 itemBuilder: (BuildContext context, int index) {
                   final String value =
-                      model.calibrationTable.values[index].toString();
+                      model.calibrationTable.values[index].toStringAsFixed(
+                    2,
+                  );
                   final String sample =
-                      model.calibrationTable.samples[index].toStringAsFixed(2);
+                      model.calibrationTable.samples[index].toStringAsFixed(
+                    2,
+                  );
                   return Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 40,
@@ -142,10 +146,10 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
     );
   }
 
-  void _addSample() {
+  void _addValue() {
     if (!_busy) {
       _busy = true;
-      model.addValue(value: _value);
+      model.addSample(value: _sample);
       _subscription = sensorStateModel.leftValuesStream.listen(
         (_onValue),
       );
@@ -153,13 +157,13 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
   }
 
   void _onValue(SensorValues values) {
-    _samples.add(values.data.min);
-    if (_samples.length == sampleRate) {
-      _sample = (_samples.sum / sampleRate);
+    _values.add(values.data.min);
+    if (_values.length == sampleRate) {
+      _value = (_values.sum / sampleRate);
       setState(() {
-        model.addSample(value: _sample);
+        model.addValue(value: _value);
       });
-      _samples = [];
+      _values = [];
       _subscription?.cancel();
       _busy = false;
     }
@@ -175,27 +179,27 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
   }
 
   void _onSampleValue(SensorValues values) {
-    _samples.add(values.data.min);
-    if (_samples.length == sampleRate) {
-      _sample = (_samples.sum / sampleRate);
-      _samples = [];
+    _values.add(values.data.min);
+    if (_values.length == sampleRate) {
+      _value = (_values.sum / sampleRate);
+      _values = [];
       _subscription?.cancel();
       _busy = false;
-      model.test(_sample);
+      model.test(_value);
       setState(() {});
     }
   }
 
-  void _increaseValue() {
+  void _increase() {
     setState(() {
-      _value += 10;
+      _sample += 10;
     });
   }
 
-  void _decreaseValue() {
+  void _decrease() {
     setState(() {
-      if (_value >= 10) {
-        _value -= 10;
+      if (_sample >= 10) {
+        _sample -= 10;
       }
     });
   }

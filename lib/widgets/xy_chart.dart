@@ -2,7 +2,7 @@ import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 
 class LineChartWidget extends StatelessWidget {
-  final List<int> xValues;
+  final List<double> xValues;
   final List<double> yValues;
 
   final double? xTestValue;
@@ -52,7 +52,7 @@ class LineChartWidget extends StatelessWidget {
   }
 
   List<charts.Series<Coordinate, num>> createSampleData({
-    required List<int> xValues,
+    required List<double> xValues,
     required List<double> yValues,
     double? xTestValue,
     double? yTestValue,
