@@ -17,7 +17,10 @@ class SideMenu extends StatelessWidget {
         child: Column(
           children: <Widget>[
             ListTile(
-              leading: const Icon(Icons.sensors_off),
+              leading: Icon(
+                Icons.sensors_off,
+                color: model.connected ? Colors.blue : Colors.grey,
+              ),
               title: const Text('Disconnect'),
               onTap: model.disconnect,
             ),

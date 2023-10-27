@@ -5,15 +5,15 @@ class LineChartWidget extends StatelessWidget {
   final List<double> xValues;
   final List<double> yValues;
 
-  final double? xTestValue;
-  final double? yTestValue;
+  final List<double>? xTestValues;
+  final List<double>? yTestValues;
 
   const LineChartWidget({
     Key? key,
     required this.xValues,
     required this.yValues,
-    this.xTestValue,
-    this.yTestValue,
+    this.xTestValues,
+    this.yTestValues,
   }) : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -23,8 +23,8 @@ class LineChartWidget extends StatelessWidget {
         createSampleData(
           xValues: xValues,
           yValues: yValues,
-          xTestValue: xTestValue,
-          yTestValue: yTestValue,
+          xTestValues: xTestValues,
+          yTestValues: yTestValues,
         ),
         animate: true,
         primaryMeasureAxis: const charts.NumericAxisSpec(
@@ -45,7 +45,7 @@ class LineChartWidget extends StatelessWidget {
           strokeWidthPx: 1,
           roundEndCaps: true,
           includePoints: true,
-          radiusPx: 3,
+          radiusPx: 0.5,
         ),
       ),
     );
@@ -54,8 +54,8 @@ class LineChartWidget extends StatelessWidget {
   List<charts.Series<Coordinate, num>> createSampleData({
     required List<double> xValues,
     required List<double> yValues,
-    double? xTestValue,
-    double? yTestValue,
+    List<double>? xTestValues,
+    List<double>? yTestValues,
   }) {
     assert(xValues.length == yValues.length,
         'Data points must have the same length.');
@@ -64,8 +64,10 @@ class LineChartWidget extends StatelessWidget {
       data.add(Coordinate(xValues[i], yValues[i]));
     }
     final List<Coordinate> testData = [];
-    if (xTestValue != null && yTestValue != null) {
-      testData.add(Coordinate(xTestValue, yTestValue));
+    if (xTestValues != null && yTestValues != null) {
+      for (int i = 0; i < xTestValues.length; i++) {
+        testData.add(Coordinate(xTestValues[i], yTestValues[i]));
+      }
     }
     return [
       charts.Series<Coordinate, num>(

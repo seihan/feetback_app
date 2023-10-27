@@ -120,6 +120,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
       await device.device?.disconnect();
       device.connected = false;
     }
+    _isNotifying = false;
     _deviceSubscriptions.clear();
     _leftNotifyStreamSubscription?.cancel();
     _rightNotifyStreamSubscription?.cancel();
@@ -140,7 +141,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
     _scanResultSubscription = FlutterBluePlus.scanResults.listen(_onScanResult);
     _scanSubscription = FlutterBluePlus.isScanning.listen(_handleScanState);
     debugPrint('start scanning');
-    FlutterBluePlus.startScan(timeout: const Duration(seconds: 6));
+    FlutterBluePlus.startScan(timeout: const Duration(seconds: 13));
   }
 
   void _handleScanState(bool event) {

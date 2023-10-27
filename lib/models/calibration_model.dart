@@ -26,11 +26,11 @@ class CalibrationModel {
   bool _canTested = false;
   bool get canTested => _canTested;
 
-  double? _xTestValue;
-  double? _yTestValue;
+  List<double>? _xTestValues;
+  List<double>? _yTestValues;
 
-  double? get xTestValue => _xTestValue;
-  double? get yTestValue => _yTestValue;
+  List<double>? get xTestValues => _xTestValues;
+  List<double>? get yTestValues => _yTestValues;
 
   Future<void> initialize() async {
     if (_calibrationTable.values.length != _calibrationTable.samples.length) {
@@ -67,16 +67,22 @@ class CalibrationModel {
     }
   }
 
-  void test(double sample) {
+  void test() {
+    final List<double> samples = List.generate(
+      4096,
+      (index) => index.toDouble(),
+    );
+    final List<double> values = [];
     const int degree = 2;
     final Array xValues = Array(_calibrationTable.values);
     final Array yValues = Array(_calibrationTable.samples);
     final PolyFit p = PolyFit(xValues, yValues, degree);
     debugPrint('PolyFit: ${p.toString()}');
-    final double y = p.predict(sample);
-    debugPrint("Estimated x-coordinate for sample $sample: $y");
-    _xTestValue = sample;
-    _yTestValue = y;
+    for (int i = 0; i < samples.length; i++) {
+      values.add(p.predict(samples[i]));
+    }
+    _xTestValues = samples;
+    _yTestValues = values;
   }
 
   Future<CalibrationTable?> _getCalibrationTable() async {
