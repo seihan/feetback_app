@@ -1,7 +1,10 @@
+import 'package:collection/collection.dart';
 import 'package:feet_back_app/models/sensor_values.dart';
 import 'package:feet_back_app/widgets/sensor_point.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
+import '../models/calibration_model.dart';
 
 class SensorSole extends StatelessWidget {
   final int device;
@@ -11,7 +14,13 @@ class SensorSole extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<int> indexList = List.generate(12, (index) => 0);
+    final List<int> indexList = List.generate(
+      12,
+      (int index) => 0,
+    );
+    final CalibrationModel calibrationModel = CalibrationModel();
+    int minValue = 0;
+    double predictedValue = 0;
     final Widget svg = SvgPicture.asset(
       assetName,
       semanticsLabel: 'Sensor sole',
@@ -30,7 +39,11 @@ class SensorSole extends StatelessWidget {
         } else {
           sensorValues = List.generate(12, (index) => 0);
         }
-
+        minValue = sensorValues.min;
+        if (calibrationModel.predictedValues?.length == 4096) {
+          predictedValue =
+              calibrationModel.predictedValues?[minValue] ?? predictedValue;
+        }
         return Stack(
           children: [
             if (device == 0) svg,
@@ -60,6 +73,9 @@ class SensorSole extends StatelessWidget {
                 ),
               ),
             ),
+            if (minValue != 0)
+              Text(
+                  "Raw: $minValue\nPredicted: ${predictedValue.toStringAsFixed(2)} Nm"),
           ],
         );
       },

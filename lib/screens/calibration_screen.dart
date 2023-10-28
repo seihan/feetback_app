@@ -28,125 +28,132 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
   static const int sampleRate = 10;
 
   @override
-  void initState() {
-    super.initState();
-    model.initialize().then(
-          (value) => setState(() {}),
-        );
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Force Calibration'),
-        actions: [
-          if (model.calibrationTable.samples.isNotEmpty)
-            IconButton(
-              onPressed: () => setState(() {
-                model.clearTable();
-              }),
-              icon: const Icon(Icons.delete),
-            ),
-        ],
-      ),
-      body: ScrollableVerticalWidget(
-        children: [
-          ListTile(
-            title: Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.remove),
-                  onPressed: _decrease,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Text('$_sample Nm'),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.add),
-                  onPressed: _increase,
-                ),
-                const Spacer(),
-                OutlinedButton(
-                  onPressed: _addValue,
-                  child: const Text('Add sample'),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(
-            width: 300,
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return FutureBuilder(
+        future: model.initialize(),
+        builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          if (snapshot.data ?? false) {
+            return Scaffold(
+              appBar: AppBar(
+                title: const Text('Force Calibration'),
+                actions: [
+                  if (model.calibrationTable.samples.isNotEmpty)
+                    IconButton(
+                      onPressed: () => setState(() {
+                        model.clearTable();
+                      }),
+                      icon: const Icon(Icons.delete),
+                    ),
+                ],
+              ),
+              body: ScrollableVerticalWidget(
                 children: [
-                  Text(
-                    '#',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ListTile(
+                    title: Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.remove),
+                          onPressed: _decrease,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Text('$_sample Nm'),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.add),
+                          onPressed: _increase,
+                        ),
+                        const Spacer(),
+                        OutlinedButton(
+                          onPressed: _addValue,
+                          child: const Text('Add sample'),
+                        ),
+                      ],
+                    ),
                   ),
-                  Text(
-                    'Value',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  const SizedBox(
+                    width: 300,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '#',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            'Value',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            'Sample [Nm]',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  Text(
-                    'Sample [Nm]',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  SizedBox(
+                    height: 200,
+                    width: 300,
+                    child: ListView.builder(
+                        itemCount: model.calibrationTable.values.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          final String value = model
+                              .calibrationTable.values[index]
+                              .toStringAsFixed(
+                            2,
+                          );
+                          final String sample = model
+                              .calibrationTable.samples[index]
+                              .toStringAsFixed(
+                            0,
+                          );
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('${index + 1}'),
+                              Text(value),
+                              Text(sample),
+                            ],
+                          );
+                        }),
+                  ),
+                  SizedBox(
+                    height: 300,
+                    child: LineChartWidget(
+                      xValues: model.calibrationTable.values,
+                      yValues: model.calibrationTable.samples,
+                      xTestValues: model.xTestValues,
+                      yTestValues: model.predictedValues,
+                    ),
                   ),
                 ],
               ),
-            ),
-          ),
-          SizedBox(
-            height: 200,
-            width: 300,
-            child: ListView.builder(
-                itemCount: model.calibrationTable.values.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final String value =
-                      model.calibrationTable.values[index].toStringAsFixed(
-                    2,
-                  );
-                  final String sample =
-                      model.calibrationTable.samples[index].toStringAsFixed(
-                    0,
-                  );
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('${index + 1}'),
-                      Text(value),
-                      Text(sample),
-                    ],
-                  );
-                }),
-          ),
-          SizedBox(
-            height: 300,
-            child: LineChartWidget(
-              xValues: model.calibrationTable.values,
-              yValues: model.calibrationTable.samples,
-              xTestValues: model.xTestValues,
-              yTestValues: model.yTestValues,
-            ),
-          ),
-        ],
-      ),
-      floatingActionButton: model.calibrationTable.values.length >= 10
-          ? FloatingActionButton(
-              onPressed: model.canTested
-                  ? () {
-                      model.test();
-                      setState(() {});
-                    }
-                  : () async => model
-                      .saveCalibrationTable()
-                      .then((value) => setState(() {})),
-              child: Text(model.canTested ? 'Test' : 'Save'),
-            )
-          : null,
-    );
+              floatingActionButton: model.canSaved
+                  ? FloatingActionButton(
+                      onPressed: model.canTested
+                          ? () {
+                              model.test();
+                              setState(() {});
+                            }
+                          : () async => model
+                              .saveCalibrationTable()
+                              .then((value) => setState(() {})),
+                      child: Text(model.canTested ? 'Test' : 'Save'),
+                    )
+                  : null,
+            );
+          } else {
+            return const Placeholder();
+          }
+        });
   }
 
   void _addValue() {

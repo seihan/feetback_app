@@ -83,10 +83,10 @@ class FeedbackModel {
     int outMin = 0,
     int outMax = 0,
   }) {
-    // Check if the input value is within the specified input range.
-    if (value >= inMin && value <= inMax) {
-      // Perform linear interpolation to map the value to the output range.
-      return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+    // Perform linear interpolation to map the value to the output range.
+    final int divisor = (inMax - inMin) + outMin;
+    if (divisor != 0) {
+      return (value - inMin) * (outMax - outMin) / divisor;
     } else {
       // The input value is outside the input range, so return 0.
       return 0;

@@ -11,10 +11,8 @@ class RecordListTile extends StatelessWidget {
       builder: (BuildContext context, RecordModel model, Widget? child) {
         return ListTile(
           leading: Icon(
-            model.record
-                ? Icons.fiber_manual_record_rounded
-                : Icons.fiber_manual_record_outlined,
-            color: model.record ? Colors.red : Colors.grey,
+            Icons.fiber_manual_record_rounded,
+            color: model.record ? Colors.red : Colors.white,
           ),
           title: const Text('Record'),
           subtitle: Text('Duration: ${model.duration} s'),

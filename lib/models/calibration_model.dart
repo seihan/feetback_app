@@ -23,16 +23,20 @@ class CalibrationModel {
 
   CalibrationTable get calibrationTable => _calibrationTable;
 
+  bool _canSaved = false;
+  bool get canSaved => _canSaved;
   bool _canTested = false;
   bool get canTested => _canTested;
+  final List<double> _xTestValues = List.generate(
+    4096,
+    (index) => index.toDouble(),
+  );
+  List<double>? _predictedValues;
 
-  List<double>? _xTestValues;
-  List<double>? _yTestValues;
+  List<double> get xTestValues => _xTestValues;
+  List<double>? get predictedValues => _predictedValues;
 
-  List<double>? get xTestValues => _xTestValues;
-  List<double>? get yTestValues => _yTestValues;
-
-  Future<void> initialize() async {
+  Future<bool> initialize() async {
     if (_calibrationTable.values.length != _calibrationTable.samples.length) {
       clearTable();
     }
@@ -40,6 +44,11 @@ class CalibrationModel {
     if (_calibrationTable.isValid()) {
       _canTested = true;
     }
+    await getPredictedValues();
+    if (_predictedValues?.isNotEmpty ?? false) {
+      _canTested = false;
+    }
+    return true;
   }
 
   void clearTable() {
@@ -49,6 +58,9 @@ class CalibrationModel {
 
   void addValue({required double value}) {
     _calibrationTable.values.add(value);
+    if (_calibrationTable.values.length >= 10) {
+      _canSaved = true;
+    }
   }
 
   void addSample({required double value}) {
@@ -67,22 +79,38 @@ class CalibrationModel {
     }
   }
 
-  void test() {
-    final List<double> samples = List.generate(
-      4096,
-      (index) => index.toDouble(),
-    );
+  Future<void> _savePredictedValues(List<double> values) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final List<String> encodedList =
+        values.map((double value) => value.toString()).toList();
+    prefs.setStringList('predictedValues', encodedList);
+  }
+
+  Future<void> getPredictedValues() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final List<String>? encodedList = prefs.getStringList('predictedValues');
+    _predictedValues = encodedList
+            ?.map(
+              (String value) => double.parse(value),
+            )
+            .toList() ??
+        [];
+  }
+
+  Future<void> test() async {
     final List<double> values = [];
     const int degree = 2;
     final Array xValues = Array(_calibrationTable.values);
     final Array yValues = Array(_calibrationTable.samples);
     final PolyFit p = PolyFit(xValues, yValues, degree);
     debugPrint('PolyFit: ${p.toString()}');
-    for (int i = 0; i < samples.length; i++) {
-      values.add(p.predict(samples[i]));
+    for (int i = 0; i < _xTestValues.length; i++) {
+      values.add(p.predict(_xTestValues[i]));
     }
-    _xTestValues = samples;
-    _yTestValues = values;
+    _predictedValues = values;
+    await _savePredictedValues(values);
+    _canTested = false;
+    _canSaved = false;
   }
 
   Future<CalibrationTable?> _getCalibrationTable() async {

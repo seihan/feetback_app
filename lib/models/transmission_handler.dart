@@ -21,7 +21,7 @@ class TransmissionHandler {
 
   Timer? _writeTimer;
   bool _canWrite = true;
-  bool _enableFeedback = false;
+  bool _enableFeedback = true;
   bool get enableFeedback => _enableFeedback;
   set enableFeedback(bool value) {
     if (value == _enableFeedback) {
@@ -56,7 +56,7 @@ class TransmissionHandler {
     final double duration = feedbackModel.mapValueToRange(
       value: highestValue,
       inMin: 0,
-      inMax: 4096,
+      inMax: feedbackModel.threshold,
       outMin: feedbackModel.minDuration,
       outMax: feedbackModel.maxDuration,
     );

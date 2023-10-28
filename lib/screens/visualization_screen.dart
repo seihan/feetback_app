@@ -5,6 +5,7 @@ import 'package:feet_back_app/widgets/side_menu.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/bluetooth_connection_model.dart';
+import '../models/calibration_model.dart';
 import '../widgets/connection_widgets.dart';
 
 class VisualizationScreen extends StatefulWidget {
@@ -16,6 +17,14 @@ class VisualizationScreen extends StatefulWidget {
 }
 
 class _VisualizationScreenState extends State<VisualizationScreen> {
+  final CalibrationModel calibrationModel = CalibrationModel();
+
+  @override
+  void initState() {
+    super.initState();
+    calibrationModel.getPredictedValues();
+  }
+
   int _selectedIndex = 0;
   @override
   Widget build(BuildContext context) {
