@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 
 import '../models/bluetooth_connection_model.dart';
 import '../models/record_model.dart';
-import '../widgets/connection_log_viewer.dart';
 
 class HomeScreen extends StatelessWidget {
   final GlobalKey<NavigatorState> navigatorKey;
@@ -26,16 +25,7 @@ class HomeScreen extends StatelessWidget {
       child: Consumer<BluetoothConnectionModel>(
         builder: (BuildContext context,
             BluetoothConnectionModel connectionModel, Widget? child) {
-          return Stack(
-            children: [
-              ConnectionLogViewer(
-                stream: connectionModel.log,
-              ),
-              VisualizationScreen(
-                model: connectionModel,
-              ),
-            ],
-          );
+          return VisualizationScreen(model: connectionModel);
         },
       ),
     );

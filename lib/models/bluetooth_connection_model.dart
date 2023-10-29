@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
+import 'package:feet_back_app/models/log_model.dart';
 import 'package:feet_back_app/models/peripheral_constants.dart';
 import 'package:feet_back_app/models/sensor_state_model.dart';
 import 'package:feet_back_app/models/transmission_handler.dart';
@@ -16,6 +17,7 @@ import 'custom_error_handler.dart';
 class BluetoothConnectionModel extends ChangeNotifier {
   final GlobalKey<NavigatorState> navigatorKey;
   final SensorStateModel sensorStateModel = SensorStateModel();
+  final LogModel _logModel = LogModel();
 
   BluetoothConnectionModel({
     required this.navigatorKey,
@@ -46,10 +48,6 @@ class BluetoothConnectionModel extends ChangeNotifier {
 
   late final TransmissionHandler _leftHandler;
   late final TransmissionHandler _rightHandler;
-
-  final StreamController<String> _logStream =
-      StreamController<String>.broadcast();
-
   final List<StreamSubscription<BluetoothConnectionState>?>
       _deviceSubscriptions = [];
   StreamSubscription<List<ScanResult>>? _scanResultSubscription;
@@ -57,7 +55,6 @@ class BluetoothConnectionModel extends ChangeNotifier {
   StreamSubscription<List<BluetoothDevice>>? _connectionSubscription;
   StreamSubscription<List<int>>? _leftNotifyStreamSubscription;
   StreamSubscription<List<int>>? _rightNotifyStreamSubscription;
-  StreamSubscription<String>? _errorSubscription;
   StreamSubscription? _stateSubscription;
   BluetoothNotificationHandler? _leftNotificationHandler;
   BluetoothNotificationHandler? _rightNotificationHandler;
@@ -73,12 +70,10 @@ class BluetoothConnectionModel extends ChangeNotifier {
   bool get isScanning => _isScanning;
   List<bool> get activated => _activated;
   List<BluetoothDeviceModel> get devices => _devices;
-  Stream<String> get log => _logStream.stream;
   bool _feedback = true;
   bool get feedback => _feedback;
 
   void initialize() {
-    _errorSubscription = CustomErrorHandler.errorStream.listen(_onError);
     _stateSubscription =
         FlutterBluePlus.adapterState.listen(_listenBluetoothState);
     if (_state == BluetoothAdapterState.on) {
@@ -90,12 +85,6 @@ class BluetoothConnectionModel extends ChangeNotifier {
     _rightHandler =
         TransmissionHandler(inputDevice: _devices[1], outputDevice: _devices[3])
           ..initialize();
-  }
-
-  void _onError(String error) {
-    if (error.isNotEmpty) {
-      _logStream.add('${DateTime.now()} $error');
-    }
   }
 
   void _listenBluetoothState(BluetoothAdapterState event) {
@@ -146,7 +135,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
 
   void _handleScanState(bool event) {
     _isScanning = event;
-    _logStream.add('is scanning = $event');
+    _logModel.add('is scanning = $event');
     notifyListeners();
   }
 
@@ -207,7 +196,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
         await _rightNotificationHandler?.setNotify(false);
       }
     }
-    _logStream.add(
+    _logModel.add(
         'is notifying; ${_devices.every((device) => device.rxTxChar?.isNotifying ?? false)}');
     debugPrint(
         'is notifying; ${_devices.every((device) => device.rxTxChar?.isNotifying ?? false)}');
@@ -236,16 +225,16 @@ class BluetoothConnectionModel extends ChangeNotifier {
   void _handleDeviceState(BluetoothConnectionState? deviceState,
       BluetoothDeviceModel deviceModel) async {
     debugPrint('device state = ${deviceState.toString()}');
-    _logStream.add('device state = ${deviceState.toString()}');
+    _logModel.add('device state = ${deviceState.toString()}');
     if (deviceState != BluetoothConnectionState.connected) {
       debugPrint('disconnected');
-      _logStream.add('disconnected');
+      _logModel.add('disconnected');
       deviceModel.connected = false;
       notifyListeners();
       await _connect(deviceModel);
     } else if (deviceState == BluetoothConnectionState.connected) {
       debugPrint('connected');
-      _logStream.add('connected');
+      _logModel.add('connected');
       deviceModel.connected = true;
       notifyListeners();
       _handleServices(
@@ -256,12 +245,12 @@ class BluetoothConnectionModel extends ChangeNotifier {
   Future<void> _connect(BluetoothDeviceModel deviceModel) async {
     try {
       debugPrint('connecting');
-      _logStream.add('connecting');
+      _logModel.add('connecting');
       await deviceModel.device?.connect();
     } on Exception catch (error, stacktrace) {
       CustomErrorHandler.handleFlutterError(error, stacktrace);
       debugPrint('Error: $error');
-      _logStream.add('Error: $error');
+      _logModel.add('Error: $error');
     }
   }
 
@@ -272,7 +261,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
           (service) => service.uuid == deviceModel.serviceGuid);
       if (deviceModel.service != null) {
         debugPrint('found service for ${deviceModel.device?.platformName}');
-        _logStream.add('found service for ${deviceModel.device?.platformName}');
+        _logModel.add('found service for ${deviceModel.device?.platformName}');
         _handleCharacteristics(deviceModel);
       }
     }
@@ -284,7 +273,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
             characteristic.uuid == deviceModel.rxTxCharGuid);
     if (deviceModel.rxTxChar != null) {
       debugPrint('found ${deviceModel.device?.platformName} rx tx char');
-      _logStream.add('found ${deviceModel.device?.platformName}  rx tx char');
+      _logModel.add('found ${deviceModel.device?.platformName}  rx tx char');
     }
   }
 
@@ -301,7 +290,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
               (nullDevice || existingDevice) &&
               !processedResult) {
             debugPrint('found device: ${result.device.platformName}');
-            _logStream.add('found device: ${result.device.platformName}');
+            _logModel.add('found device: ${result.device.platformName}');
             device.device = result.device;
             _processedResults.add(result);
             if (_deviceSubscriptions.length < _devices.length) {
@@ -397,7 +386,6 @@ class BluetoothConnectionModel extends ChangeNotifier {
     _leftNotifyStreamSubscription?.cancel();
     _rightNotifyStreamSubscription?.cancel();
     _connectionSubscription?.cancel();
-    _errorSubscription?.cancel();
     _stateSubscription?.cancel();
     for (var subscription in _deviceSubscriptions) {
       subscription?.cancel();
