@@ -27,6 +27,9 @@ class CalibrationModel {
   bool get canSaved => _canSaved;
   bool _canTested = false;
   bool get canTested => _canTested;
+
+  bool _canAdded = true;
+  bool get canAdded => _canAdded;
   final List<double> _xTestValues = List.generate(
     4096,
     (index) => index.toDouble(),
@@ -36,19 +39,19 @@ class CalibrationModel {
   List<double> get xTestValues => _xTestValues;
   List<double>? get predictedValues => _predictedValues;
 
-  Future<bool> initialize() async {
+  Future<void> initialize() async {
     if (_calibrationTable.values.length != _calibrationTable.samples.length) {
       clearTable();
     }
     _calibrationTable = await _getCalibrationTable() ?? _calibrationTable;
     if (_calibrationTable.isValid()) {
       _canTested = true;
+      _canAdded = false;
     }
     await getPredictedValues();
     if (_predictedValues?.isNotEmpty ?? false) {
       _canTested = false;
     }
-    return true;
   }
 
   void clearTable() {
