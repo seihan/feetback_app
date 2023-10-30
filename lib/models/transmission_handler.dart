@@ -21,7 +21,7 @@ class TransmissionHandler {
 
   Timer? _writeTimer;
   bool _canWrite = true;
-  bool _enableFeedback = true;
+  bool _enableFeedback = false;
   bool get enableFeedback => _enableFeedback;
   set enableFeedback(bool value) {
     if (value == _enableFeedback) {
@@ -38,7 +38,7 @@ class TransmissionHandler {
       _sensorSubscription =
           sensorStateModel.rightDisplayStream.listen(_onNewValue);
     }
-    feedbackModel.initialize();
+    _enableFeedback = feedbackModel.enableFeedback;
   }
 
   void _startWriteTimer(int highestValue) {

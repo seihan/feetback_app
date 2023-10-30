@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
+import 'package:feet_back_app/models/feedback_model.dart';
 import 'package:feet_back_app/models/log_model.dart';
 import 'package:feet_back_app/models/peripheral_constants.dart';
 import 'package:feet_back_app/models/sensor_state_model.dart';
@@ -16,7 +17,9 @@ import 'custom_error_handler.dart';
 
 class BluetoothConnectionModel extends ChangeNotifier {
   final GlobalKey<NavigatorState> navigatorKey;
-  final SensorStateModel sensorStateModel = SensorStateModel();
+  final SensorStateModel _sensorStateModel = SensorStateModel();
+
+  final FeedbackModel _feedbackModel = FeedbackModel();
   final LogModel _logModel = LogModel();
 
   BluetoothConnectionModel({
@@ -70,8 +73,8 @@ class BluetoothConnectionModel extends ChangeNotifier {
   bool get isScanning => _isScanning;
   List<bool> get activated => _activated;
   List<BluetoothDeviceModel> get devices => _devices;
-  bool _feedback = true;
-  bool get feedback => _feedback;
+  bool _enableFeedback = false;
+  bool get enableFeedback => _enableFeedback;
 
   void initialize() {
     _stateSubscription =
@@ -79,6 +82,8 @@ class BluetoothConnectionModel extends ChangeNotifier {
     if (_state == BluetoothAdapterState.on) {
       startScan();
     }
+    _feedbackModel.initialize();
+    _enableFeedback = _feedbackModel.enableFeedback;
     _leftHandler =
         TransmissionHandler(inputDevice: _devices[0], outputDevice: _devices[2])
           ..initialize();
@@ -206,19 +211,18 @@ class BluetoothConnectionModel extends ChangeNotifier {
   void toggleFeedback(bool value) {
     _leftHandler.enableFeedback = value;
     _rightHandler.enableFeedback = value;
-    _feedback = value;
-    notifyListeners();
+    _enableFeedback = value;
   }
 
   void _handleLeftNotifyValues(List<int> values) {
     if (values.isNotEmpty) {
-      sensorStateModel.updateLeft(values);
+      _sensorStateModel.updateLeft(values);
     }
   }
 
   void _handleRightNotifyValues(List<int> values) {
     if (values.isNotEmpty) {
-      sensorStateModel.updateRight(values);
+      _sensorStateModel.updateRight(values);
     }
   }
 

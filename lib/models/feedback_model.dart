@@ -11,50 +11,27 @@ class FeedbackModel {
   }
 
   // Default values
-  int _maxDuration = 4000; // ms
-  int _minDuration = 500; // ms
-  int _threshold = 2000; // input value
-
-  // Getter methods
-  int get maxDuration => _maxDuration;
-  int get minDuration => _minDuration;
-  int get threshold => _threshold;
-
-  set maxDuration(int value) {
-    if (value == _maxDuration) {
-      return;
-    }
-    _maxDuration = value;
-  }
-
-  set minDuration(int value) {
-    if (value == _minDuration) {
-      return;
-    }
-    _minDuration = value;
-  }
-
-  set threshold(int value) {
-    if (value == _threshold) {
-      return;
-    }
-    _threshold = value;
-  }
+  int maxDuration = 4000; // ms
+  int minDuration = 500; // ms
+  int threshold = 2000; // input value
+  bool enableFeedback = false;
 
   // Method to initialize and load values from local storage
   Future<void> _loadFromLocalStorage() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    _maxDuration = prefs.getInt('maxDuration') ?? _maxDuration;
-    _minDuration = prefs.getInt('minDuration') ?? _minDuration;
-    _threshold = prefs.getInt('threshold') ?? _threshold;
+    maxDuration = prefs.getInt('maxDuration') ?? maxDuration;
+    minDuration = prefs.getInt('minDuration') ?? minDuration;
+    threshold = prefs.getInt('threshold') ?? threshold;
+    enableFeedback = prefs.getBool('enableFeedback') ?? enableFeedback;
   }
 
   // Method to save values to local storage
   Future<void> _saveToLocalStorage() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('maxDuration', _maxDuration);
-    await prefs.setInt('minDuration', _minDuration);
-    await prefs.setInt('threshold', _threshold);
+    await prefs.setInt('maxDuration', maxDuration);
+    await prefs.setInt('minDuration', minDuration);
+    await prefs.setInt('threshold', threshold);
+    await prefs.setBool('enableFeedback', enableFeedback);
   }
 
   Future<void> saveSettings() async {
@@ -84,9 +61,9 @@ class FeedbackModel {
     int outMax = 0,
   }) {
     // Perform linear interpolation to map the value to the output range.
-    final int divisor = (inMax - inMin) + outMin;
+    final int divisor = inMax - inMin;
     if (divisor != 0) {
-      return (value - inMin) * (outMax - outMin) / divisor;
+      return (value - inMin) * (outMax - outMin) / divisor + outMin;
     } else {
       // The input value is outside the input range, so return 0.
       return 0;

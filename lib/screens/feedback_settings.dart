@@ -60,14 +60,14 @@ class _FeedbackSettingsState extends State<FeedbackSettings> {
             ),
             Padding(
               padding: const EdgeInsets.only(left: 20, top: 10),
-              child: Text(widget.bluetoothConnectionModel.feedback
+              child: Text(widget.bluetoothConnectionModel.enableFeedback
                   ? 'Feedback enabled'
                   : 'Feedback disabled'),
             ),
             Padding(
               padding: const EdgeInsets.only(left: 20, top: 10),
               child: Switch(
-                value: widget.bluetoothConnectionModel.feedback,
+                value: feedbackModel.enableFeedback,
                 onChanged: _onChangedFeedback,
               ),
             ),
@@ -111,7 +111,10 @@ class _FeedbackSettingsState extends State<FeedbackSettings> {
   }
 
   void _onChangedFeedback(bool value) {
+    feedbackModel.enableFeedback = value;
+    setState(() {
+      hasChanged = true;
+    });
     widget.bluetoothConnectionModel.toggleFeedback(value);
-    setState(() {});
   }
 }
