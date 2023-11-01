@@ -16,9 +16,9 @@ class ChartsWidget extends StatelessWidget {
     return Column(
       children: [
         const Text('Left Sensor'),
-        SensorChart(values: leftValues),
+        if (leftValues.isNotEmpty) SensorChart(values: leftValues),
         const Text('Right Sensor'),
-        SensorChart(values: rightValues),
+        if (rightValues.isNotEmpty) SensorChart(values: rightValues),
       ],
     );
   }

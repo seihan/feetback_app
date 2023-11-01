@@ -53,8 +53,9 @@ class _VisualizationScreenState extends State<VisualizationScreen> {
       ),
       floatingActionButton: !widget.model.connected
           ? FloatingActionButton(
-              onPressed:
-                  widget.model.isScanning ? null : widget.model.startScan,
+              onPressed: widget.model.isScanning
+                  ? widget.model.stopScan
+                  : widget.model.startScan,
               backgroundColor:
                   widget.model.isScanning ? Colors.red : Colors.green,
               child: Icon(

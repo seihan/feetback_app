@@ -138,6 +138,10 @@ class BluetoothConnectionModel extends ChangeNotifier {
     FlutterBluePlus.startScan(timeout: const Duration(seconds: 13));
   }
 
+  void stopScan() {
+    FlutterBluePlus.stopScan();
+  }
+
   void _handleScanState(bool event) {
     _isScanning = event;
     _logModel.add('is scanning = $event');

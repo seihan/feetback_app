@@ -101,21 +101,21 @@ class DatabaseHelper {
     final db = await database;
 
     const query = '''
-    SELECT
-    date,
-    MIN(start_time) as start_time,
-    SUM(length) as length
-    FROM (
       SELECT
-      strftime('%Y-%m-%d', time) as date,
-      MIN(time) as start_time,
-      (julianday(MAX(time)) - julianday(MIN(time))) * 86400000 as length
-      FROM sensor_values
-      GROUP BY date, strftime('%s', time) / 1
+        date,
+        MIN(start_time) as start_time,
+        SUM(length) as length
+      FROM (
+        SELECT
+          strftime('%Y-%m-%d', time) as date,
+          MIN(time) as start_time,
+          (julianday(MAX(time)) - julianday(MIN(time))) * 86400000 as length
+        FROM sensor_values
+        GROUP BY date, strftime('%s', time) / 1
     ) AS aligned_values
     GROUP BY date
     HAVING SUM(length) >= 1000; -- Total length in milliseconds greater than 1 second
-  ''';
+    ''';
 
     final List<Map<String, dynamic>> result = await db.rawQuery(query);
 
@@ -137,9 +137,7 @@ class DatabaseHelper {
 
     final List<Map<String, dynamic>> result = await db.rawQuery(query, [
       startTime.toIso8601String(),
-      startTime
-          .add(Duration(milliseconds: length))
-          .toIso8601String(), // Add the 'side' parameter
+      startTime.add(Duration(milliseconds: length)).toIso8601String(),
     ]);
 
     // Map the query results to your model.
@@ -148,5 +146,21 @@ class DatabaseHelper {
           (entry) => SensorValues.fromMap(entry),
         )
         .toList();
+  }
+
+  Future<void> deleteValuesByAlignedEntryInfo(
+      AlignedEntryInfo alignedEntryInfo) async {
+    final db = await database;
+    final String date = alignedEntryInfo.startTime.toIso8601String();
+    final String time = alignedEntryInfo.startTime
+        .add(Duration(milliseconds: alignedEntryInfo.length))
+        .toIso8601String();
+
+    // Delete values that match the specified date, side, and start_time
+    await db.delete(
+      'sensor_values',
+      where: 'time >= ? AND time <= ?',
+      whereArgs: [date, time],
+    );
   }
 }

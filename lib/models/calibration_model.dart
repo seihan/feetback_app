@@ -28,8 +28,7 @@ class CalibrationModel {
   bool _canTested = false;
   bool get canTested => _canTested;
 
-  bool _canAdded = true;
-  bool get canAdded => _canAdded;
+  bool canAdded = true;
   final List<double> _xTestValues = List.generate(
     4096,
     (index) => index.toDouble(),
@@ -45,8 +44,10 @@ class CalibrationModel {
     }
     _calibrationTable = await _getCalibrationTable() ?? _calibrationTable;
     if (_calibrationTable.isValid()) {
-      _canTested = true;
-      _canAdded = false;
+      if (_calibrationTable.values.length > 4) {
+        canAdded = false;
+        _canTested = true;
+      }
     }
     await getPredictedValues();
     if (_predictedValues?.isNotEmpty ?? false) {
@@ -57,11 +58,14 @@ class CalibrationModel {
   void clearTable() {
     _calibrationTable.samples.clear();
     _calibrationTable.values.clear();
+    _xTestValues.clear();
+    _predictedValues?.clear();
+    canAdded = true;
   }
 
   void addValue({required double value}) {
     _calibrationTable.values.add(value);
-    if (_calibrationTable.values.length >= 10) {
+    if (_calibrationTable.values.length >= 5) {
       _canSaved = true;
     }
   }
@@ -102,13 +106,16 @@ class CalibrationModel {
 
   Future<void> test() async {
     final List<double> values = [];
-    const int degree = 2;
+    const int degree = 1;
     final Array xValues = Array(_calibrationTable.values);
     final Array yValues = Array(_calibrationTable.samples);
     final PolyFit p = PolyFit(xValues, yValues, degree);
     debugPrint('PolyFit: ${p.toString()}');
     for (int i = 0; i < _xTestValues.length; i++) {
-      values.add(p.predict(_xTestValues[i]));
+      double predictedValue = p.predict(_xTestValues[i]);
+      predictedValue < 0 ? predictedValue = 0 : predictedValue;
+      debugPrint('predicted: $predictedValue');
+      values.add(predictedValue);
     }
     _predictedValues = values;
     await _savePredictedValues(values);

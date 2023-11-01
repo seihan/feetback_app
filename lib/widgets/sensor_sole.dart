@@ -34,6 +34,8 @@ class SensorSole extends StatelessWidget {
         AsyncSnapshot<SensorValues> sensorState,
       ) {
         List<int> sensorValues = [];
+        List<double> convertedValues = [];
+        double sum = 0;
         if (sensorState.hasData && sensorState.data?.data.length == 12) {
           sensorValues = sensorState.data!.data;
         } else {
@@ -43,6 +45,10 @@ class SensorSole extends StatelessWidget {
         if (calibrationModel.predictedValues?.length == 4096) {
           predictedValue =
               calibrationModel.predictedValues?[minValue] ?? predictedValue;
+          for (int value in sensorValues) {
+            convertedValues.add(calibrationModel.predictedValues?[value] ?? 0);
+          }
+          sum = convertedValues.sum;
         }
         return Stack(
           children: [
@@ -73,9 +79,19 @@ class SensorSole extends StatelessWidget {
                 ),
               ),
             ),
-            if (minValue != 0)
+            if (minValue != 0 && predictedValue < 1000)
+              Text("Raw: $minValue\nPredicted: ${predictedValue.toStringAsFixed(
+                2,
+              )} g\nSum: ${sum.toStringAsFixed(
+                2,
+              )} g"),
+            if (minValue != 0 && predictedValue > 999)
               Text(
-                  "Raw: $minValue\nPredicted: ${predictedValue.toStringAsFixed(2)} Nm"),
+                  "Raw: $minValue\nPredicted: ${(predictedValue / 1000).toStringAsFixed(
+                2,
+              )} Kg\nSum: ${(sum / 1000).toStringAsFixed(
+                2,
+              )} Kg"),
           ],
         );
       },

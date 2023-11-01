@@ -26,10 +26,10 @@ class RecordModel extends ChangeNotifier {
   void startRecord() {
     if (!_record) {
       _startTime = DateTime.now();
-      _leftSubscription = sensorStateModel.leftValuesStream.listen(
+      _leftSubscription = sensorStateModel.leftDisplayStream.listen(
         _onValue,
       );
-      _rightSubscription = sensorStateModel.rightValuesStream.listen(
+      _rightSubscription = sensorStateModel.rightDisplayStream.listen(
         _onValue,
       );
     }

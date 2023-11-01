@@ -16,9 +16,10 @@ class SensorChart extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       child: charts.TimeSeriesChart(
         _createChartData(values),
-        animate: false,
+        animate: true,
         // Disable animation for smoother scrolling
         primaryMeasureAxis: const charts.NumericAxisSpec(
+          viewport: charts.NumericExtents(0, 4095),
           renderSpec: charts.GridlineRendererSpec(
             labelAnchor: charts.TickLabelAnchor.before,
           ),

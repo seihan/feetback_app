@@ -41,9 +41,10 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
         actions: [
           if (model.calibrationTable.samples.isNotEmpty)
             IconButton(
-              onPressed: () => setState(() {
+              onPressed: () {
                 model.clearTable();
-              }),
+                setState(() {});
+              },
               icon: const Icon(Icons.delete),
             ),
         ],
@@ -60,7 +61,7 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Text('$_sample Nm'),
+                    child: Text('$_sample g'),
                   ),
                   IconButton(
                     icon: const Icon(Icons.add),
@@ -90,7 +91,7 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    'Sample [Nm]',
+                    'Sample [g]',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -173,14 +174,14 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
 
   void _increase() {
     setState(() {
-      _sample += 10;
+      _sample = _sample + 10;
     });
   }
 
   void _decrease() {
     setState(() {
-      if (_sample >= 10) {
-        _sample -= 10;
+      if (_sample > 10) {
+        _sample = _sample - 10;
       }
     });
   }

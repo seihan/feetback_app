@@ -162,18 +162,30 @@ class DatabaseLookupByAlignedTime extends StatelessWidget {
             itemBuilder: (context, index) {
               final entry = entriesList?[index];
               return entry != null
-                  ? ListTile(
-                      title: Text('Date: ${entry.startTime.toIso8601String()}'),
-                      subtitle: Text(
-                          'Length: ${(entry.length * 0.001).toStringAsFixed(3)}s'),
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => ChartsScreen(
-                            alignedEntryInfo: entry,
+                  ? Dismissible(
+                      key: UniqueKey(), // Unique key for each item
+                      onDismissed: (DismissDirection direction) async {
+                        await database.deleteValuesByAlignedEntryInfo(entry);
+                      },
+                      background: Container(
+                        alignment: Alignment.centerRight,
+                        color: Colors
+                            .red, // Background color when swiped for removal
+                        child: const Icon(Icons.delete, color: Colors.white),
+                      ),
+                      child: ListTile(
+                        title:
+                            Text('Date: ${entry.startTime.toIso8601String()}'),
+                        subtitle: Text(
+                            'Length: ${(entry.length * 0.001).toStringAsFixed(3)}s'),
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => ChartsScreen(
+                              alignedEntryInfo: entry,
+                            ),
                           ),
                         ),
-                      ),
-                    )
+                      ))
                   : const ListTile(
                       title: Text('no data'),
                     );

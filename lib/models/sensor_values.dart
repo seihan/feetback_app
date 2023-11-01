@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 class SensorValues {
-  final DateTime time;
+  late final DateTime time;
   final List<int> data;
   final String side;
   SensorValues({required this.time, required this.data, required this.side});

@@ -64,7 +64,8 @@ class LineChartWidget extends StatelessWidget {
       data.add(Coordinate(xValues[i], yValues[i]));
     }
     final List<Coordinate> testData = [];
-    if (xTestValues != null && yTestValues != null) {
+    if ((xTestValues != null && xTestValues.isNotEmpty) &&
+        (yTestValues != null && yTestValues.isNotEmpty)) {
       for (int i = 0; i < xTestValues.length; i++) {
         testData.add(Coordinate(xTestValues[i], yTestValues[i]));
       }
