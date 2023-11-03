@@ -13,7 +13,7 @@ class FrequencyWidget extends StatelessWidget {
           AsyncSnapshot<int> frequency,
         ) {
           int freq = frequency.data ?? 0;
-          return Text('Frequency: $freq Hz');
+          return Text('$freq Hz');
         });
   }
 }

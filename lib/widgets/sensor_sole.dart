@@ -86,20 +86,21 @@ class SensorSole extends StatelessWidget {
               ),
             ),
             if (minValue != 0 && predictedValue < 1000)
-              Text("Raw: $minValue\nPredicted: ${predictedValue.toStringAsFixed(
+              Text(
+                  "Raw: $minValue\n\n\n\n\nPredicted: ${predictedValue.toStringAsFixed(
                 2,
-              )} g\nSum: ${sum.toStringAsFixed(
+              )} g\n\n\nSum: ${sum.toStringAsFixed(
                 2,
               )} g"),
             if (minValue != 0 && predictedValue > 999)
               Text(
-                  "Raw: $minValue\nPredicted: ${(predictedValue / 1000).toStringAsFixed(
+                  "Raw: $minValue\n\n\n\n\nPredicted: ${(predictedValue / 1000).toStringAsFixed(
                 2,
-              )} Kg\nSum: ${(sum / 1000).toStringAsFixed(
+              )} Kg\n\n\nSum: ${(sum / 1000).toStringAsFixed(
                 2,
               )} Kg"),
             Positioned(
-              top: 80,
+              left: 120,
               child: FrequencyWidget(
                 stream: frequency,
               ),
