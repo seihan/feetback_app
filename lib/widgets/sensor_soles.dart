@@ -19,11 +19,13 @@ class SensorSoles extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             SensorSole(
-              stream: stateModel.leftDisplayStream,
+              values: stateModel.leftDisplayStream,
+              frequency: stateModel.leftFrequency,
               device: 0,
             ),
             SensorSole(
-              stream: stateModel.rightDisplayStream,
+              values: stateModel.rightDisplayStream,
+              frequency: stateModel.rightFrequency,
               device: 1,
             ),
           ],

@@ -13,8 +13,12 @@ class SensorStateModel {
 
   static final StreamController<SensorValues> _leftValuesStream =
       StreamController<SensorValues>.broadcast();
+  static final StreamController<int> _leftFrequencyStream =
+      StreamController<int>.broadcast();
   static final StreamController<SensorValues> _rightValuesStream =
       StreamController<SensorValues>.broadcast();
+  static final StreamController<int> _rightFrequencyStream =
+      StreamController<int>.broadcast();
 
   SensorValues _leftValues = SensorValues(
       time: DateTime(1900),
@@ -28,9 +32,36 @@ class SensorStateModel {
   Stream<SensorValues> get leftValuesStream => _leftValuesStream.stream;
   Stream<SensorValues> get leftDisplayStream => leftValuesStream
       .throttleTime(const Duration(milliseconds: 33), trailing: true);
+  Stream<int> get leftFrequency => _leftFrequencyStream.stream;
   Stream<SensorValues> get rightValuesStream => _rightValuesStream.stream;
   Stream<SensorValues> get rightDisplayStream => rightValuesStream
       .throttleTime(const Duration(milliseconds: 33), trailing: true);
+  Stream<int> get rightFrequency => _rightFrequencyStream.stream;
+
+  int _leftCounter = 0;
+  int _rightCounter = 0;
+
+  Timer? _leftTimer;
+  Timer? _rightTimer;
+  void _startLeftTimer() {
+    _leftTimer ??= Timer.periodic(
+      const Duration(seconds: 1),
+      (Timer timer) {
+        _leftFrequencyStream.add(_leftCounter);
+        _leftCounter = 0;
+      },
+    );
+  }
+
+  void _startRightTimer() {
+    _rightTimer ??= Timer.periodic(
+      const Duration(seconds: 1),
+      (Timer timer) {
+        _rightFrequencyStream.add(_rightCounter);
+        _rightCounter = 0;
+      },
+    );
+  }
 
   List<int> _combineUInt8Values(List<int> uInt8List) {
     List<int> result = [];
@@ -62,6 +93,7 @@ class SensorStateModel {
     final Uint8List uInt8List = Uint8List.fromList(data);
     int start = uInt8List.first;
     int crc = 0;
+    _startLeftTimer();
 
     final DateTime now = DateTime.now();
     switch (start) {
@@ -93,6 +125,7 @@ class SensorStateModel {
     }
     if (crc != 0 && _leftValues.data.length == 12) {
       _leftValuesStream.add(_leftValues);
+      _leftCounter++;
     }
   }
 
@@ -100,6 +133,7 @@ class SensorStateModel {
     final Uint8List uInt8List = Uint8List.fromList(data);
     int start = uInt8List.first;
     int crc = 0;
+    _startRightTimer();
 
     final DateTime now = DateTime.now();
     switch (start) {
@@ -131,6 +165,7 @@ class SensorStateModel {
     }
     if (crc != 0 && _rightValues.data.length == 12) {
       _rightValuesStream.add(_rightValues);
+      _rightCounter++;
     }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:feet_back_app/models/sensor_values.dart';
+import 'package:feet_back_app/widgets/frequency_widget.dart';
 import 'package:feet_back_app/widgets/sensor_point.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -9,8 +10,13 @@ import '../models/calibration_model.dart';
 class SensorSole extends StatelessWidget {
   final int device;
   final String assetName = 'assets/sole.svg';
-  final Stream<SensorValues> stream;
-  const SensorSole({required this.device, required this.stream, super.key});
+  final Stream<SensorValues> values;
+  final Stream<int> frequency;
+  const SensorSole(
+      {required this.device,
+      required this.values,
+      required this.frequency,
+      super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +34,7 @@ class SensorSole extends StatelessWidget {
       height: 450,
     );
     return StreamBuilder(
-      stream: stream,
+      stream: values,
       builder: (
         BuildContext context,
         AsyncSnapshot<SensorValues> sensorState,
@@ -92,6 +98,12 @@ class SensorSole extends StatelessWidget {
               )} Kg\nSum: ${(sum / 1000).toStringAsFixed(
                 2,
               )} Kg"),
+            Positioned(
+              top: 80,
+              child: FrequencyWidget(
+                stream: frequency,
+              ),
+            )
           ],
         );
       },
