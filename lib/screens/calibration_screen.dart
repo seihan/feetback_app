@@ -160,7 +160,9 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
   }
 
   void _onValue(SensorValues values) {
-    _values.add(values.data.min);
+    _values.add(model.calibrationTable.values.isEmpty
+        ? values.data.max
+        : values.data.min);
     if (_values.length == sampleRate) {
       _value = (_values.sum / sampleRate);
       setState(() {
