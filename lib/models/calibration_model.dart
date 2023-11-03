@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:feet_back_app/models/peripheral_constants.dart';
 import 'package:feet_back_app/models/sensor_state_model.dart';
 import 'package:feet_back_app/models/sensor_values.dart';
 import 'package:flutter/material.dart';
@@ -29,16 +30,17 @@ class CalibrationModel {
   bool get canTested => _canTested;
 
   bool canAdded = true;
-  final List<double> _xTestValues = List.generate(
-    4096,
-    (index) => index.toDouble(),
-  );
+  late final List<double> _xTestValues;
   List<double>? _predictedValues;
 
   List<double> get xTestValues => _xTestValues;
   List<double>? get predictedValues => _predictedValues;
 
   Future<void> initialize() async {
+    _xTestValues = List.generate(
+      4096,
+      (int index) => index.toDouble(),
+    );
     if (_calibrationTable.values.length != _calibrationTable.samples.length) {
       clearTable();
     }
@@ -46,8 +48,11 @@ class CalibrationModel {
     if (_calibrationTable.isValid()) {
       if (_calibrationTable.values.length > 4) {
         canAdded = false;
-        _canTested = true;
       }
+    } else {
+      _calibrationTable.values.addAll(PeripheralConstants.defaultValues);
+      _calibrationTable.samples.addAll(PeripheralConstants.defaultSamples);
+      _canTested = true;
     }
     await getPredictedValues();
     if (_predictedValues?.isNotEmpty ?? false) {
@@ -65,7 +70,7 @@ class CalibrationModel {
 
   void addValue({required double value}) {
     _calibrationTable.values.add(value);
-    if (_calibrationTable.values.length >= 5) {
+    if (_calibrationTable.values.length > 2) {
       _canSaved = true;
     }
   }
@@ -104,20 +109,32 @@ class CalibrationModel {
         [];
   }
 
-  Future<void> test() async {
+  Future<void> predictValues() async {
     final List<double> values = [];
     const int degree = 1;
-    final Array xValues = Array(_calibrationTable.values);
-    final Array yValues = Array(_calibrationTable.samples);
-    final PolyFit p = PolyFit(xValues, yValues, degree);
-    debugPrint('PolyFit: ${p.toString()}');
-    for (int i = 0; i < _xTestValues.length; i++) {
-      double predictedValue = p.predict(_xTestValues[i]);
+    final Array xFineValues = Array(_calibrationTable.values);
+    final Array xCoarseValues = Array([200, 130, 120, 85, 0]);
+    final Array yFineValues = Array(_calibrationTable.samples);
+    final Array yCoarseValues = Array([300, 1000, 2000, 3000, 4000]);
+    final PolyFit pFine = PolyFit(xFineValues, yFineValues, degree);
+    final PolyFit pCoarse = PolyFit(xCoarseValues, yCoarseValues, degree);
+    debugPrint('PolyFit fine: ${pFine.toString()}');
+    debugPrint('PolyFit coarse: ${pCoarse.toString()}');
+    for (int i = 0; i < 200; i++) {
+      // coarse measurement range
+      double predictedValue = pCoarse.predict(_xTestValues[i]);
+      debugPrint('predicted coarse value: $predictedValue');
       predictedValue < 0 ? predictedValue = 0 : predictedValue;
-      debugPrint('predicted: $predictedValue');
+      values.add(predictedValue);
+    }
+    for (int i = 200; i < _xTestValues.length; i++) {
+      double predictedValue = pFine.predict(_xTestValues[i]);
+      debugPrint('predicted fine value: $predictedValue');
+      predictedValue < 0 ? predictedValue = 0 : predictedValue;
       values.add(predictedValue);
     }
     _predictedValues = values;
+    debugPrint('predicted length: ${_predictedValues?.length}');
     await _savePredictedValues(values);
     _canTested = false;
     _canSaved = false;

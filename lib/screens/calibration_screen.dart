@@ -137,7 +137,7 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
           ? FloatingActionButton(
               onPressed: model.canTested
                   ? () {
-                      model.test();
+                      model.predictValues();
                       setState(() {});
                     }
                   : () async => model
@@ -182,7 +182,7 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
 
   void _decrease() {
     setState(() {
-      if (_sample > 10) {
+      if (_sample > 0) {
         _sample = _sample - 10;
       }
     });

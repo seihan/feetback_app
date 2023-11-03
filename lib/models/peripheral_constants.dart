@@ -21,6 +21,8 @@ class PeripheralConstants {
       Guid('0000fe50-0000-1000-8000-00805f9b34fb');
   static final Guid sensorRxTxCharGuid =
       Guid('0000fe51-0000-1000-8000-00805f9b34fb');
+  static final List<double> defaultValues = [4095, 1335, 530, 446, 328];
+  static final List<double> defaultSamples = [0, 100, 200, 300, 400];
 
   /// Actor config
   static const DeviceIdentifier actorLeftId =
