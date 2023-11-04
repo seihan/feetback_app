@@ -49,14 +49,14 @@ class CalibrationModel {
       if (_calibrationTable.values.length > 4) {
         canAdded = false;
       }
+      await getPredictedValues();
+      if (_predictedValues?.isNotEmpty ?? false) {
+        _canTested = false;
+      }
     } else {
       _calibrationTable.values.addAll(PeripheralConstants.defaultValues);
       _calibrationTable.samples.addAll(PeripheralConstants.defaultSamples);
-      _canTested = true;
-    }
-    await getPredictedValues();
-    if (_predictedValues?.isNotEmpty ?? false) {
-      _canTested = false;
+      predictValues();
     }
   }
 
