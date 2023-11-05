@@ -134,7 +134,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
     _deviceSubscriptions.clear();
     _scanResultSubscription = FlutterBluePlus.scanResults.listen(_onScanResult);
     _scanSubscription = FlutterBluePlus.isScanning.listen(_handleScanState);
-    debugPrint('start scanning');
+    _logModel.add('start scanning');
     FlutterBluePlus.startScan(timeout: const Duration(seconds: 13));
   }
 
@@ -155,9 +155,10 @@ class BluetoothConnectionModel extends ChangeNotifier {
               ? PeripheralConstants.leftStart
               : PeripheralConstants.rightStart,
           withoutResponse: false);
-      debugPrint('${device == 0 ? 'Left' : 'Right'} start sent successfully.');
+      _logModel
+          .add('${device == 0 ? 'Left' : 'Right'} stop sent successfully.');
     } catch (e) {
-      debugPrint('Error sending data: $e');
+      _logModel.add('Error sending data: $e');
     }
   }
 
@@ -168,9 +169,10 @@ class BluetoothConnectionModel extends ChangeNotifier {
               ? PeripheralConstants.leftStop
               : PeripheralConstants.rightStop,
           withoutResponse: false);
-      debugPrint('${device == 0 ? 'Left' : 'Right'} stop sent successfully.');
+      _logModel
+          .add('${device == 0 ? 'Left' : 'Right'} stop sent successfully.');
     } catch (e) {
-      debugPrint('Error sending data: $e');
+      _logModel.add('Error sending data: $e');
     }
   }
 
@@ -205,10 +207,9 @@ class BluetoothConnectionModel extends ChangeNotifier {
         await _rightNotificationHandler?.setNotify(false);
       }
     }
-    _logModel.add(
-        'is notifying; ${_devices.every((device) => device.rxTxChar?.isNotifying ?? false)}');
-    debugPrint(
-        'is notifying; ${_devices.every((device) => device.rxTxChar?.isNotifying ?? false)}');
+    _logModel.add('is notifying; ${_devices.every(
+      (BluetoothDeviceModel device) => device.rxTxChar?.isNotifying ?? false,
+    )}');
     notifyListeners();
   }
 
@@ -232,17 +233,13 @@ class BluetoothConnectionModel extends ChangeNotifier {
 
   void _handleDeviceState(BluetoothConnectionState? deviceState,
       BluetoothDeviceModel deviceModel) async {
-    debugPrint('device state = ${deviceState.toString()}');
-    _logModel.add('device state = ${deviceState.toString()}');
     if (deviceState != BluetoothConnectionState.connected) {
-      debugPrint('disconnected');
-      _logModel.add('disconnected');
+      _logModel.add('${deviceModel.device?.platformName} disconnected');
       deviceModel.connected = false;
       notifyListeners();
       await _connect(deviceModel);
     } else if (deviceState == BluetoothConnectionState.connected) {
-      debugPrint('connected');
-      _logModel.add('connected');
+      _logModel.add('${deviceModel.device?.platformName} connected');
       deviceModel.connected = true;
       notifyListeners();
       _handleServices(
@@ -252,13 +249,11 @@ class BluetoothConnectionModel extends ChangeNotifier {
 
   Future<void> _connect(BluetoothDeviceModel deviceModel) async {
     try {
-      debugPrint('connecting');
-      _logModel.add('connecting');
+      _logModel.add('${deviceModel.device?.platformName} connecting');
       await deviceModel.device?.connect();
     } on Exception catch (error, stacktrace) {
       CustomErrorHandler.handleFlutterError(error, stacktrace);
-      debugPrint('Error: $error');
-      _logModel.add('Error: $error');
+      _logModel.add('${deviceModel.device?.platformName} Error: $error');
     }
   }
 
@@ -268,7 +263,6 @@ class BluetoothConnectionModel extends ChangeNotifier {
       deviceModel.service = services.firstWhereOrNull(
           (service) => service.uuid == deviceModel.serviceGuid);
       if (deviceModel.service != null) {
-        debugPrint('found service for ${deviceModel.device?.platformName}');
         _logModel.add('found service for ${deviceModel.device?.platformName}');
         _handleCharacteristics(deviceModel);
       }
@@ -280,7 +274,6 @@ class BluetoothConnectionModel extends ChangeNotifier {
         .firstWhereOrNull((characteristic) =>
             characteristic.uuid == deviceModel.rxTxCharGuid);
     if (deviceModel.rxTxChar != null) {
-      debugPrint('found ${deviceModel.device?.platformName} rx tx char');
       _logModel.add('found ${deviceModel.device?.platformName}  rx tx char');
     }
   }
@@ -297,17 +290,17 @@ class BluetoothConnectionModel extends ChangeNotifier {
           if ((sameName || sameId) &&
               (nullDevice || existingDevice) &&
               !processedResult) {
-            debugPrint('found device: ${result.device.platformName}');
             _logModel.add('found device: ${result.device.platformName}');
             device.device = result.device;
             _processedResults.add(result);
             if (_deviceSubscriptions.length < _devices.length) {
-              _deviceSubscriptions
-                  .add(device.device?.connectionState.listen((state) {
+              _deviceSubscriptions.add(device.device?.connectionState
+                  .listen((BluetoothConnectionState state) {
                 _handleDeviceState(state, device);
               }));
             } else {
               FlutterBluePlus.stopScan();
+              _logModel.add('stop scan');
             }
           }
         }
