@@ -10,7 +10,7 @@ class AnalyticsScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Analytics'),
       ),
-      body: const DatabaseLookupByAlignedTime(),
+      body: const DatabaseView(),
     );
   }
 }

@@ -1,8 +1,27 @@
 import 'package:charts_flutter/flutter.dart' as charts;
-import 'package:charts_flutter/flutter.dart';
 import 'package:flutter/material.dart';
 
 import '../models/sensor_values.dart';
+
+class DateTimeAxisSpecWorkaround extends charts.DateTimeAxisSpec {
+  const DateTimeAxisSpecWorkaround({
+    charts.RenderSpec<DateTime>? renderSpec,
+    charts.DateTimeTickProviderSpec? tickProviderSpec,
+    charts.DateTimeTickFormatterSpec? tickFormatterSpec,
+    bool? showAxisLine,
+  }) : super(
+            renderSpec: renderSpec,
+            tickProviderSpec: tickProviderSpec,
+            tickFormatterSpec: tickFormatterSpec,
+            showAxisLine: showAxisLine);
+
+  @override
+  configure(charts.Axis<DateTime> axis, charts.ChartContext context,
+      charts.GraphicsFactory graphicsFactory) {
+    super.configure(axis, context, graphicsFactory);
+    axis.autoViewport = false;
+  }
+}
 
 class SensorChart extends StatelessWidget {
   final List<SensorValues> values;
@@ -19,36 +38,41 @@ class SensorChart extends StatelessWidget {
         animate: true,
         // Disable animation for smoother scrolling
         primaryMeasureAxis: const charts.NumericAxisSpec(
-          viewport: charts.NumericExtents(0, 4095),
+          // viewport: charts.NumericExtents(0, 4095),
           renderSpec: charts.GridlineRendererSpec(
             labelAnchor: charts.TickLabelAnchor.before,
           ),
         ),
-        domainAxis: charts.DateTimeAxisSpec(
-          viewport: charts.DateTimeExtents(
+        domainAxis: DateTimeAxisSpecWorkaround(
+            /* viewport: charts.DateTimeExtents(
             start: values.first.time,
             end: values.last.time,
           ),
           renderSpec: const charts.SmallTickRendererSpec(
             labelAnchor: charts.TickLabelAnchor.before,
             labelJustification: charts.TickLabelJustification.outside,
-          ),
-        ),
+          ), */
+            ),
         defaultRenderer: charts.LineRendererConfig(
           includeArea: false,
           stacked: false,
         ),
         behaviors: [
+          // charts.SlidingViewport(),
+          // A pan and zoom behavior helps demonstrate the sliding viewport
+          // behavior by allowing the data visible in the viewport to be adjusted
+          // dynamically.
+          charts.PanAndZoomBehavior(),
           charts.LinePointHighlighter(
-            symbolRenderer: CircleSymbolRenderer(),
+            symbolRenderer: charts.CircleSymbolRenderer(),
           ),
           charts.SeriesLegend(
             position: charts.BehaviorPosition.end,
             horizontalFirst: false,
             cellPadding: const EdgeInsets.all(2.0),
-            showMeasures: true,
+            showMeasures: false,
             measureFormatter: (num? value) {
-              return value != null ? value.toStringAsFixed(0) : '-';
+              return value != null ? value.toString() : '-';
             },
           ),
         ],
@@ -167,7 +191,7 @@ class RealTimeSensorChart extends StatelessWidget {
             ),
             behaviors: [
               charts.LinePointHighlighter(
-                symbolRenderer: CircleSymbolRenderer(),
+                symbolRenderer: charts.CircleSymbolRenderer(),
               ),
               charts.SeriesLegend(
                 position: charts.BehaviorPosition.end,

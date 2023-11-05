@@ -1,11 +1,9 @@
-import 'dart:convert';
-
+import 'package:collection/collection.dart';
 import 'package:feet_back_app/models/sensor_values.dart';
-import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
-import 'aligned_entry_info.dart';
+import 'record_info.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -31,6 +29,7 @@ class DatabaseHelper {
     await db.execute('''
     CREATE TABLE sensor_values(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      recordId INTEGER,
       time TEXT,
       data TEXT,
       side TEXT
@@ -39,13 +38,13 @@ class DatabaseHelper {
   }
 
   Future<int> insertSensorReading(SensorValues values) async {
-    final db = await database;
+    final Database db = await database;
     return await db.insert('sensor_values', values.toMap());
   }
 
   Future<void> batchInsertSensorValues(List<SensorValues> values) async {
-    final db = await database;
-    final batch = db.batch();
+    final Database db = await database;
+    final Batch batch = db.batch();
 
     for (final value in values) {
       batch.insert('sensor_values', value.toMap());
@@ -54,90 +53,57 @@ class DatabaseHelper {
     await batch.commit();
   }
 
-  Future<List<SensorValues>> getSensorValuesForDate(
-      DateTime date, String side) async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'sensor_values',
-      where: 'time LIKE ? AND side = ?',
-      whereArgs: [
-        '${DateFormat('yyyy-MM-dd').format(date)}%',
-        side,
-      ], // Adjust the date format as needed.
-    );
-
-    return List.generate(maps.length, (i) {
-      return SensorValues(
-        time: DateTime.parse(maps[i]['time']),
-        data: List<int>.from(json.decode(maps[i]['data'])),
-        side: maps[i]['side'],
-      );
-    });
-  }
-
-  Future<List<int>> getEntryIDs() async {
+  Future<int> getNextRecordID() async {
     final db = await database;
     final List<Map<String, dynamic>> result = await db.query(
       'sensor_values',
-      columns: ['id'], // Select the 'name' column or property.
+      distinct: true,
+      columns: ['recordId'], // Select the 'name' column or property.
     );
 
     // Extract the 'name' property from the query results.
-    return result.map((entry) => entry['id'] as int).toList();
+    return (result
+                .map(
+                  (Map<String, dynamic> entry) => entry['recordId'] as int,
+                )
+                .maxOrNull ??
+            0) +
+        1;
   }
 
-  Future<List<DateTime>> getEntryDate() async {
-    final db = await database;
-    final List<Map<String, dynamic>> result = await db.query(
-      'sensor_values',
-      columns: ['time'], // Select the 'name' column or property.
-    );
-
-    // Extract the 'name' property from the query results.
-    return result.map((entry) => DateTime.parse(entry['time'])).toList();
-  }
-
-  Future<List<AlignedEntryInfo>> getAlignedEntryInfo() async {
+  Future<List<RecordInfo>> getRecordInfoList() async {
     final db = await database;
 
     const query = '''
       SELECT
-        date,
-        MIN(start_time) as start_time,
-        SUM(length) as length
-      FROM (
-        SELECT
-          strftime('%Y-%m-%d', time) as date,
-          MIN(time) as start_time,
-          (julianday(MAX(time)) - julianday(MIN(time))) * 86400000 as length
-        FROM sensor_values
-        GROUP BY date, strftime('%s', time) / 1
-    ) AS aligned_values
-    GROUP BY date
-    HAVING SUM(length) >= 1000; -- Total length in milliseconds greater than 1 second
+        recordId,
+        MIN(time) as start_time,
+        MAX(time) as end_time
+      FROM sensor_values
+      GROUP BY recordId
     ''';
 
     final List<Map<String, dynamic>> result = await db.rawQuery(query);
 
-    // Map the query results to AlignedEntryInfo objects.
-    return result.map((entry) => AlignedEntryInfo.fromMap(entry)).toList();
+    return result.map((entry) => RecordInfo.fromMap(entry)).toList();
   }
 
   Future<List<SensorValues>> getEntriesByTimeSpan(
     DateTime startTime,
-    int length,
+    DateTime endTime,
   ) async {
     final db = await database;
 
     const query = '''
     SELECT * FROM sensor_values
     WHERE time >= ? AND time <= ?
-    ORDER BY time;
+    GROUP BY round(strftime('%s%f', time), 2)
+    ORDER BY time
   ''';
 
     final List<Map<String, dynamic>> result = await db.rawQuery(query, [
       startTime.toIso8601String(),
-      startTime.add(Duration(milliseconds: length)).toIso8601String(),
+      endTime.toIso8601String(),
     ]);
 
     // Map the query results to your model.
@@ -148,19 +114,14 @@ class DatabaseHelper {
         .toList();
   }
 
-  Future<void> deleteValuesByAlignedEntryInfo(
-      AlignedEntryInfo alignedEntryInfo) async {
+  Future<void> deleteValuesByRecordInfo(RecordInfo recordInfo) async {
     final db = await database;
-    final String date = alignedEntryInfo.startTime.toIso8601String();
-    final String time = alignedEntryInfo.startTime
-        .add(Duration(milliseconds: alignedEntryInfo.length))
-        .toIso8601String();
 
-    // Delete values that match the specified date, side, and start_time
+    // Delete values that match the specified record
     await db.delete(
       'sensor_values',
-      where: 'time >= ? AND time <= ?',
-      whereArgs: [date, time],
+      where: 'recordId = ?',
+      whereArgs: [recordInfo.recordId],
     );
   }
 }

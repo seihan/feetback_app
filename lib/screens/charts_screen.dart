@@ -1,25 +1,25 @@
 import 'package:feet_back_app/models/database_helper.dart';
 import 'package:flutter/material.dart';
 
-import '../models/aligned_entry_info.dart';
+import '../models/record_info.dart';
 import '../models/sensor_values.dart';
 import '../widgets/charts_widget.dart';
 
 class ChartsScreen extends StatelessWidget {
-  final AlignedEntryInfo alignedEntryInfo;
-  const ChartsScreen({super.key, required this.alignedEntryInfo});
+  final RecordInfo recordInfo;
+  const ChartsScreen({super.key, required this.recordInfo});
 
   @override
   Widget build(BuildContext context) {
     final DatabaseHelper database = DatabaseHelper();
     return Scaffold(
       appBar: AppBar(
-        title: Text(alignedEntryInfo.startTime.toIso8601String()),
+        title: Text(recordInfo.startTime.toIso8601String()),
       ),
       body: FutureBuilder<List<SensorValues>>(
         future: database.getEntriesByTimeSpan(
-          alignedEntryInfo.startTime,
-          alignedEntryInfo.length,
+          recordInfo.startTime,
+          recordInfo.endTime,
         ),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {

@@ -23,13 +23,16 @@ class RecordModel extends ChangeNotifier {
   // Adjust the batch size according to your requirements.
   static const batchSize = 100;
 
-  void startRecord() {
+  int recordId = -1;
+  void startRecord() async {
     if (!_record) {
+      // get last recordId
+      recordId = await database.getNextRecordID();
       _startTime = DateTime.now();
-      _leftSubscription = sensorStateModel.leftDisplayStream.listen(
+      _leftSubscription = sensorStateModel.leftValuesStream.listen(
         _onValue,
       );
-      _rightSubscription = sensorStateModel.rightDisplayStream.listen(
+      _rightSubscription = sensorStateModel.rightValuesStream.listen(
         _onValue,
       );
     }
@@ -41,12 +44,14 @@ class RecordModel extends ChangeNotifier {
     _leftSubscription?.cancel();
     _rightSubscription?.cancel();
     _record = false;
+    _duration = 0;
     notifyListeners();
     _insertBufferedValues();
   }
 
   void _onValue(SensorValues values) {
     if (_record && values.data.isNotEmpty) {
+      values.recordId = recordId;
       final Duration difference = DateTime.now().difference(_startTime);
       final int previousDuration = _duration;
       _duration = difference.inSeconds;
