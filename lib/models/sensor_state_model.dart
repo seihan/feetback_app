@@ -20,14 +20,8 @@ class SensorStateModel {
   static final StreamController<int> _rightFrequencyStream =
       StreamController<int>.broadcast();
 
-  SensorValues _leftValues = SensorValues(
-      time: DateTime(1900),
-      data: List.generate(12, (index) => 0),
-      side: 'LEFT');
-  SensorValues _rightValues = SensorValues(
-      time: DateTime(1900),
-      data: List.generate(12, (index) => 0),
-      side: 'RIGHT');
+  SensorValues? _leftValues;
+  SensorValues? _rightValues;
 
   Stream<SensorValues> get leftValuesStream => _leftValuesStream.stream;
   Stream<SensorValues> get leftDisplayStream => leftValuesStream
@@ -63,26 +57,6 @@ class SensorStateModel {
     );
   }
 
-  List<int> _combineUInt8Values(List<int> uInt8List) {
-    List<int> result = [];
-    int value = 0;
-    bool combine = false;
-
-    for (int i = 0; i < uInt8List.length; i++) {
-      if (combine) {
-        value = (value << 8) + uInt8List[i];
-        result.add(value);
-        value = 0;
-        combine = false;
-      } else {
-        value = uInt8List[i];
-        combine = true;
-      }
-    }
-
-    return result;
-  }
-
   /*
   double _getResistance(int value) {
     return (value / (4096 - value)) * 1000000;
@@ -90,81 +64,89 @@ class SensorStateModel {
    */
 
   updateLeft(List<int> data) {
-    final Uint8List uInt8List = Uint8List.fromList(data);
-    int start = uInt8List.first;
+    // assumptions:
+    // - package length is always multiple of 2 (List of uint16 big endian)
+    // - full package has 28 bytes
+    // - first value is identifier
+    // - 12 sensor values
+    // - last value is crc
+    final ByteData buffer = ByteData.view(Uint8List.fromList(data).buffer);
+    int identifier = buffer.getInt16(0);
     int crc = 0;
     _startLeftTimer();
 
     final DateTime now = DateTime.now();
-    switch (start) {
-      case 0x01:
+    switch (identifier) {
+      case 0x0103:
         {
-          final List<int> intValues = _combineUInt8Values(
-            uInt8List.sublist(2),
-          );
-          if (intValues.length > 12) {
-            crc = intValues.last;
-            intValues.removeLast();
+          _leftValues = SensorValues(time: now, data: [], side: 'LEFT');
+          for (int i = 1; i < buffer.lengthInBytes / 2; i++) {
+            _leftValues?.data.add(buffer.getInt16((i * 2)));
           }
-          final SensorValues sensorValues =
-              SensorValues(time: now, data: intValues, side: 'LEFT');
-          _leftValues = sensorValues;
+
+          if ((_leftValues?.data.length ?? 0) > 12) {
+            crc = _leftValues?.data.last ?? 0;
+            _leftValues?.data.removeLast();
+          }
           break;
         }
       default:
         {
-          final List<int> intValues = _combineUInt8Values(uInt8List);
-          final SensorValues sensorValues = _leftValues;
-          crc = intValues.last;
-          intValues.removeLast();
-          if (_leftValues.data.length != 12) {
-            sensorValues.data.addAll(intValues);
-            _leftValues = sensorValues;
+          if (_leftValues?.data.isNotEmpty ?? false) {
+            for (int i = 0; i < buffer.lengthInBytes / 2; i++) {
+              _leftValues?.data.add(buffer.getInt16((i * 2)));
+            }
+
+            if ((_leftValues?.data.length ?? 0) > 12) {
+              crc = _leftValues?.data.last ?? 0;
+              _leftValues?.data.removeLast();
+            }
           }
         }
     }
-    if (crc != 0 && _leftValues.data.length == 12) {
-      _leftValuesStream.add(_leftValues);
+    if (crc != 0 && _leftValues?.data.length == 12) {
+      _leftValuesStream.add(_leftValues!);
       _leftCounter++;
     }
   }
 
   updateRight(List<int> data) {
-    final Uint8List uInt8List = Uint8List.fromList(data);
-    int start = uInt8List.first;
+    final ByteData buffer = ByteData.view(Uint8List.fromList(data).buffer);
+    int identifier = buffer.getInt16(0);
     int crc = 0;
     _startRightTimer();
 
     final DateTime now = DateTime.now();
-    switch (start) {
-      case 0x02:
+    switch (identifier) {
+      case 0x0203:
         {
-          final List<int> intValues = _combineUInt8Values(
-            uInt8List.sublist(2),
-          );
-          if (intValues.length > 12) {
-            crc = intValues.last;
-            intValues.removeLast();
+          _rightValues = SensorValues(time: now, data: [], side: 'RIGHT');
+          for (int i = 1; i < buffer.lengthInBytes / 2; i++) {
+            _rightValues?.data.add(buffer.getInt16((i * 2)));
           }
-          final SensorValues sensorValues =
-              SensorValues(time: now, data: intValues, side: 'RIGHT');
-          _rightValues = sensorValues;
+
+          if ((_rightValues?.data.length ?? 0) > 12) {
+            crc = _rightValues?.data.last ?? 0;
+            _rightValues?.data.removeLast();
+          }
           break;
         }
       default:
         {
-          final List<int> intValues = _combineUInt8Values(uInt8List);
-          final SensorValues sensorValues = _rightValues;
-          crc = intValues.last;
-          intValues.removeLast();
-          if (_rightValues.data.length != 12) {
-            sensorValues.data.addAll(intValues);
-            _rightValues = sensorValues;
+          if (_rightValues?.data.isNotEmpty ?? false) {
+            for (int i = 0; i < buffer.lengthInBytes / 2; i++) {
+              _rightValues?.data.add(buffer.getInt16((i * 2)));
+            }
+
+            if ((_rightValues?.data.length ?? 0) > 12) {
+              crc = _rightValues?.data.last ?? 0;
+              _rightValues?.data.removeLast();
+            }
           }
         }
     }
-    if (crc != 0 && _rightValues.data.length == 12) {
-      _rightValuesStream.add(_rightValues);
+    if (crc != 0 && _rightValues?.data.length == 12) {
+      _rightValuesStream.add(_rightValues!);
       _rightCounter++;
     }
   }
