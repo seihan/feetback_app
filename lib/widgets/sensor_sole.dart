@@ -1,11 +1,9 @@
-import 'package:collection/collection.dart';
 import 'package:feet_back_app/models/sensor_values.dart';
 import 'package:feet_back_app/widgets/frequency_widget.dart';
+import 'package:feet_back_app/widgets/predicted_values_widget.dart';
 import 'package:feet_back_app/widgets/sensor_point.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
-import '../models/calibration_model.dart';
 
 class SensorSole extends StatelessWidget {
   final int device;
@@ -24,9 +22,7 @@ class SensorSole extends StatelessWidget {
       12,
       (int index) => 0,
     );
-    final CalibrationModel calibrationModel = CalibrationModel();
-    int minValue = 0;
-    double predictedValue = 0;
+
     final Widget svg = SvgPicture.asset(
       assetName,
       semanticsLabel: 'Sensor sole',
@@ -40,21 +36,10 @@ class SensorSole extends StatelessWidget {
         AsyncSnapshot<SensorValues> sensorState,
       ) {
         List<int> sensorValues = [];
-        List<double> convertedValues = [];
-        double sum = 0;
         if (sensorState.hasData && sensorState.data?.data.length == 12) {
           sensorValues = sensorState.data!.data;
         } else {
           sensorValues = List.generate(12, (index) => 0);
-        }
-        minValue = sensorValues.min;
-        if (calibrationModel.predictedValues?.length == 4096) {
-          predictedValue =
-              calibrationModel.predictedValues?[minValue] ?? predictedValue;
-          for (int value in sensorValues) {
-            convertedValues.add(calibrationModel.predictedValues?[value] ?? 0);
-          }
-          sum = convertedValues.sum;
         }
         return Stack(
           children: [
@@ -85,26 +70,19 @@ class SensorSole extends StatelessWidget {
                 ),
               ),
             ),
-            if (minValue != 0 && predictedValue < 1000)
-              Text(
-                  "Raw: $minValue\n\n\n\n\nPredicted: ${predictedValue.toStringAsFixed(
-                2,
-              )} g\n\n\nSum: ${sum.toStringAsFixed(
-                2,
-              )} g"),
-            if (minValue != 0 && predictedValue > 999)
-              Text(
-                  "Raw: $minValue\n\n\n\n\nPredicted: ${(predictedValue / 1000).toStringAsFixed(
-                2,
-              )} Kg\n\n\nSum: ${(sum / 1000).toStringAsFixed(
-                2,
-              )} Kg"),
             Positioned(
-              left: 120,
+              top: 427,
+              left: 110,
               child: FrequencyWidget(
                 stream: frequency,
               ),
-            )
+            ),
+            Positioned(
+              top: 390,
+              child: PredictedValuesWidget(
+                sensorValues: sensorValues,
+              ),
+            ),
           ],
         );
       },

@@ -33,10 +33,8 @@ class ChartsScreen extends StatelessWidget {
               ),
             );
           } else {
-            final List<SensorValues>? values = snapshot.data;
-            return values != null
-                ? ChartsWidget(values: values)
-                : const Placeholder();
+            final List<SensorValues> values = snapshot.data!;
+            return ChartsWidget(values: values);
           }
         },
       ),

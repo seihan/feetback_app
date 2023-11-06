@@ -40,28 +40,22 @@ class SensorChart extends StatelessWidget {
         primaryMeasureAxis: const charts.NumericAxisSpec(
           // viewport: charts.NumericExtents(0, 4095),
           renderSpec: charts.GridlineRendererSpec(
+            labelStyle: charts.TextStyleSpec(
+              color: charts.MaterialPalette.white,
+            ), // White color for axis labels
+            lineStyle: charts.LineStyleSpec(
+              color: charts.MaterialPalette.white,
+            ), // White color for axis lines
             labelAnchor: charts.TickLabelAnchor.before,
           ),
         ),
-        domainAxis: DateTimeAxisSpecWorkaround(
-            /* viewport: charts.DateTimeExtents(
-            start: values.first.time,
-            end: values.last.time,
-          ),
-          renderSpec: const charts.SmallTickRendererSpec(
-            labelAnchor: charts.TickLabelAnchor.before,
-            labelJustification: charts.TickLabelJustification.outside,
-          ), */
-            ),
+        domainAxis: const DateTimeAxisSpecWorkaround(),
         defaultRenderer: charts.LineRendererConfig(
           includeArea: false,
           stacked: false,
         ),
         behaviors: [
-          // charts.SlidingViewport(),
-          // A pan and zoom behavior helps demonstrate the sliding viewport
-          // behavior by allowing the data visible in the viewport to be adjusted
-          // dynamically.
+          charts.SlidingViewport(),
           charts.PanAndZoomBehavior(),
           charts.LinePointHighlighter(
             symbolRenderer: charts.CircleSymbolRenderer(),
@@ -70,7 +64,7 @@ class SensorChart extends StatelessWidget {
             position: charts.BehaviorPosition.end,
             horizontalFirst: false,
             cellPadding: const EdgeInsets.all(2.0),
-            showMeasures: false,
+            showMeasures: true,
             measureFormatter: (num? value) {
               return value != null ? value.toString() : '-';
             },

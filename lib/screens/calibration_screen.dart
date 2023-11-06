@@ -61,7 +61,7 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Text('$_sample g'),
+                    child: Text('${_sample}g'),
                   ),
                   IconButton(
                     icon: const Icon(Icons.add),
@@ -143,7 +143,7 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
                   : () async => model
                       .saveCalibrationTable()
                       .then((value) => setState(() {})),
-              child: Text(model.canTested ? 'Test' : 'Save'),
+              child: Text(model.canTested ? 'Calibrate' : 'Save'),
             )
           : null,
     );

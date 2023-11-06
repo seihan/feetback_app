@@ -1,3 +1,4 @@
+import 'package:feet_back_app/widgets/scrollable_vertical_widget.dart';
 import 'package:feet_back_app/widgets/sensor_chart.dart';
 import 'package:flutter/material.dart';
 
@@ -13,7 +14,7 @@ class ChartsWidget extends StatelessWidget {
         values.where((element) => element.side == 'LEFT').toList();
     final List<SensorValues> rightValues =
         values.where((element) => element.side == 'RIGHT').toList();
-    return Column(
+    return ScrollableVerticalWidget(
       children: [
         const Text('Left Sensor'),
         if (leftValues.isNotEmpty) SensorChart(values: leftValues),

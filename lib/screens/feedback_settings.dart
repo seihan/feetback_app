@@ -3,6 +3,9 @@ import 'package:feet_back_app/models/feedback_model.dart';
 import 'package:feet_back_app/widgets/scrollable_vertical_widget.dart';
 import 'package:flutter/material.dart';
 
+import '../widgets/activate_switch.dart';
+import '../widgets/buzz_button.dart';
+
 class FeedbackSettings extends StatefulWidget {
   final BluetoothConnectionModel bluetoothConnectionModel;
   const FeedbackSettings({required this.bluetoothConnectionModel, super.key});
@@ -69,6 +72,56 @@ class _FeedbackSettingsState extends State<FeedbackSettings> {
               child: Switch(
                 value: feedbackModel.enableFeedback,
                 onChanged: _onChangedFeedback,
+              ),
+            ),
+            Padding(
+                padding: const EdgeInsets.only(left: 20, top: 80),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Test vibration'),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        BuzzButton(
+                            model: widget.bluetoothConnectionModel,
+                            mode: 0,
+                            device: 2),
+                        BuzzButton(
+                            model: widget.bluetoothConnectionModel,
+                            mode: 1,
+                            device: 2),
+                        BuzzButton(
+                            model: widget.bluetoothConnectionModel,
+                            mode: 2,
+                            device: 2),
+                        const Spacer(),
+                        BuzzButton(
+                            model: widget.bluetoothConnectionModel,
+                            mode: 0,
+                            device: 3),
+                        BuzzButton(
+                            model: widget.bluetoothConnectionModel,
+                            mode: 1,
+                            device: 3),
+                        BuzzButton(
+                            model: widget.bluetoothConnectionModel,
+                            mode: 2,
+                            device: 3),
+                      ],
+                    ),
+                  ],
+                )),
+            Padding(
+              padding: const EdgeInsets.only(left: 20, top: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ActivateSwitch(
+                      model: widget.bluetoothConnectionModel, device: 2),
+                  ActivateSwitch(
+                      model: widget.bluetoothConnectionModel, device: 3),
+                ],
               ),
             ),
           ],
