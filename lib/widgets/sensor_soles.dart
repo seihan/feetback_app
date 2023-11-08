@@ -1,12 +1,10 @@
-import 'package:feet_back_app/models/bluetooth_connection_model.dart';
 import 'package:feet_back_app/models/sensor_state_model.dart';
 import 'package:feet_back_app/widgets/balance_widget.dart';
 import 'package:feet_back_app/widgets/sensor_sole.dart';
 import 'package:flutter/material.dart';
 
 class SensorSoles extends StatelessWidget {
-  final BluetoothConnectionModel bluetoothConnectionModel;
-  const SensorSoles({required this.bluetoothConnectionModel, super.key});
+  const SensorSoles({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +26,10 @@ class SensorSoles extends StatelessWidget {
             ),
           ],
         ),
-        const BalanceWidget(),
+        const Padding(
+          padding: EdgeInsets.only(top: 20),
+          child: BalanceWidget(),
+        ),
       ],
     );
   }

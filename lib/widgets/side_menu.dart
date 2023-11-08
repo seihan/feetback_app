@@ -3,6 +3,7 @@ import 'package:feet_back_app/screens/analytics_screen.dart';
 import 'package:feet_back_app/screens/calibration_screen.dart';
 import 'package:feet_back_app/screens/feedback_settings.dart';
 import 'package:feet_back_app/screens/log_screen.dart';
+import 'package:feet_back_app/widgets/heatmap_widget.dart';
 import 'package:feet_back_app/widgets/record_list_tile.dart';
 import 'package:feet_back_app/widgets/scrollable_vertical_widget.dart';
 import 'package:flutter/material.dart';
@@ -69,6 +70,15 @@ class SideMenu extends StatelessWidget {
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (BuildContext context) => const LogScreen(),
+                    ),
+                  ),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.map),
+                  title: const Text('Heatmap'),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => const HeatmapScreen(),
                     ),
                   ),
                 ),

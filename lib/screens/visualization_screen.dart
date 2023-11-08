@@ -28,9 +28,9 @@ class _VisualizationScreenState extends State<VisualizationScreen> {
   int _selectedIndex = 0;
   @override
   Widget build(BuildContext context) {
-    List<Widget> tabPages = [
-      SensorSoles(bluetoothConnectionModel: widget.model),
-      const RealTimeChartsWidget(),
+    const List<Widget> tabPages = [
+      SensorSoles(),
+      RealTimeChartsWidget(),
     ];
     return Scaffold(
       endDrawer: SideMenu(
