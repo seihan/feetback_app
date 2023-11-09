@@ -1,4 +1,5 @@
 import 'package:feet_back_app/widgets/charts_widget.dart';
+import 'package:feet_back_app/widgets/heatmap_widget.dart';
 import 'package:feet_back_app/widgets/notify_button.dart';
 import 'package:feet_back_app/widgets/sensor_soles.dart';
 import 'package:feet_back_app/widgets/side_menu.dart';
@@ -17,21 +18,21 @@ class VisualizationScreen extends StatefulWidget {
 }
 
 class _VisualizationScreenState extends State<VisualizationScreen> {
-  final CalibrationModel calibrationModel = CalibrationModel();
-
+  final CalibrationModel _calibrationModel = CalibrationModel();
+  final List<Widget> _tabPages = [
+    const SensorSoles(),
+    const HeatmapSoles(),
+    const RealTimeChartsWidget(),
+  ];
   @override
   void initState() {
     super.initState();
-    calibrationModel.getPredictedValues();
+    _calibrationModel.getPredictedValues();
   }
 
-  int _selectedIndex = 0;
+  int _selectedIndex = 1;
   @override
   Widget build(BuildContext context) {
-    const List<Widget> tabPages = [
-      SensorSoles(),
-      RealTimeChartsWidget(),
-    ];
     return Scaffold(
       endDrawer: SideMenu(
         model: widget.model,
@@ -46,7 +47,7 @@ class _VisualizationScreenState extends State<VisualizationScreen> {
           child: ListView(
             children: [
               ConnectionWidgets(bluetoothConnectionModel: widget.model),
-              tabPages[_selectedIndex],
+              _tabPages[_selectedIndex],
             ],
           ),
         ),
@@ -70,6 +71,10 @@ class _VisualizationScreenState extends State<VisualizationScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.display_settings),
             label: 'Soles',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.map),
+            label: 'Heatmap',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.area_chart),

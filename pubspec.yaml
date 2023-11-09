@@ -67,6 +67,8 @@ dev_dependencies:
 flutter:
   assets:
     - assets/sole.svg
+    - assets/sole_mask_left.svg
+    - assets/sole_mask_right.svg
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

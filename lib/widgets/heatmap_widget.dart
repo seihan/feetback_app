@@ -2,8 +2,10 @@ import 'dart:math' as math;
 
 import 'package:feet_back_app/models/sensor_state_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 import '../models/sensor_values.dart';
+import 'balance_widget.dart';
 
 class SensorDataPoint {
   final Offset position;
@@ -157,7 +159,7 @@ class HeatmapPainter extends CustomPainter {
   }
 
   Color _interpolateColor(double intensity) {
-    final hue = (240.0 * (1.0 - intensity)).round().clamp(0, 240);
+    final int hue = (240.0 * (1.0 - intensity)).round().clamp(0, 240);
 
     return HSVColor.fromAHSV(1.0, hue.toDouble(), 1.0, 1.0).toColor();
   }
@@ -185,18 +187,16 @@ class HeatmapWidget extends StatelessWidget {
   }
 }
 
-class HeatmapScreen extends StatelessWidget {
-  const HeatmapScreen({super.key});
+class HeatmapSoles extends StatelessWidget {
+  const HeatmapSoles({super.key});
 
   @override
   Widget build(BuildContext context) {
     final SensorStateModel sensorStateModel = SensorStateModel();
-    return Scaffold(
-        appBar: AppBar(
-          title: const Text('Sensor Heatmap'),
-        ),
-        body: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             StreamBuilder(
                 stream: sensorStateModel.leftDisplayStream,
@@ -209,12 +209,28 @@ class HeatmapScreen extends StatelessWidget {
                       sensorState.data?.data.length == 12) {
                     sensorValues = sensorState.data!.data;
                   } else {
-                    sensorValues = List.generate(12, (index) => 0);
+                    sensorValues = List.generate(
+                      12,
+                      (index) => 4095,
+                    );
                   }
-                  return SizedBox(
-                    height: 420,
-                    width: 160,
-                    child: HeatmapWidget(sensorValues, 100, 0),
+                  return Padding(
+                    padding: const EdgeInsets.only(left: 45),
+                    child: Stack(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 1, horizontal: 1),
+                          height: 420,
+                          width: 140,
+                          child: HeatmapWidget(sensorValues, 80, 0),
+                        ),
+                        SvgPicture.asset(
+                          'assets/sole_mask_left.svg',
+                          height: 420,
+                        ),
+                      ],
+                    ),
                   );
                 }),
             StreamBuilder(
@@ -228,15 +244,34 @@ class HeatmapScreen extends StatelessWidget {
                       sensorState.data?.data.length == 12) {
                     sensorValues = sensorState.data!.data;
                   } else {
-                    sensorValues = List.generate(12, (index) => 0);
+                    sensorValues = List.generate(
+                      12,
+                      (index) => 4095,
+                    );
                   }
-                  return SizedBox(
-                    height: 420,
-                    width: 160,
-                    child: HeatmapWidget(sensorValues, 100, 1),
+                  return Stack(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 1, horizontal: 1),
+                        height: 420,
+                        width: 140,
+                        child: HeatmapWidget(sensorValues, 80, 1),
+                      ),
+                      SvgPicture.asset(
+                        'assets/sole_mask_right.svg',
+                        height: 420,
+                      ),
+                    ],
                   );
                 }),
           ],
-        ));
+        ),
+        const Padding(
+          padding: EdgeInsets.only(top: 20),
+          child: BalanceWidget(),
+        ),
+      ],
+    );
   }
 }

@@ -13,18 +13,18 @@ class PredictedValuesWidget extends StatelessWidget {
         sumPredictedValues(sensorValues, minValue);
     double predictedValue = values.predictedValue;
     double sum = values.sum;
-    return sum < 1000
-        ? Text("Raw: $minValue\nPredicted: ${predictedValue.toStringAsFixed(
+    bool isGram = predictedValue < 999;
+    return Text(isGram
+        ? "Raw: $minValue\nPredicted: ${predictedValue.toStringAsFixed(
             2,
           )}g\nSum: ${sum.toStringAsFixed(
             2,
-          )}g")
-        : Text(
-            "Raw: $minValue\nPredicted: ${(predictedValue / 1000).toStringAsFixed(
+          )}g"
+        : "Raw: $minValue\nPredicted: ${(predictedValue / 1000).toStringAsFixed(
             2,
-          )}Kg\nSum: ${(sum / 1000).toStringAsFixed(
+          )}kg\nSum: ${(sum / 1000).toStringAsFixed(
             2,
-          )}Kg");
+          )}kg");
   }
 
   PredictedValuesSum sumPredictedValues(List<int> sensorValues, int index) {
