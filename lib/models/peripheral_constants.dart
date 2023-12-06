@@ -4,41 +4,87 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 class PeripheralConstants {
   /// Sensor config
+  /// force sensing input devices are and it's custom values are stored here
 
-  static const String leftName = 'CRM508-LEFT';
-  static const String rightName = 'CRM508-RIGHT';
-  static final Uint8List leftStart =
+  /// FLEXKYS / FSRTEC - Insole FSR-12 - CRM508
+  /// https://www.fsrtek.com/flexible-gait-analysis-piezoresistive-insole-force-sensitive-resistor
+  /// Model：Insole FSR-12
+  /// Type：Multipoint / Matrix force sensor
+  /// Sensor size(single point sensor)：20.5*11mm
+  /// Sensor quantity：12
+  /// FSR Thickness：<0.3mm
+  static const String crmLeftName = 'CRM508-LEFT';
+  static const String crmRightName = 'CRM508-RIGHT';
+  static final Guid crmServiceGuid =
+      Guid('0000fe50-0000-1000-8000-00805f9b34fb');
+  static final Guid crmRxTxCharGuid =
+      Guid('0000fe51-0000-1000-8000-00805f9b34fb');
+  static final Uint8List crmLeftStart =
       Uint8List.fromList([0x01, 0x03, 0x00, 0x00, 0xF1, 0xD8]);
-  static final Uint8List leftStop =
+  static final Uint8List crmLeftStop =
       Uint8List.fromList([0x01, 0x06, 0x00, 0x00, 0xE1, 0xD9]);
 
-  static final Uint8List rightStart =
+  static final Uint8List crmRightStart =
       Uint8List.fromList([0x02, 0x03, 0x00, 0x00, 0xF1, 0x9C]);
-  static final Uint8List rightStop =
+  static final Uint8List crmRightStop =
       Uint8List.fromList([0x02, 0x06, 0x00, 0x00, 0xe1, 0x9d]);
+  static final List<double> crmDefaultValues = [4095, 1335, 530, 446, 328];
+  static final List<double> crmDefaultSamples = [0, 100, 200, 300, 400];
 
-  static final Guid sensorServiceGuid =
-      Guid('0000fe50-0000-1000-8000-00805f9b34fb');
-  static final Guid sensorRxTxCharGuid =
-      Guid('0000fe51-0000-1000-8000-00805f9b34fb');
-  static final List<double> defaultValues = [4095, 1335, 530, 446, 328];
-  static final List<double> defaultSamples = [0, 100, 200, 300, 400];
+  /// SALTED - Smart Insole
+  /// https://sports.salted.ltd/en/product/smart-insole
+  /// Model：SI-GP190
+  /// Type：Multipoint / Matrix force sensor
+  /// Sensor size(single point sensor)：11*11mm (circular)
+  /// Sensor quantity：4
+  static const String saltedLeftName = 'SVIN_Left';
+  static const String saltedRightName = 'SVIN_Right';
+  static final Guid saltedServiceGuid =
+      Guid('058d0001-ca72-4c8b-8084-25e049936b31');
+  static final Guid saltedTxCharGuid =
+      Guid('058d0002-ca72-4c8b-8084-25e049936b31');
+  static final Guid saltedRxTxCharGuid =
+      Guid('058d0003-ca72-4c8b-8084-25e049936b31');
+
+  /// 1. write 71 60 6e 75 73 43 6c 76 72 78 67 9d (stay connected)
+  /// 2. write 70 60 6d 74 b1 (vibrate)
+  /// connection fixed
+  /// 3. write 70 60 6e 74 b2
+  /// 4. write 75 60 6d 74 b6
+  /// 5. write 53 60 6d 74 94
+  /// 6. write 77 60 30 58 87 44 6c 74 73 7d
+  /// 7. write 63 60 6c 74 a3
+  static final Uint8List saltedLeftStart =
+      Uint8List.fromList([0x01, 0x03, 0x00, 0x00, 0xF1, 0xD8]);
+  static final Uint8List saltedLeftStop =
+      Uint8List.fromList([0x01, 0x06, 0x00, 0x00, 0xE1, 0xD9]);
+
+  static final Uint8List saltedRightStart =
+      Uint8List.fromList([0x02, 0x03, 0x00, 0x00, 0xF1, 0x9C]);
+  static final Uint8List saltedRightStop =
+      Uint8List.fromList([0x02, 0x06, 0x00, 0x00, 0xe1, 0x9d]);
+  static final List<double> saltedDefaultValues = [4095, 1335, 530, 446, 328];
+  static final List<double> saltedDefaultSamples = [0, 100, 200, 300, 400];
 
   /// Actor config
+  /// vibrating output devices and it's custom values are stored here
+
+  /// MPOW DS-D6 fitness tracker
+  /// https://androidpctv.com/review-mpow-d6/
+  static const String motorOff = 'AT+MOTOR=00'; // stop vibration
   static const DeviceIdentifier actorLeftId =
       DeviceIdentifier('EA:3F:FA:39:89:E4');
   static const DeviceIdentifier actorRightId =
       DeviceIdentifier('FC:77:F8:3E:B8:DA');
-
   static final Guid actorServiceGuid =
       Guid('0000190b-0000-1000-8000-00805f9b34fb');
+
   static final Guid actorRxTxCharGuid =
       Guid('00000003-0000-1000-8000-00805f9b34fb');
-
   static const String motorOn = 'AT+MOTOR=1'; // start vibration
   static const String buzzOne = 'AT+MOTOR=11'; // 50ms vibration
   static const String buzzTwo = 'AT+MOTOR=12'; // 100ms vibration
   static const String buzzThree = 'AT+MOTOR=13'; // 150ms vibration
-  static const String motorOff = 'AT+MOTOR=00'; // stop vibration
+
   static const String bat = 'AT+BATT0'; // get battery state %
 }

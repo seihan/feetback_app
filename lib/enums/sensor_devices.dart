@@ -1,0 +1,4 @@
+enum SensorDevices {
+  fsrtec,
+  salted,
+}

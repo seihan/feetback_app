@@ -5,6 +5,7 @@ import 'package:collection/collection.dart';
 import 'package:feet_back_app/models/feedback_model.dart';
 import 'package:feet_back_app/models/log_model.dart';
 import 'package:feet_back_app/models/peripheral_constants.dart';
+import 'package:feet_back_app/models/sensor_device_selector.dart';
 import 'package:feet_back_app/models/sensor_state_model.dart';
 import 'package:feet_back_app/models/transmission_handler.dart';
 import 'package:flutter/material.dart';
@@ -26,17 +27,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
     required this.navigatorKey,
   });
 
-  static final List<BluetoothDeviceModel> _devices = [
-    BluetoothDeviceModel(
-      name: PeripheralConstants.leftName,
-      serviceGuid: PeripheralConstants.sensorServiceGuid,
-      rxTxCharGuid: PeripheralConstants.sensorRxTxCharGuid,
-    ),
-    BluetoothDeviceModel(
-      name: PeripheralConstants.rightName,
-      serviceGuid: PeripheralConstants.sensorServiceGuid,
-      rxTxCharGuid: PeripheralConstants.sensorRxTxCharGuid,
-    ),
+  static final List<BluetoothDeviceModel> _actorDevices = [
     BluetoothDeviceModel(
       id: PeripheralConstants.actorLeftId,
       serviceGuid: PeripheralConstants.actorServiceGuid,
@@ -48,9 +39,10 @@ class BluetoothConnectionModel extends ChangeNotifier {
       rxTxCharGuid: PeripheralConstants.actorRxTxCharGuid,
     ),
   ];
+  static final List<BluetoothDeviceModel> _devices = [];
 
-  late final TransmissionHandler _leftHandler;
-  late final TransmissionHandler _rightHandler;
+  TransmissionHandler? _leftHandler;
+  TransmissionHandler? _rightHandler;
   final List<StreamSubscription<BluetoothConnectionState>?>
       _deviceSubscriptions = [];
   StreamSubscription<List<ScanResult>>? _scanResultSubscription;
@@ -77,12 +69,17 @@ class BluetoothConnectionModel extends ChangeNotifier {
   bool get enableFeedback => _enableFeedback;
 
   void initialize() {
+    disconnect();
+    _devices.clear();
+    // add sensor devices
+    _devices.addAll(SensorDeviceSelector().getSelectedDevices());
+    // add actor devices
+    _devices.addAll(_actorDevices);
+    _feedbackModel.initialize();
     _stateSubscription =
         FlutterBluePlus.adapterState.listen(_listenBluetoothState);
-    if (_state == BluetoothAdapterState.on) {
-      startScan();
-    }
-    _feedbackModel.initialize();
+    startScan();
+    if (_state == BluetoothAdapterState.on) {}
     _enableFeedback = _feedbackModel.enableFeedback;
     _leftHandler =
         TransmissionHandler(inputDevice: _devices[0], outputDevice: _devices[2])
@@ -152,8 +149,8 @@ class BluetoothConnectionModel extends ChangeNotifier {
     try {
       await _devices[device].rxTxChar?.write(
           device == 0
-              ? PeripheralConstants.leftStart
-              : PeripheralConstants.rightStart,
+              ? PeripheralConstants.crmLeftStart
+              : PeripheralConstants.crmRightStart,
           withoutResponse: false);
       _logModel
           .add('${device == 0 ? 'Left' : 'Right'} stop sent successfully.');
@@ -166,8 +163,8 @@ class BluetoothConnectionModel extends ChangeNotifier {
     try {
       await _devices[device].rxTxChar?.write(
           device == 0
-              ? PeripheralConstants.leftStop
-              : PeripheralConstants.rightStop,
+              ? PeripheralConstants.crmLeftStop
+              : PeripheralConstants.crmRightStop,
           withoutResponse: false);
       _logModel
           .add('${device == 0 ? 'Left' : 'Right'} stop sent successfully.');
@@ -214,8 +211,8 @@ class BluetoothConnectionModel extends ChangeNotifier {
   }
 
   void toggleFeedback(bool value) {
-    _leftHandler.enableFeedback = value;
-    _rightHandler.enableFeedback = value;
+    _leftHandler?.enableFeedback = value;
+    _rightHandler?.enableFeedback = value;
     _enableFeedback = value;
   }
 
@@ -391,8 +388,8 @@ class BluetoothConnectionModel extends ChangeNotifier {
     for (var subscription in _deviceSubscriptions) {
       subscription?.cancel();
     }
-    _leftHandler.dispose();
-    _rightHandler.dispose();
+    _leftHandler?.dispose();
+    _rightHandler?.dispose();
     super.dispose();
   }
 }

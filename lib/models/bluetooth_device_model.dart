@@ -5,10 +5,12 @@ class BluetoothDeviceModel {
   final String? name;
   final Guid serviceGuid;
   final Guid rxTxCharGuid;
+  final Guid? txCharGuid;
 
   BluetoothDeviceModel({
     this.id,
     this.name,
+    this.txCharGuid,
     required this.serviceGuid,
     required this.rxTxCharGuid,
   });
