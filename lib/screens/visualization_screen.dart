@@ -1,6 +1,7 @@
 import 'package:feet_back_app/widgets/charts_widget.dart';
 import 'package:feet_back_app/widgets/heatmap_widget.dart';
 import 'package:feet_back_app/widgets/notify_button.dart';
+import 'package:feet_back_app/widgets/scrollable_vertical_widget.dart';
 import 'package:feet_back_app/widgets/sensor_soles.dart';
 import 'package:feet_back_app/widgets/side_menu.dart';
 import 'package:flutter/material.dart';
@@ -43,13 +44,13 @@ class _VisualizationScreenState extends State<VisualizationScreen> {
       ),
       backgroundColor: Colors.transparent,
       body: SafeArea(
-        child: Center(
-          child: ListView(
-            children: [
-              ConnectionWidgets(bluetoothConnectionModel: widget.model),
-              _tabPages[_selectedIndex],
-            ],
-          ),
+        child: ScrollableVerticalWidget(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            ConnectionWidgets(bluetoothConnectionModel: widget.model),
+            _tabPages[_selectedIndex],
+          ],
         ),
       ),
       floatingActionButton: !widget.model.connected
