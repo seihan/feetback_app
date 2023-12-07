@@ -54,15 +54,17 @@ class PeripheralConstants {
   /// 5. write 53 60 6d 74 94
   /// 6. write 77 60 30 58 87 44 6c 74 73 7d
   /// 7. write 63 60 6c 74 a3
-  static final Uint8List saltedLeftStart =
-      Uint8List.fromList([0x01, 0x03, 0x00, 0x00, 0xF1, 0xD8]);
-  static final Uint8List saltedLeftStop =
-      Uint8List.fromList([0x01, 0x06, 0x00, 0x00, 0xE1, 0xD9]);
 
-  static final Uint8List saltedRightStart =
-      Uint8List.fromList([0x02, 0x03, 0x00, 0x00, 0xF1, 0x9C]);
-  static final Uint8List saltedRightStop =
-      Uint8List.fromList([0x02, 0x06, 0x00, 0x00, 0xe1, 0x9d]);
+  static final Uint8List saltedStayConnected = Uint8List.fromList(
+      [0x71, 0x60, 0x6e, 0x75, 0x73, 0x43, 0x6c, 0x76, 0x72, 0x78, 0x67, 0x9d]);
+  static final Uint8List saltedLeftStart = Uint8List.fromList(
+      [0x77, 0x60, 0x30, 0x58, 0x87, 0x44, 0x6c, 0x74, 0x73, 0x7d]);
+  static final Uint8List saltedLeftStop = Uint8List.fromList(
+      [0x01, 0x06, 0x00, 0x00, 0xE1, 0xD9]); // not known so far
+  static final Uint8List saltedRightStart = Uint8List.fromList(
+      [0x77, 0x60, 0x0d, 0x58, 0x87, 0x44, 0x6c, 0x74, 0x73, 0x5a]);
+  static final Uint8List saltedRightStop = Uint8List.fromList(
+      [0x02, 0x06, 0x00, 0x00, 0xe1, 0x9d]); // not known so far
   static final List<double> saltedDefaultValues = [4095, 1335, 530, 446, 328];
   static final List<double> saltedDefaultSamples = [0, 100, 200, 300, 400];
 

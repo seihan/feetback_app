@@ -67,6 +67,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
   List<BluetoothDeviceModel> get devices => _devices;
   bool _enableFeedback = false;
   bool get enableFeedback => _enableFeedback;
+  SensorDevice? get sensorDevice => SensorDeviceSelector().selectedDevice;
 
   void initialize() {
     disconnect();
@@ -147,11 +148,27 @@ class BluetoothConnectionModel extends ChangeNotifier {
 
   Future<void> _startNotify({required int device}) async {
     try {
-      await _devices[device].rxTxChar?.write(
-          device == 0
-              ? PeripheralConstants.crmLeftStart
-              : PeripheralConstants.crmRightStart,
-          withoutResponse: false);
+      switch (sensorDevice) {
+        case SensorDevice.fsrtec:
+          {
+            await _devices[device].rxTxChar?.write(
+                device == 0
+                    ? PeripheralConstants.crmLeftStart
+                    : PeripheralConstants.crmRightStart,
+                withoutResponse: false);
+          }
+          break;
+        case SensorDevice.salted:
+          {
+            await _devices[device].txChar?.write(
+                device == 0
+                    ? PeripheralConstants.saltedLeftStart
+                    : PeripheralConstants.saltedRightStart,
+                withoutResponse: false);
+          }
+        default:
+          break;
+      }
       _logModel
           .add('${device == 0 ? 'Left' : 'Right'} stop sent successfully.');
     } catch (e) {
@@ -161,11 +178,29 @@ class BluetoothConnectionModel extends ChangeNotifier {
 
   Future<void> _stopNotify({required int device}) async {
     try {
-      await _devices[device].rxTxChar?.write(
-          device == 0
-              ? PeripheralConstants.crmLeftStop
-              : PeripheralConstants.crmRightStop,
-          withoutResponse: false);
+      switch (sensorDevice) {
+        case SensorDevice.fsrtec:
+          {
+            await _devices[device].rxTxChar?.write(
+                device == 0
+                    ? PeripheralConstants.crmLeftStop
+                    : PeripheralConstants.crmRightStop,
+                withoutResponse: false);
+          }
+          break;
+        case SensorDevice.salted:
+          {
+            await _devices[device].txChar?.write(
+                device == 0
+                    ? PeripheralConstants.saltedLeftStop
+                    : PeripheralConstants.saltedRightStop,
+                withoutResponse: false);
+          }
+          break;
+        default:
+          break;
+      }
+
       _logModel
           .add('${device == 0 ? 'Left' : 'Right'} stop sent successfully.');
     } catch (e) {
@@ -218,13 +253,31 @@ class BluetoothConnectionModel extends ChangeNotifier {
 
   void _handleLeftNotifyValues(List<int> values) {
     if (values.isNotEmpty) {
-      _sensorStateModel.updateLeft(values);
+      switch (sensorDevice) {
+        case SensorDevice.fsrtec:
+          _sensorStateModel.updateLeft12Values(values);
+          break;
+        case SensorDevice.salted:
+          _sensorStateModel.updateLeft4Values(values);
+          break;
+        default:
+          break;
+      }
     }
   }
 
   void _handleRightNotifyValues(List<int> values) {
     if (values.isNotEmpty) {
-      _sensorStateModel.updateRight(values);
+      switch (sensorDevice) {
+        case SensorDevice.fsrtec:
+          _sensorStateModel.updateRight12Values(values);
+          break;
+        case SensorDevice.salted:
+          _sensorStateModel.updateRight4Values(values);
+          break;
+        default:
+          break;
+      }
     }
   }
 
@@ -271,7 +324,19 @@ class BluetoothConnectionModel extends ChangeNotifier {
         .firstWhereOrNull((characteristic) =>
             characteristic.uuid == deviceModel.rxTxCharGuid);
     if (deviceModel.rxTxChar != null) {
-      _logModel.add('found ${deviceModel.device?.platformName}  rx tx char');
+      _logModel.add('found ${deviceModel.device?.platformName} rx tx char');
+    }
+    if (sensorDevice == SensorDevice.salted) {
+      deviceModel.txChar = deviceModel.service?.characteristics
+          .firstWhereOrNull((characteristic) =>
+              characteristic.uuid == deviceModel.txCharGuid);
+    }
+    if (deviceModel.txChar != null) {
+      _logModel.add('found ${deviceModel.device?.platformName} tx char');
+      deviceModel.txChar?.write(
+        PeripheralConstants.saltedStayConnected,
+        withoutResponse: false,
+      );
     }
   }
 

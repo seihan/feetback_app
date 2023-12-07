@@ -11,7 +11,7 @@ class SensorSettingsScreen extends StatefulWidget {
 }
 
 class _SensorSettingsScreenState extends State<SensorSettingsScreen> {
-  SensorDevices? selectedDevice;
+  SensorDevice? selectedDevice;
 
   @override
   void initState() {
@@ -35,11 +35,11 @@ class _SensorSettingsScreenState extends State<SensorSettingsScreen> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             ListTile(
-              title: const Text('FSRTEC'),
-              leading: Radio<SensorDevices>(
-                value: SensorDevices.fsrtec,
+              title: const Text('SALTED'),
+              leading: Radio<SensorDevice>(
+                value: SensorDevice.salted,
                 groupValue: selectedDevice,
-                onChanged: (SensorDevices? value) {
+                onChanged: (SensorDevice? value) {
                   setState(() {
                     selectedDevice = value;
                     SensorDeviceSelector().selectDevices(selectedDevice!);
@@ -49,11 +49,11 @@ class _SensorSettingsScreenState extends State<SensorSettingsScreen> {
               ),
             ),
             ListTile(
-              title: const Text('Salted'),
-              leading: Radio<SensorDevices>(
-                value: SensorDevices.salted,
+              title: const Text('FSRTEC'),
+              leading: Radio<SensorDevice>(
+                value: SensorDevice.fsrtec,
                 groupValue: selectedDevice,
-                onChanged: (SensorDevices? value) {
+                onChanged: (SensorDevice? value) {
                   setState(() {
                     selectedDevice = value;
                     SensorDeviceSelector().selectDevices(selectedDevice!);

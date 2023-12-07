@@ -63,7 +63,7 @@ class SensorStateModel {
   }
    */
 
-  updateLeft(List<int> data) {
+  updateLeft12Values(List<int> data) {
     // assumptions:
     // - package length is always multiple of 2 (List of uint16 big endian)
     // - full package has 28 bytes
@@ -110,7 +110,25 @@ class SensorStateModel {
     }
   }
 
-  updateRight(List<int> data) {
+  updateLeft4Values(List<int> data) {
+    // assumptions:
+    // - package length is always multiple of 8 (List of int32 values, big endian)
+    // - first value is identifier
+    // - 4 sensor values
+    // - last value is crc
+    final ByteData buffer = ByteData.sublistView(Uint8List.fromList(data));
+    _startLeftTimer();
+    final DateTime now = DateTime.now();
+    _leftValues = SensorValues(time: now, data: [], side: 'LEFT');
+    final int numInt16Values = buffer.lengthInBytes ~/ 4;
+    for (int i = 2; i < numInt16Values - 1; i++) {
+      _leftValues?.data.add(buffer.getInt32(i * 4, Endian.little));
+    }
+    _leftValuesStream.add(_leftValues!);
+    _leftCounter++;
+  }
+
+  updateRight12Values(List<int> data) {
     final ByteData buffer = ByteData.view(Uint8List.fromList(data).buffer);
     int identifier = buffer.getInt16(0);
     int crc = 0;
@@ -149,5 +167,23 @@ class SensorStateModel {
       _rightValuesStream.add(_rightValues!);
       _rightCounter++;
     }
+  }
+
+  updateRight4Values(List<int> data) {
+    // assumptions:
+    // - package length is always multiple of 8 (List of int32 values, big endian)
+    // - first value is identifier
+    // - 4 sensor values
+    // - last value is crc
+    final ByteData buffer = ByteData.sublistView(Uint8List.fromList(data));
+    _startLeftTimer();
+    final DateTime now = DateTime.now();
+    _rightValues = SensorValues(time: now, data: [], side: 'RIGHT');
+    final int numInt16Values = buffer.lengthInBytes ~/ 4;
+    for (int i = 2; i < numInt16Values - 1; i++) {
+      _rightValues?.data.add(buffer.getInt32(i * 4, Endian.little));
+    }
+    _rightValuesStream.add(_rightValues!);
+    _rightCounter++;
   }
 }

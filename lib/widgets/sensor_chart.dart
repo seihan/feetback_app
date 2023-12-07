@@ -136,7 +136,7 @@ class RealTimeSensorChart extends StatelessWidget {
       stream: stream,
       initialData: SensorValues(
           time: DateTime(1900),
-          data: List.filled(12, 0),
+          data: List.filled(0, 0),
           side: 'UNKNOWN'), // Initialize with 12 zeros
       builder: (context, snapshot) {
         if (snapshot.data == null) {
@@ -204,7 +204,7 @@ class RealTimeSensorChart extends StatelessWidget {
   ) {
     final List<charts.Series<SensorValues, DateTime>> seriesList = [];
 
-    for (int i = 0; i < 12; i++) {
+    for (int i = 0; i < data.first.data.length; i++) {
       final List<SensorValues> seriesData = data.map((SensorValues values) {
         return SensorValues(
           time: values.time,

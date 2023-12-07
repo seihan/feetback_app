@@ -18,5 +18,6 @@ class BluetoothDeviceModel {
   BluetoothDevice? device;
   BluetoothService? service;
   BluetoothCharacteristic? rxTxChar;
+  BluetoothCharacteristic? txChar;
   bool connected = false;
 }
