@@ -52,13 +52,14 @@ class _FeedbackSettingsState extends State<FeedbackSettings> {
             ),
             Padding(
               padding: const EdgeInsets.only(left: 20, bottom: 10),
-              child: Text('Threshold: ${feedbackModel.threshold}'),
+              child: Text(
+                  'Threshold: ${(feedbackModel.threshold * 100).toStringAsFixed(0)}%'),
             ),
             Slider(
               label: 'Threshold',
               value: feedbackModel.threshold.toDouble(),
-              min: 200,
-              max: 4096,
+              min: 0,
+              max: 1,
               onChanged: _onChangedThreshold,
             ),
             Padding(
@@ -158,7 +159,7 @@ class _FeedbackSettingsState extends State<FeedbackSettings> {
 
   void _onChangedThreshold(double value) {
     setState(() {
-      feedbackModel.threshold = value.toInt();
+      feedbackModel.threshold = value;
       hasChanged = true;
     });
   }

@@ -4,21 +4,28 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:feet_back_app/models/bluetooth_device_model.dart';
 import 'package:feet_back_app/models/feedback_model.dart';
+import 'package:feet_back_app/models/peripheral_constants.dart';
+import 'package:feet_back_app/models/sensor_device_selector.dart';
 import 'package:feet_back_app/models/sensor_state_model.dart';
-import 'package:feet_back_app/models/sensor_values.dart';
+
+import '../enums/sensor_device.dart';
+import '../enums/side.dart';
 
 class TransmissionHandler {
   final BluetoothDeviceModel inputDevice;
   final BluetoothDeviceModel outputDevice;
+  final Side side;
   final SensorStateModel sensorStateModel = SensorStateModel();
-
   final FeedbackModel feedbackModel = FeedbackModel();
-  late final StreamSubscription? _sensorSubscription;
+  final SensorDevice device = SensorDeviceSelector().selectedDevice;
+  StreamSubscription? _sensorSubscription;
 
-  TransmissionHandler({required this.inputDevice, required this.outputDevice});
-  static const String _buzzOne = 'AT+MOTOR=11'; // 50ms vibration
-  static const String _buzzThree = 'AT+MOTOR=13'; // 150ms vibration
-
+  TransmissionHandler({
+    required this.inputDevice,
+    required this.outputDevice,
+    required this.side,
+  });
+  static const int _factor = 1000;
   Timer? _writeTimer;
   bool _canWrite = true;
   bool _enableFeedback = false;
@@ -31,12 +38,13 @@ class TransmissionHandler {
   }
 
   void initialize() {
-    if (inputDevice.name == 'CRM508-LEFT') {
-      _sensorSubscription =
-          sensorStateModel.leftDisplayStream.listen(_onNewValue);
-    } else if (inputDevice.name == 'CRM508-RIGHT') {
-      _sensorSubscription =
-          sensorStateModel.rightDisplayStream.listen(_onNewValue);
+    switch (side) {
+      case Side.left:
+        _sensorSubscription =
+            sensorStateModel.leftNormalizedStream.listen(_onNewValue);
+      case Side.right:
+        _sensorSubscription =
+            sensorStateModel.rightNormalizedStream.listen(_onNewValue);
     }
     _enableFeedback = feedbackModel.enableFeedback;
   }
@@ -56,7 +64,7 @@ class TransmissionHandler {
     final double duration = feedbackModel.mapValueToRange(
       value: highestValue,
       inMin: 0,
-      inMax: feedbackModel.threshold,
+      inMax: (feedbackModel.threshold * _factor).toInt(),
       outMin: feedbackModel.minDuration,
       outMax: feedbackModel.maxDuration,
     );
@@ -64,31 +72,43 @@ class TransmissionHandler {
     return durationMilliseconds;
   }
 
-  void _onNewValue(SensorValues sensorValues) {
-    if (sensorValues.data.isNotEmpty &&
-        sensorValues.data.length == 12 &&
-        _enableFeedback) {
-      final int highestFront = sensorValues.data.sublist(0, 5).min;
-      final int highestRear = sensorValues.data.sublist(6).min;
+  void _onNewValue(List<double> normalizedValues) {
+    if (normalizedValues.isNotEmpty && _enableFeedback) {
+      double highestFront = 0;
+      double highestRear = 0;
+      switch (device) {
+        case SensorDevice.fsrtec:
+          {
+            highestFront = 1 - normalizedValues.sublist(0, 5).min;
+            highestRear = 1 - normalizedValues.sublist(6).min;
+            break;
+          }
+        case SensorDevice.salted:
+          {
+            highestFront = 1 - normalizedValues[0];
+            highestRear = 1 - normalizedValues[1];
+          }
+      }
+
       if (outputDevice.connected) {
+        bool frontExceedsThreshold = highestFront > feedbackModel.threshold;
+        bool rearExceedsThreshold = highestRear > feedbackModel.threshold;
         if ((highestFront > highestRear) &&
             _canWrite &&
-            (highestRear < feedbackModel.threshold)) {
+            frontExceedsThreshold) {
           outputDevice.rxTxChar?.write(
-            utf8.encode(_buzzThree),
+            utf8.encode(PeripheralConstants.buzzOne),
             withoutResponse: true,
           );
           _canWrite = false;
-          _startWriteTimer(
-              highestRear); // Start the timer after a write operation.
-        } else if (_canWrite && (highestFront < feedbackModel.threshold)) {
+          _startWriteTimer((highestRear * _factor).toInt());
+        } else if (_canWrite && rearExceedsThreshold) {
           outputDevice.rxTxChar?.write(
-            utf8.encode(_buzzOne),
+            utf8.encode(PeripheralConstants.buzzThree),
             withoutResponse: true,
           );
           _canWrite = false;
-          _startWriteTimer(
-              highestFront); // Start the timer after a write operation.
+          _startWriteTimer((highestFront * _factor).toInt());
         }
       }
     }

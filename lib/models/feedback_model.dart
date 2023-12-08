@@ -13,7 +13,7 @@ class FeedbackModel {
   // Default values
   int maxDuration = 4000; // ms
   int minDuration = 500; // ms
-  int threshold = 2000; // input value
+  double threshold = 0.5; // input value
   bool enableFeedback = false;
 
   // Method to initialize and load values from local storage
@@ -21,7 +21,7 @@ class FeedbackModel {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     maxDuration = prefs.getInt('maxDuration') ?? maxDuration;
     minDuration = prefs.getInt('minDuration') ?? minDuration;
-    threshold = prefs.getInt('threshold') ?? threshold;
+    threshold = prefs.getDouble('threshold') ?? threshold;
     enableFeedback = prefs.getBool('enableFeedback') ?? enableFeedback;
   }
 
@@ -30,7 +30,7 @@ class FeedbackModel {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setInt('maxDuration', maxDuration);
     await prefs.setInt('minDuration', minDuration);
-    await prefs.setInt('threshold', threshold);
+    await prefs.setDouble('threshold', threshold);
     await prefs.setBool('enableFeedback', enableFeedback);
   }
 
