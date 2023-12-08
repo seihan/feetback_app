@@ -7,7 +7,6 @@ import 'package:flutter_svg/svg.dart';
 
 import '../enums/side.dart';
 import '../models/sensor_device_selector.dart';
-import '../models/sensor_values.dart';
 import 'balance_widget.dart';
 
 class SensorDataPoint {
@@ -18,80 +17,22 @@ class SensorDataPoint {
 }
 
 class HeatmapPainter extends CustomPainter {
-  final List<int> sensorValues;
+  final List<double> sensorValues;
   final int gridSize; // Number of grid cells
   final Side side;
 
   HeatmapPainter(this.sensorValues, this.gridSize, this.side);
 
-  double mapSensorValueToIntensity(int sensorValue) {
+  double mapSensorValueToIntensity(double sensorValue) {
     // Invert the value and normalize it
-    return 1.0 - _normalizeValue(sensorValue);
-  }
-
-  double _normalizeValue(int value) {
-    const int min32 = -2147483648;
-    const int max32 = 2147483647;
-    final SensorDevice device = SensorDeviceSelector().selectedDevice;
-    switch (device) {
-      case SensorDevice.fsrtec:
-        return _normalizeInt16(value);
-      case SensorDevice.salted:
-        return _normalizeInt32(value, min32, max32);
-      default:
-        return 1;
-    }
-  }
-
-  // Helper function to normalize int16 values
-  double _normalizeInt16(int value) {
-    return value / 4095;
-  }
-
-  // Helper function to normalize int32 values
-  double _normalizeInt32(int value, int min, int max) {
-    return (value - min) / (max - min);
+    return 1.0 - sensorValue;
   }
 
   Offset _getPosition(int index) {
-    final Map<int, List<double>> sensorPositions = _getSensorPositions();
+    final Map<int, List<double>> sensorPositions =
+        SensorDeviceSelector().getPositionMap(side);
 
     return Offset(sensorPositions[index]![0], sensorPositions[index]![1]);
-  }
-
-  Map<int, List<double>> _getSensorPositions() {
-    final SensorDevice device = SensorDeviceSelector().selectedDevice;
-    final Map<int, List<double>> fsrtecSensorPositions = {
-      0: [side == Side.left ? 40 : 45, side == Side.left ? 40 : 30],
-      1: [side == Side.left ? 80 : 85, side == Side.left ? 35 : 35],
-      2: [side == Side.left ? 25 : 30, side == Side.left ? 110 : 100],
-      3: [side == Side.left ? 95 : 100, side == Side.left ? 100 : 105],
-      4: [35, side == Side.left ? 180 : 170],
-      5: [90, side == Side.left ? 170 : 180],
-      6: [side == Side.left ? 55 : 40, 250],
-      7: [side == Side.left ? 85 : 70, 250],
-      8: [side == Side.left ? 75 : 25, 320],
-      9: [side == Side.left ? 100 : 50, 320],
-      10: [side == Side.left ? 85 : 15, 380],
-      11: [side == Side.left ? 110 : 40, 380],
-    };
-
-    final Map<int, List<double>> saltedSensorPositions = {
-      0: [side == Side.left ? 60 : 65, side == Side.left ? 60 : 60],
-      1: [side == Side.left ? 90 : 30, side == Side.left ? 360 : 360],
-      2: [side == Side.left ? 25 : 30, side == Side.left ? 200 : 190],
-      3: [side == Side.left ? 95 : 100, side == Side.left ? 190 : 200],
-      // Add other cases as needed
-    };
-
-    switch (device) {
-      case SensorDevice.fsrtec:
-        return fsrtecSensorPositions;
-      case SensorDevice.salted:
-        return saltedSensorPositions;
-      default:
-        return {}; // Return an empty map if the device is not recognized
-    }
   }
 
   @override
@@ -160,7 +101,7 @@ class HeatmapPainter extends CustomPainter {
 }
 
 class HeatmapWidget extends StatelessWidget {
-  final List<int> sensorValues;
+  final List<double> sensorValues;
   final int gridSize;
   final Side side;
 
@@ -182,7 +123,7 @@ class HeatmapSoles extends StatelessWidget {
   Widget build(BuildContext context) {
     final SensorStateModel sensorStateModel = SensorStateModel();
     final SensorDevice device = SensorDeviceSelector().selectedDevice;
-    final List<int> indexList = List.generate(
+    final List<double> indexList = List.generate(
       device == SensorDevice.fsrtec ? 12 : 4,
       (int index) => 0,
     );
@@ -192,14 +133,14 @@ class HeatmapSoles extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             StreamBuilder(
-                stream: sensorStateModel.leftDisplayStream,
+                stream: sensorStateModel.leftNormalizedStream,
                 builder: (
                   BuildContext context,
-                  AsyncSnapshot<SensorValues> sensorState,
+                  AsyncSnapshot<List<double>> snapshot,
                 ) {
-                  List<int> sensorValues = indexList;
-                  if (sensorState.hasData && sensorState.data?.data != null) {
-                    sensorValues = sensorState.data!.data;
+                  List<double> sensorValues = indexList;
+                  if (snapshot.hasData && snapshot.data != null) {
+                    sensorValues = snapshot.data!;
                   }
                   return Padding(
                     padding: const EdgeInsets.only(left: 45),
@@ -210,7 +151,11 @@ class HeatmapSoles extends StatelessWidget {
                               vertical: 1, horizontal: 1),
                           height: 420,
                           width: 140,
-                          child: HeatmapWidget(sensorValues, 80, Side.left),
+                          child: HeatmapWidget(
+                            sensorValues,
+                            80,
+                            Side.left,
+                          ),
                         ),
                         SvgPicture.asset(
                           'assets/sole_mask_left.svg',
@@ -221,14 +166,14 @@ class HeatmapSoles extends StatelessWidget {
                   );
                 }),
             StreamBuilder(
-                stream: sensorStateModel.rightDisplayStream,
+                stream: sensorStateModel.rightNormalizedStream,
                 builder: (
                   BuildContext context,
-                  AsyncSnapshot<SensorValues> sensorState,
+                  AsyncSnapshot<List<double>> snapshot,
                 ) {
-                  List<int> sensorValues = indexList;
-                  if (sensorState.hasData && sensorState.data?.data != null) {
-                    sensorValues = sensorState.data!.data;
+                  List<double> sensorValues = indexList;
+                  if (snapshot.hasData && snapshot.data != null) {
+                    sensorValues = snapshot.data!;
                   }
                   return Stack(
                     children: [
@@ -237,7 +182,11 @@ class HeatmapSoles extends StatelessWidget {
                             vertical: 1, horizontal: 1),
                         height: 420,
                         width: 140,
-                        child: HeatmapWidget(sensorValues, 80, Side.right),
+                        child: HeatmapWidget(
+                          sensorValues,
+                          80,
+                          Side.right,
+                        ),
                       ),
                       SvgPicture.asset(
                         'assets/sole_mask_right.svg',

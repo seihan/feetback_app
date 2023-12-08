@@ -34,9 +34,9 @@ class RealTimeChartsWidget extends StatelessWidget {
     return Column(
       children: [
         const Text('Left Sensor'),
-        RealTimeSensorChart(stream: stateModel.leftDisplayStream),
+        RealTimeSensorChart(stream: stateModel.leftValuesStream),
         const Text('Right Sensor'),
-        RealTimeSensorChart(stream: stateModel.rightDisplayStream),
+        RealTimeSensorChart(stream: stateModel.rightValuesStream),
       ],
     );
   }

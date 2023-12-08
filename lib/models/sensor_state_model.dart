@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:feet_back_app/models/sensor_device_selector.dart';
 import 'package:feet_back_app/models/sensor_values.dart';
-import 'package:rxdart/rxdart.dart';
 
 class SensorStateModel {
   static final SensorStateModel _instance = SensorStateModel._internal();
@@ -24,12 +24,18 @@ class SensorStateModel {
   SensorValues? _rightValues;
 
   Stream<SensorValues> get leftValuesStream => _leftValuesStream.stream;
-  Stream<SensorValues> get leftDisplayStream => leftValuesStream
-      .throttleTime(const Duration(milliseconds: 33), trailing: true);
+  Stream<List<double>> get leftNormalizedStream => leftValuesStream.transform(
+        StreamTransformer.fromHandlers(
+          handleData: _normalizeValues,
+        ),
+      );
+  Stream<List<double>> get rightNormalizedStream => rightValuesStream.transform(
+        StreamTransformer.fromHandlers(
+          handleData: _normalizeValues,
+        ),
+      );
   Stream<int> get leftFrequency => _leftFrequencyStream.stream;
   Stream<SensorValues> get rightValuesStream => _rightValuesStream.stream;
-  Stream<SensorValues> get rightDisplayStream => rightValuesStream
-      .throttleTime(const Duration(milliseconds: 33), trailing: true);
   Stream<int> get rightFrequency => _rightFrequencyStream.stream;
 
   int _leftCounter = 0;
@@ -169,5 +175,9 @@ class SensorStateModel {
     }
     _rightValuesStream.add(_rightValues!);
     _rightCounter++;
+  }
+
+  void _normalizeValues(SensorValues values, EventSink<List<double>> sink) {
+    sink.add(SensorDeviceSelector().normalizeData(values.data));
   }
 }

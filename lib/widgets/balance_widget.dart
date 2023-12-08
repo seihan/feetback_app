@@ -32,7 +32,7 @@ class _BalanceWidgetState extends State<BalanceWidget> {
               AsyncSnapshot<double> sensorState,
             ) {
               return Text(
-                '${sensorState.data?.toStringAsFixed(2) ?? 0}%',
+                '${sensorState.data?.toStringAsFixed(0) ?? 0}%',
                 style: const TextStyle(fontSize: 50),
               );
             }),
@@ -43,7 +43,7 @@ class _BalanceWidgetState extends State<BalanceWidget> {
               AsyncSnapshot<double> sensorState,
             ) {
               return Text(
-                '${sensorState.data?.toStringAsFixed(2) ?? 0}%',
+                '${sensorState.data?.toStringAsFixed(0) ?? 0}%',
                 style: const TextStyle(fontSize: 50),
               );
             }),
@@ -75,12 +75,12 @@ class BalanceModel {
   int get sum => _left + _right;
   void initialize() {
     _leftSubscription =
-        _sensorStateModel.leftDisplayStream.listen((SensorValues values) {
+        _sensorStateModel.leftValuesStream.listen((SensorValues values) {
       _left = values.data.sum;
       _leftBalanceController.add(100 - _toPercent(p: _left, q: sum));
     });
     _rightSubscription =
-        _sensorStateModel.rightDisplayStream.listen((SensorValues values) {
+        _sensorStateModel.rightValuesStream.listen((SensorValues values) {
       _right = values.data.sum;
       _rightBalanceController.add(100 - _toPercent(p: _right, q: sum));
     });

@@ -32,8 +32,7 @@ class SensorPoint extends StatelessWidget {
           height: 40.0,
           decoration: BoxDecoration(
             color: containerColor,
-            borderRadius:
-                BorderRadius.circular(15.0), // Adjust the radius as needed
+            borderRadius: BorderRadius.circular(15.0),
           ),
         );
       case SensorDevice.salted:
@@ -42,8 +41,7 @@ class SensorPoint extends StatelessWidget {
           height: 25.0,
           decoration: BoxDecoration(
             color: containerColor,
-            borderRadius:
-                BorderRadius.circular(15.0), // Adjust the radius as needed
+            borderRadius: BorderRadius.circular(15.0),
           ),
         );
     }
