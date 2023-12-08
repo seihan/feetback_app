@@ -2,6 +2,8 @@ import 'package:feet_back_app/models/bluetooth_connection_model.dart';
 import 'package:feet_back_app/models/sensor_device_selector.dart';
 import 'package:flutter/material.dart';
 
+import '../enums/sensor_device.dart';
+
 class SensorSettingsScreen extends StatefulWidget {
   final BluetoothConnectionModel model;
   const SensorSettingsScreen({super.key, required this.model});

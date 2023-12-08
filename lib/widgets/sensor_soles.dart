@@ -3,6 +3,8 @@ import 'package:feet_back_app/widgets/balance_widget.dart';
 import 'package:feet_back_app/widgets/sensor_sole.dart';
 import 'package:flutter/material.dart';
 
+import '../enums/side.dart';
+
 class SensorSoles extends StatelessWidget {
   const SensorSoles({super.key});
 
@@ -17,12 +19,12 @@ class SensorSoles extends StatelessWidget {
             SensorSole(
               values: stateModel.leftDisplayStream,
               frequency: stateModel.leftFrequency,
-              device: 0,
+              side: Side.left,
             ),
             SensorSole(
               values: stateModel.rightDisplayStream,
               frequency: stateModel.rightFrequency,
-              device: 1,
+              side: Side.right,
             ),
           ],
         ),

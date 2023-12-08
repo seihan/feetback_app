@@ -11,6 +11,7 @@ import 'package:feet_back_app/models/transmission_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
+import '../enums/sensor_device.dart';
 import '../widgets/bluetooth_alert_dialog.dart';
 import 'bluetooth_device_model.dart';
 import 'bluetooth_notification_handler.dart';
@@ -67,7 +68,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
   List<BluetoothDeviceModel> get devices => _devices;
   bool _enableFeedback = false;
   bool get enableFeedback => _enableFeedback;
-  SensorDevice? get sensorDevice => SensorDeviceSelector().selectedDevice;
+  SensorDevice get sensorDevice => SensorDeviceSelector().selectedDevice;
 
   void initialize() {
     disconnect();
@@ -330,13 +331,14 @@ class BluetoothConnectionModel extends ChangeNotifier {
       deviceModel.txChar = deviceModel.service?.characteristics
           .firstWhereOrNull((characteristic) =>
               characteristic.uuid == deviceModel.txCharGuid);
-    }
-    if (deviceModel.txChar != null) {
-      _logModel.add('found ${deviceModel.device?.platformName} tx char');
-      deviceModel.txChar?.write(
-        PeripheralConstants.saltedStayConnected,
-        withoutResponse: false,
-      );
+      if (deviceModel.txChar != null) {
+        _logModel.add('found ${deviceModel.device?.platformName} tx char');
+        // write 'stay connected cmd' to complete the connection to salted device
+        deviceModel.txChar?.write(
+          PeripheralConstants.saltedStayConnected,
+          withoutResponse: false,
+        );
+      }
     }
   }
 

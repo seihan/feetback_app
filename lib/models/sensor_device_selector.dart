@@ -1,8 +1,7 @@
 import 'package:feet_back_app/models/peripheral_constants.dart';
 
+import '../enums/sensor_device.dart';
 import 'bluetooth_device_model.dart';
-
-enum SensorDevice { fsrtec, salted }
 
 class SensorDeviceSelector {
   static final SensorDeviceSelector _instance =
@@ -12,19 +11,19 @@ class SensorDeviceSelector {
     return _instance;
   }
 
-  SensorDevice? _selectedDevice;
-  SensorDevice? get selectedDevice => _selectedDevice;
+  SensorDevice _selectedDevice = SensorDevice.salted;
+  SensorDevice get selectedDevice => _selectedDevice;
   List<BluetoothDeviceModel> selectedDevices = [];
 
   void selectDevices(SensorDevice selectedDevice) {
     _selectedDevice = selectedDevice;
     selectedDevices.clear();
     switch (selectedDevice) {
-      case SensorDevice.fsrtec:
-        selectedDevices.addAll(fsrtecDevices);
-        break;
       case SensorDevice.salted:
         selectedDevices.addAll(saltedDevices);
+        break;
+      case SensorDevice.fsrtec:
+        selectedDevices.addAll(fsrtecDevices);
         break;
     }
   }

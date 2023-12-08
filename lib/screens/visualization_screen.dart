@@ -31,7 +31,7 @@ class _VisualizationScreenState extends State<VisualizationScreen> {
     _calibrationModel.getPredictedValues();
   }
 
-  int _selectedIndex = 2;
+  int _selectedIndex = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,7 +88,7 @@ class _VisualizationScreenState extends State<VisualizationScreen> {
 
   void _onItemTapped(int index) {
     setState(() {
-      // _selectedIndex = index;
+      _selectedIndex = index;
     });
   }
 }

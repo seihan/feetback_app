@@ -57,18 +57,12 @@ class SensorStateModel {
     );
   }
 
-  /*
-  double _getResistance(int value) {
-    return (value / (4096 - value)) * 1000000;
-  }
-   */
-
   updateLeft12Values(List<int> data) {
     // assumptions:
     // - package length is always multiple of 2 (List of uint16 big endian)
     // - full package has 28 bytes
     // - first value is identifier
-    // - 12 sensor values
+    // - 12 sensor values are split on two packages
     // - last value is crc
     final ByteData buffer = ByteData.view(Uint8List.fromList(data).buffer);
     int identifier = buffer.getInt16(0);
@@ -111,11 +105,6 @@ class SensorStateModel {
   }
 
   updateLeft4Values(List<int> data) {
-    // assumptions:
-    // - package length is always multiple of 8 (List of int32 values, big endian)
-    // - first value is identifier
-    // - 4 sensor values
-    // - last value is crc
     final ByteData buffer = ByteData.sublistView(Uint8List.fromList(data));
     _startLeftTimer();
     final DateTime now = DateTime.now();
@@ -170,13 +159,8 @@ class SensorStateModel {
   }
 
   updateRight4Values(List<int> data) {
-    // assumptions:
-    // - package length is always multiple of 8 (List of int32 values, big endian)
-    // - first value is identifier
-    // - 4 sensor values
-    // - last value is crc
     final ByteData buffer = ByteData.sublistView(Uint8List.fromList(data));
-    _startLeftTimer();
+    _startRightTimer();
     final DateTime now = DateTime.now();
     _rightValues = SensorValues(time: now, data: [], side: 'RIGHT');
     final int numInt16Values = buffer.lengthInBytes ~/ 4;
