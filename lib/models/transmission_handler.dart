@@ -7,6 +7,7 @@ import 'package:feet_back_app/models/feedback_model.dart';
 import 'package:feet_back_app/models/peripheral_constants.dart';
 import 'package:feet_back_app/models/sensor_device_selector.dart';
 import 'package:feet_back_app/models/sensor_state_model.dart';
+import 'package:feet_back_app/models/sensor_values.dart';
 
 import '../enums/sensor_device.dart';
 import '../enums/side.dart';
@@ -41,10 +42,10 @@ class TransmissionHandler {
     switch (side) {
       case Side.left:
         _sensorSubscription =
-            sensorStateModel.leftNormalizedStream.listen(_onNewValue);
+            sensorStateModel.leftValuesStream.listen(_onNewValue);
       case Side.right:
         _sensorSubscription =
-            sensorStateModel.rightNormalizedStream.listen(_onNewValue);
+            sensorStateModel.leftValuesStream.listen(_onNewValue);
     }
     _enableFeedback = feedbackModel.enableFeedback;
   }
@@ -72,21 +73,21 @@ class TransmissionHandler {
     return durationMilliseconds;
   }
 
-  void _onNewValue(List<double> normalizedValues) {
-    if (normalizedValues.isNotEmpty && _enableFeedback) {
+  void _onNewValue(SensorValues values) {
+    if ((values.normalized?.isNotEmpty ?? false) && _enableFeedback) {
       double highestFront = 0;
       double highestRear = 0;
       switch (device) {
         case SensorDevice.fsrtec:
           {
-            highestFront = 1 - normalizedValues.sublist(0, 5).min;
-            highestRear = 1 - normalizedValues.sublist(6).min;
+            highestFront = 1 - (values.normalized?.sublist(0, 5).min ?? 0);
+            highestRear = 1 - (values.normalized?.sublist(6).min ?? 0);
             break;
           }
         case SensorDevice.salted:
           {
-            highestFront = 1 - normalizedValues[0];
-            highestRear = 1 - normalizedValues[1];
+            highestFront = 1 - (values.normalized?[0] ?? 0);
+            highestRear = 1 - (values.normalized?[1] ?? 0);
           }
       }
 

@@ -140,12 +140,9 @@ class RealTimeSensorChart extends StatelessWidget {
           side: 'UNKNOWN'), // Initialize with 12 zeros
       builder: (context, snapshot) {
         if (snapshot.data == null) {
-          return Container(); // Return an empty Container if snapshot data is null
+          return Container();
         }
-
         final newData = snapshot.data!;
-
-        // Add new data to chartData
         chartData.add(newData);
 
         // Ensure that chartData does not exceed the maximum length
@@ -204,11 +201,12 @@ class RealTimeSensorChart extends StatelessWidget {
   ) {
     final List<charts.Series<SensorValues, DateTime>> seriesList = [];
 
-    for (int i = 0; i < data.first.data.length; i++) {
+    for (int i = 0; i < (data.first.normalized?.length ?? 0); i++) {
       final List<SensorValues> seriesData = data.map((SensorValues values) {
         return SensorValues(
           time: values.time,
           data: [values.data[i]],
+          normalized: [values.normalized?[i] ?? 0],
           side: values.side,
         );
       }).toList();
@@ -218,7 +216,7 @@ class RealTimeSensorChart extends StatelessWidget {
           id: 'Sensor ${i + 1}',
           colorFn: (SensorValues data, _) => _getUniqueColor(i),
           domainFn: (SensorValues data, _) => data.time,
-          measureFn: (SensorValues data, _) => data.data[0],
+          measureFn: (SensorValues data, _) => data.normalized?[0],
           data: seriesData,
         ),
       );

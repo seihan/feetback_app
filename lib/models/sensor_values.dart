@@ -3,6 +3,7 @@ import 'dart:convert';
 class SensorValues {
   late final DateTime time;
   final List<int> data;
+  List<double>? normalized;
   final String side;
   int? recordId;
 
@@ -10,6 +11,7 @@ class SensorValues {
     required this.time,
     required this.data,
     required this.side,
+    this.normalized,
     this.recordId,
   });
 

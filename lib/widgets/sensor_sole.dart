@@ -1,4 +1,5 @@
 import 'package:feet_back_app/enums/sensor_device.dart';
+import 'package:feet_back_app/models/sensor_values.dart';
 import 'package:feet_back_app/widgets/frequency_widget.dart';
 import 'package:feet_back_app/widgets/sensor_point.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +12,7 @@ class SensorSole extends StatelessWidget {
   final Side side;
   final SensorDevice device = SensorDeviceSelector().selectedDevice;
   final String assetName = 'assets/sole.svg';
-  final Stream<List<double>> values;
+  final Stream<SensorValues> values;
   final Stream<int> frequency;
   SensorSole(
       {required this.side,
@@ -36,12 +37,12 @@ class SensorSole extends StatelessWidget {
       stream: values,
       builder: (
         BuildContext context,
-        AsyncSnapshot<List<double>> snapshot,
+        AsyncSnapshot<SensorValues> snapshot,
       ) {
         List<double> sensorValues = indexList;
-        bool notEmptyData = snapshot.data?.isNotEmpty ?? false;
+        bool notEmptyData = snapshot.data?.normalized?.isNotEmpty ?? false;
         if (snapshot.data != null && notEmptyData) {
-          sensorValues = snapshot.data!;
+          sensorValues = snapshot.data!.normalized!;
         }
         return Stack(
           children: [

@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:feet_back_app/enums/sensor_device.dart';
 import 'package:feet_back_app/models/sensor_state_model.dart';
+import 'package:feet_back_app/models/sensor_values.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -133,14 +134,14 @@ class HeatmapSoles extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             StreamBuilder(
-                stream: sensorStateModel.leftNormalizedStream,
+                stream: sensorStateModel.leftValuesStream,
                 builder: (
                   BuildContext context,
-                  AsyncSnapshot<List<double>> snapshot,
+                  AsyncSnapshot<SensorValues> snapshot,
                 ) {
                   List<double> sensorValues = indexList;
                   if (snapshot.hasData && snapshot.data != null) {
-                    sensorValues = snapshot.data!;
+                    sensorValues = snapshot.data!.normalized!;
                   }
                   return Padding(
                     padding: const EdgeInsets.only(left: 45),
@@ -166,14 +167,14 @@ class HeatmapSoles extends StatelessWidget {
                   );
                 }),
             StreamBuilder(
-                stream: sensorStateModel.rightNormalizedStream,
+                stream: sensorStateModel.rightValuesStream,
                 builder: (
                   BuildContext context,
-                  AsyncSnapshot<List<double>> snapshot,
+                  AsyncSnapshot<SensorValues> snapshot,
                 ) {
                   List<double> sensorValues = indexList;
                   if (snapshot.hasData && snapshot.data != null) {
-                    sensorValues = snapshot.data!;
+                    sensorValues = snapshot.data!.normalized!;
                   }
                   return Stack(
                     children: [

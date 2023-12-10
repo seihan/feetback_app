@@ -26,16 +26,6 @@ class SensorStateModel {
   SensorValues? _rightValues;
 
   Stream<SensorValues> get leftValuesStream => _leftValuesStream.stream;
-  Stream<List<double>> get leftNormalizedStream => leftValuesStream.transform(
-        StreamTransformer.fromHandlers(
-          handleData: _normalizeValues,
-        ),
-      );
-  Stream<List<double>> get rightNormalizedStream => rightValuesStream.transform(
-        StreamTransformer.fromHandlers(
-          handleData: _normalizeValues,
-        ),
-      );
   Stream<int> get leftFrequency => _leftFrequencyStream.stream;
   Stream<SensorValues> get rightValuesStream => _rightValuesStream.stream;
   Stream<int> get rightFrequency => _rightFrequencyStream.stream;
@@ -110,6 +100,9 @@ class SensorStateModel {
           }
         }
         if (crc != 0 && _leftValues?.data.length == 12) {
+          _leftValues?.normalized = SensorDeviceSelector().normalizeData(
+            _leftValues!.data,
+          );
           _leftValuesStream.add(_leftValues!);
           _leftCounter++;
         }
@@ -145,6 +138,9 @@ class SensorStateModel {
               }
           }
           if (crc != 0 && _rightValues?.data.length == 12) {
+            _rightValues?.normalized = SensorDeviceSelector().normalizeData(
+              _rightValues!.data,
+            );
             _rightValuesStream.add(_rightValues!);
             _rightCounter++;
           }
@@ -168,6 +164,9 @@ class SensorStateModel {
               buffer.getInt32(i * 4, Endian.little),
             );
           }
+          _leftValues?.normalized = SensorDeviceSelector().normalizeData(
+            _leftValues!.data,
+          );
           _leftValuesStream.add(_leftValues!);
           _leftCounter++;
         }
@@ -180,13 +179,12 @@ class SensorStateModel {
               buffer.getInt32(i * 4, Endian.little),
             );
           }
+          _rightValues?.normalized = SensorDeviceSelector().normalizeData(
+            _rightValues!.data,
+          );
           _rightValuesStream.add(_rightValues!);
           _rightCounter++;
         }
     }
-  }
-
-  void _normalizeValues(SensorValues values, EventSink<List<double>> sink) {
-    sink.add(SensorDeviceSelector().normalizeData(values.data));
   }
 }
