@@ -54,8 +54,9 @@ class CalibrationModel {
         _canTested = false;
       }
     } else {
-      _calibrationTable.values.addAll(PeripheralConstants.crmDefaultValues);
-      _calibrationTable.samples.addAll(PeripheralConstants.crmDefaultSamples);
+      _calibrationTable.values.addAll(PeripheralConstants.fsrtecDefaultValues);
+      _calibrationTable.samples
+          .addAll(PeripheralConstants.fsrtecDefaultSamples);
       predictValues();
     }
   }

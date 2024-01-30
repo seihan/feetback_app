@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
+import '../enums/side.dart';
 import '../models/bluetooth_connection_model.dart';
 
 class BuzzButton extends StatelessWidget {
   final BluetoothConnectionModel model;
   final int mode;
-  final int device;
+  final Side side;
   const BuzzButton(
-      {this.mode = 0, required this.device, Key? key, required this.model})
+      {this.mode = 0, required this.side, Key? key, required this.model})
       : super(key: key);
 
   @override
@@ -15,7 +16,7 @@ class BuzzButton extends StatelessWidget {
     switch (mode) {
       case 1:
         return IconButton(
-          onPressed: () => model.buzzTwo(device: device),
+          onPressed: () => model.buzzTwo(side: side),
           icon: const Icon(
             Icons.star_half_sharp,
           ),
@@ -23,7 +24,7 @@ class BuzzButton extends StatelessWidget {
         );
       case 2:
         return IconButton(
-          onPressed: () => model.buzzThree(device: device),
+          onPressed: () => model.buzzThree(side: side),
           icon: const Icon(
             Icons.star,
           ),
@@ -31,7 +32,7 @@ class BuzzButton extends StatelessWidget {
         );
       default:
         return IconButton(
-          onPressed: () => model.buzzOne(device: device),
+          onPressed: () => model.buzzOne(side: side),
           icon: const Icon(
             Icons.star_outline,
           ),

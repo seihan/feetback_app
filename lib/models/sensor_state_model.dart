@@ -73,7 +73,11 @@ class SensorStateModel {
           switch (identifier) {
             case 0x0103:
               {
-                _leftValues = SensorValues(time: now, data: [], side: 'LEFT');
+                _leftValues = SensorValues(
+                  time: now,
+                  data: [],
+                  side: side.description.toUpperCase(),
+                );
                 for (int i = 1; i < buffer.lengthInBytes / 2; i++) {
                   _leftValues?.data.add(buffer.getInt16((i * 2)));
                 }
@@ -112,7 +116,11 @@ class SensorStateModel {
           switch (identifier) {
             case 0x0203:
               {
-                _rightValues = SensorValues(time: now, data: [], side: 'RIGHT');
+                _rightValues = SensorValues(
+                  time: now,
+                  data: [],
+                  side: side.description.toUpperCase(),
+                );
                 for (int i = 1; i < buffer.lengthInBytes / 2; i++) {
                   _rightValues?.data.add(buffer.getInt16((i * 2)));
                 }
@@ -158,7 +166,11 @@ class SensorStateModel {
       case Side.left:
         {
           _startLeftTimer();
-          _leftValues = SensorValues(time: now, data: [], side: 'LEFT');
+          _leftValues = SensorValues(
+            time: now,
+            data: [],
+            side: side.description.toUpperCase(),
+          );
           for (int i = 2; i < numInt16Values - 1; i++) {
             _leftValues?.data.add(
               buffer.getInt32(i * 4, Endian.little),
@@ -173,7 +185,11 @@ class SensorStateModel {
       case Side.right:
         {
           _startRightTimer();
-          _rightValues = SensorValues(time: now, data: [], side: 'RIGHT');
+          _rightValues = SensorValues(
+            time: now,
+            data: [],
+            side: side.description.toUpperCase(),
+          );
           for (int i = 2; i < numInt16Values - 1; i++) {
             _rightValues?.data.add(
               buffer.getInt32(i * 4, Endian.little),

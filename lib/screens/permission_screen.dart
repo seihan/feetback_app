@@ -6,9 +6,7 @@ import '../models/permission_model.dart';
 import 'home.dart';
 
 class PermissionScreen extends StatefulWidget {
-  final GlobalKey<NavigatorState> navigatorKey;
-  const PermissionScreen({Key? key, required this.navigatorKey})
-      : super(key: key);
+  const PermissionScreen({Key? key}) : super(key: key);
 
   @override
   State<PermissionScreen> createState() => _PermissionScreenState();
@@ -98,9 +96,8 @@ class _PermissionScreenState extends State<PermissionScreen>
   /// if it's not granted then request it.
   /// If it's granted then invoke the file picker
   Future<void> _checkPermissions() async {
-    final hasLocationPermissions =
-        await _permissionModel.requestLocationPermission();
-    debugPrint('Location permission: $hasLocationPermissions');
+    await _permissionModel.requestLocationPermission();
+    debugPrint('Location permission: ');
   }
 
   /// Leave permission screen and go to home screen
@@ -108,10 +105,7 @@ class _PermissionScreenState extends State<PermissionScreen>
   /// route will be removed
   void _goToHomeScreen() {
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(
-          builder: (context) => HomeScreen(
-                navigatorKey: widget.navigatorKey,
-              )),
+      MaterialPageRoute(builder: (context) => const HomeScreen()),
       (route) => false,
     );
   }

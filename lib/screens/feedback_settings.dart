@@ -3,6 +3,7 @@ import 'package:feet_back_app/models/feedback_model.dart';
 import 'package:feet_back_app/widgets/scrollable_vertical_widget.dart';
 import 'package:flutter/material.dart';
 
+import '../enums/side.dart';
 import '../widgets/activate_switch.dart';
 import '../widgets/buzz_button.dart';
 
@@ -85,30 +86,31 @@ class _FeedbackSettingsState extends State<FeedbackSettings> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         BuzzButton(
-                            model: widget.bluetoothConnectionModel,
-                            mode: 0,
-                            device: 2),
+                          model: widget.bluetoothConnectionModel,
+                          mode: 0,
+                          side: Side.left,
+                        ),
                         BuzzButton(
                             model: widget.bluetoothConnectionModel,
                             mode: 1,
-                            device: 2),
+                            side: Side.left),
                         BuzzButton(
                             model: widget.bluetoothConnectionModel,
                             mode: 2,
-                            device: 2),
+                            side: Side.left),
                         const Spacer(),
                         BuzzButton(
                             model: widget.bluetoothConnectionModel,
                             mode: 0,
-                            device: 3),
+                            side: Side.right),
                         BuzzButton(
                             model: widget.bluetoothConnectionModel,
                             mode: 1,
-                            device: 3),
+                            side: Side.right),
                         BuzzButton(
                             model: widget.bluetoothConnectionModel,
                             mode: 2,
-                            device: 3),
+                            side: Side.right),
                       ],
                     ),
                   ],
@@ -119,9 +121,13 @@ class _FeedbackSettingsState extends State<FeedbackSettings> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   ActivateSwitch(
-                      model: widget.bluetoothConnectionModel, device: 2),
+                    model: widget.bluetoothConnectionModel,
+                    side: Side.left,
+                  ),
                   ActivateSwitch(
-                      model: widget.bluetoothConnectionModel, device: 3),
+                    model: widget.bluetoothConnectionModel,
+                    side: Side.right,
+                  ),
                 ],
               ),
             ),

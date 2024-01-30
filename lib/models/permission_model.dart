@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../routes.dart';
+
 // This enum will manage the overall state of the app
 enum PermissionSection {
   noLocationPermission, // Permission denied, but not forever
@@ -18,6 +20,24 @@ class PermissionModel extends ChangeNotifier {
     if (value != _permissionSection) {
       _permissionSection = value;
       notifyListeners();
+    }
+  }
+
+  Future<PermissionModel> init() async {
+    await requestLocationPermission();
+    return this;
+  }
+
+  String guessInitialRoute() {
+    switch (_permissionSection) {
+      case PermissionSection.unknown:
+        return Routes.permissions;
+      case PermissionSection.noLocationPermission:
+        return Routes.permissions;
+      case PermissionSection.noLocationPermissionPermanent:
+        return Routes.permissions;
+      case PermissionSection.permissionGranted:
+        return Routes.home;
     }
   }
 

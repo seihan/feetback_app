@@ -112,14 +112,14 @@ class SensorDeviceSelector {
 
   static final List<BluetoothDeviceModel> fsrtecDevices = [
     BluetoothDeviceModel(
-      name: PeripheralConstants.crmLeftName,
-      serviceGuid: PeripheralConstants.crmServiceGuid,
-      rxTxCharGuid: PeripheralConstants.crmRxTxCharGuid,
+      name: PeripheralConstants.fsrtecLeftName,
+      serviceGuid: PeripheralConstants.fsrtecServiceGuid,
+      rxTxCharGuid: PeripheralConstants.fsrtecRxTxCharGuid,
     ),
     BluetoothDeviceModel(
-      name: PeripheralConstants.crmRightName,
-      serviceGuid: PeripheralConstants.crmServiceGuid,
-      rxTxCharGuid: PeripheralConstants.crmRxTxCharGuid,
+      name: PeripheralConstants.fsrtecRightName,
+      serviceGuid: PeripheralConstants.fsrtecServiceGuid,
+      rxTxCharGuid: PeripheralConstants.fsrtecRxTxCharGuid,
     ),
   ];
 

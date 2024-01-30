@@ -69,9 +69,8 @@ class SideMenu extends StatelessWidget {
                   title: const Text('Sensor Settings'),
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (BuildContext context) => SensorSettingsScreen(
-                        model: model,
-                      ),
+                      builder: (BuildContext context) =>
+                          const SensorSettingsScreen(),
                     ),
                   ),
                 ),

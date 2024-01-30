@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../enums/side.dart';
 import '../models/bluetooth_connection_model.dart';
 
 class ActivateSwitch extends StatefulWidget {
   final BluetoothConnectionModel model;
-  final int device;
-  const ActivateSwitch({required this.device, Key? key, required this.model})
+  final Side side;
+  const ActivateSwitch({required this.side, Key? key, required this.model})
       : super(key: key);
 
   @override
@@ -16,11 +17,11 @@ class _ActivateSwitchState extends State<ActivateSwitch> {
   @override
   Widget build(BuildContext context) {
     int selection = 0;
-    switch (widget.device) {
-      case 2:
+    switch (widget.side) {
+      case Side.left:
         selection = 0;
         break;
-      case 3:
+      case Side.right:
         selection = 1;
         break;
     }
@@ -31,11 +32,8 @@ class _ActivateSwitchState extends State<ActivateSwitch> {
         Switch(
           value: widget.model.activated[selection],
           onChanged: (newValue) => newValue
-              ? {widget.model.activate(device: widget.device), setState(() {})}
-              : {
-                  widget.model.deactivate(device: widget.device),
-                  setState(() {})
-                },
+              ? {widget.model.activate(side: widget.side), setState(() {})}
+              : {widget.model.deactivate(side: widget.side), setState(() {})},
         ),
       ],
     );

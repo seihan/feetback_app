@@ -1,14 +1,17 @@
 import 'dart:async';
 
-import 'package:feet_back_app/screens/home.dart';
-import 'package:feet_back_app/screens/permission_screen.dart';
+import 'package:feet_back_app/global_params.dart';
+import 'package:feet_back_app/models/bluetooth_connection_model.dart';
+import 'package:feet_back_app/models/record_model.dart';
+import 'package:feet_back_app/routes.dart';
+import 'package:feet_back_app/services.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'models/custom_error_handler.dart';
 import 'models/permission_model.dart';
 
 void main() {
-  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   FlutterError.onError = (FlutterErrorDetails details) {
     // Handle the Flutter error and stack trace
     CustomErrorHandler.handleFlutterError(
@@ -16,12 +19,21 @@ void main() {
       details.stack,
     );
   };
-  runZonedGuarded(() {
-    runApp(
-      FeetBackApp(
-        navigatorKey: navigatorKey,
-      ),
-    );
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    await setupServices();
+    await services.allReady(timeout: const Duration(seconds: 10));
+    runApp(MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(
+          value: services.get<BluetoothConnectionModel>(),
+        ),
+        ChangeNotifierProvider.value(
+          value: services.get<RecordModel>(),
+        ),
+      ],
+      child: const FeetBackApp(),
+    ));
   }, (error, stackTrace) {
     // Handle the platform error and stack trace
     CustomErrorHandler.handlePlatformError(error, stackTrace);
@@ -29,37 +41,19 @@ void main() {
 }
 
 class FeetBackApp extends StatelessWidget {
-  final GlobalKey<NavigatorState> navigatorKey;
-  const FeetBackApp({Key? key, required this.navigatorKey}) : super(key: key);
+  const FeetBackApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final PermissionModel permissionModel = PermissionModel();
     return MaterialApp(
       title: 'FeetBack',
-      navigatorKey: navigatorKey,
+      navigatorKey: services.get<GlobalParams>().navigatorKey,
       theme: ThemeData.dark(),
-      home: FutureBuilder<PermissionSection>(
-        future: permissionModel.requestLocationPermission(),
-        builder:
-            (BuildContext context, AsyncSnapshot<PermissionSection> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData) {
-            return const Center(
-              child: Text(
-                'No data available.',
-              ),
-            );
-          } else {
-            return snapshot.data == PermissionSection.permissionGranted
-                ? HomeScreen(navigatorKey: navigatorKey)
-                : PermissionScreen(navigatorKey: navigatorKey);
-          }
-        },
-      ),
+      routes: Routes.routes,
+      initialRoute: services.get<PermissionModel>().guessInitialRoute(),
+      builder: (context, child) {
+        return child ?? const CircularProgressIndicator();
+      },
     );
   }
 }

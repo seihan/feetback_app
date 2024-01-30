@@ -15,13 +15,13 @@ class DeviceWidget extends StatelessWidget {
           const Text('Sensors:'),
           Row(
             children: List.generate(
-              model.devices.length - 2,
+              model.sensorDevices.length,
               (index) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Icon(
                     Icons.satellite_alt,
-                    color: model.devices[index].connected
+                    color: model.sensorDevices[index].connected
                         ? Colors.blue
                         : Colors.grey,
                   ),
@@ -33,13 +33,13 @@ class DeviceWidget extends StatelessWidget {
           const Text('Actors:'),
           Row(
             children: List.generate(
-              model.devices.length - 2,
+              model.actorDevices.length,
               (index) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Icon(
                     Icons.satellite_alt,
-                    color: model.devices[index + 2].connected
+                    color: model.actorDevices[index].connected
                         ? Colors.blue
                         : Colors.grey,
                   ),
