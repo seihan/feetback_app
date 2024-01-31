@@ -1,58 +1,37 @@
 import 'dart:async';
 
-import 'package:collection/collection.dart';
-import 'package:feet_back_app/models/bluetooth_connection_model.dart';
 import 'package:feet_back_app/models/bluetooth_device_model.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
-import '../enums/side.dart';
 
 class SensorDeviceWidget extends StatelessWidget {
-  final Side side;
-  const SensorDeviceWidget({required this.side, super.key});
+  final BluetoothDeviceModel device;
+  const SensorDeviceWidget({required this.device, super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<BluetoothConnectionModel>(builder:
-        (BuildContext context, BluetoothConnectionModel model, Widget? child) {
-      BluetoothDeviceModel? device;
-      if (model.sensorDevices.isNotEmpty) {
-        switch (side) {
-          case Side.left:
-            device = model.sensorDevices.firstWhereOrNull(
-              (element) => element.side == Side.left,
-            );
-          case Side.right:
-            device = model.sensorDevices.firstWhereOrNull(
-              (element) => element.side == Side.right,
-            );
-        }
-      }
-      return device != null
-          ? SizedBox(
-              width: 160,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Name: ${device.name}'),
-                  Text('ID: ${device.id.toString()}'),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text((device.connected) ? 'Connected' : 'Disconnected'),
-                      Icon(
-                        device.connected ? Icons.sensors : Icons.sensors_off,
-                        color: device.connected ? Colors.blue : Colors.white,
-                      ),
-                    ],
-                  ),
-                  BluetoothRssiWidget(device: device),
-                ],
+    return SizedBox(
+      width: 160,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Name: ${device.name}'),
+          Text('ID: ${device.id?.str}'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(device.connected ? 'Connected' : 'Disconnected'),
+              /* Icon(
+                (device.connected ?? false) ? Icons.sensors : Icons.sensors_off,
+                color: (device.connected ?? false) ? Colors.blue : Colors.white,
               ),
-            )
-          : Text('no ${side == Side.left ? 'left' : 'right'} device');
-    });
+
+              */
+            ],
+          ),
+          // BluetoothRssiWidget(device: device),
+        ],
+      ),
+    );
   }
 }
 

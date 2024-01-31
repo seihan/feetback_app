@@ -7,10 +7,14 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../enums/side.dart';
 import '../models/sensor_device_selector.dart';
+import '../services.dart';
 
 class SensorSole extends StatelessWidget {
   final Side side;
-  final SensorDevice device = SensorDeviceSelector().selectedDevice;
+  final SensorDeviceSelector deviceSelector =
+      services.get<SensorDeviceSelector>();
+  final SensorDevice device =
+      services.get<SensorDeviceSelector>().selectedDevice;
   final String assetName = 'assets/sole.svg';
   final Stream<SensorValues> values;
   final Stream<int> frequency;
@@ -60,8 +64,7 @@ class SensorSole extends StatelessWidget {
                 children: List.generate(
                   indexList.length,
                   (index) {
-                    List<double> position =
-                        SensorDeviceSelector().getPositionList(
+                    List<double> position = deviceSelector.getPositionList(
                       index,
                       side,
                     );

@@ -70,7 +70,8 @@ class BluetoothConnectionModel extends ChangeNotifier {
 
   bool _enableFeedback = false;
   bool get enableFeedback => _enableFeedback;
-  SensorDevice get sensorDevice => SensorDeviceSelector().selectedDevice;
+  SensorDevice get sensorDevice =>
+      services.get<SensorDeviceSelector>().selectedDevice;
 
   BluetoothConnectionModel init() {
     disconnect();
@@ -238,7 +239,8 @@ class BluetoothConnectionModel extends ChangeNotifier {
   Side? _getSide({bool left = false, bool right = false}) {
     if (left) {
       return Side.left;
-    } else if (right) {
+    }
+    if (right) {
       return Side.right;
     }
     return null;

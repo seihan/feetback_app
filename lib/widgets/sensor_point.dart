@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../enums/sensor_device.dart';
 import '../models/sensor_device_selector.dart';
+import '../services.dart';
 
 class SensorPoint extends StatelessWidget {
   final double value; // 0...1
@@ -24,7 +25,8 @@ class SensorPoint extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Color containerColor = getColorForValue(value);
-    final SensorDevice device = SensorDeviceSelector().selectedDevice;
+    final SensorDevice device =
+        services.get<SensorDeviceSelector>().selectedDevice;
     switch (device) {
       case SensorDevice.fsrtec:
         return Container(

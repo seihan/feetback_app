@@ -13,7 +13,6 @@ import 'models/permission_model.dart';
 
 void main() {
   FlutterError.onError = (FlutterErrorDetails details) {
-    // Handle the Flutter error and stack trace
     CustomErrorHandler.handleFlutterError(
       details.exception,
       details.stack,
@@ -35,7 +34,6 @@ void main() {
       child: const FeetBackApp(),
     ));
   }, (error, stackTrace) {
-    // Handle the platform error and stack trace
     CustomErrorHandler.handlePlatformError(error, stackTrace);
   });
 }

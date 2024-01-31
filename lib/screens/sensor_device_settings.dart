@@ -1,4 +1,7 @@
+import 'package:collection/collection.dart';
 import 'package:feet_back_app/models/bluetooth_connection_model.dart';
+import 'package:feet_back_app/models/bluetooth_device_model.dart';
+import 'package:feet_back_app/models/device_id_model.dart';
 import 'package:feet_back_app/models/sensor_device_selector.dart';
 import 'package:feet_back_app/widgets/scrollable_vertical_widget.dart';
 import 'package:feet_back_app/widgets/sensor_device.dart';
@@ -7,6 +10,7 @@ import 'package:provider/provider.dart';
 
 import '../enums/sensor_device.dart';
 import '../enums/side.dart';
+import '../services.dart';
 
 class SensorSettingsScreen extends StatefulWidget {
   const SensorSettingsScreen({super.key});
@@ -16,18 +20,26 @@ class SensorSettingsScreen extends StatefulWidget {
 }
 
 class _SensorSettingsScreenState extends State<SensorSettingsScreen> {
-  SensorDevice? selectedDevice;
-
-  @override
-  void initState() {
-    super.initState();
-    selectedDevice = SensorDeviceSelector().selectedDevice;
-  }
+  SensorDevice? selectedDevice =
+      services.get<SensorDeviceSelector>().selectedDevice;
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<BluetoothConnectionModel>(builder:
-        (BuildContext context, BluetoothConnectionModel model, Widget? child) {
+    return Consumer<BluetoothConnectionModel>(builder: (
+      BuildContext context,
+      BluetoothConnectionModel model,
+      Widget? child,
+    ) {
+      BluetoothDeviceModel? leftDevice;
+      BluetoothDeviceModel? rightDevice;
+      if (model.sensorDevices.isNotEmpty) {
+        leftDevice = model.sensorDevices.firstWhereOrNull(
+          (device) => device.side == Side.left,
+        );
+        rightDevice = model.sensorDevices.firstWhereOrNull(
+          (device) => device.side == Side.right,
+        );
+      }
       return Scaffold(
         appBar: AppBar(
           title: const Text('Sensor Device Settings'),
@@ -52,7 +64,9 @@ class _SensorSettingsScreenState extends State<SensorSettingsScreen> {
                       onChanged: (SensorDevice? value) {
                         setState(() {
                           selectedDevice = value;
-                          SensorDeviceSelector().selectDevices(selectedDevice!);
+                          SensorDeviceSelector().selectDevice(
+                            selectedDevice,
+                          );
                           model.init();
                         });
                       },
@@ -66,7 +80,9 @@ class _SensorSettingsScreenState extends State<SensorSettingsScreen> {
                       onChanged: (SensorDevice? value) {
                         setState(() {
                           selectedDevice = value;
-                          SensorDeviceSelector().selectDevices(selectedDevice!);
+                          SensorDeviceSelector().selectDevice(
+                            selectedDevice,
+                          );
                           model.init();
                         });
                       },
@@ -79,12 +95,14 @@ class _SensorSettingsScreenState extends State<SensorSettingsScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const SensorDeviceWidget(
-                        side: Side.left,
-                      ),
-                      const SensorDeviceWidget(
-                        side: Side.right,
-                      ),
+                      if (leftDevice != null)
+                        SensorDeviceWidget(
+                          device: leftDevice,
+                        ),
+                      if (rightDevice != null)
+                        SensorDeviceWidget(
+                          device: rightDevice,
+                        ),
                       if (model.sensorDevices.isNotEmpty)
                         IconButton(
                           onPressed: () async {
@@ -151,23 +169,79 @@ class _SensorSettingsScreenState extends State<SensorSettingsScreen> {
     await showDialog(
       context: context,
       builder: (BuildContext context) {
-        return const SimpleDialog(
-          title: Text('Discover new devices'),
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                SensorDeviceWidget(
-                  side: Side.left,
-                ),
-                SensorDeviceWidget(
-                  side: Side.right,
-                ),
-              ],
+        return AlertDialog(
+            title: const Text('Discover New Devices'),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: Row(
+                children: [
+                  SensorDevicesList(
+                    side: Side.left,
+                    device: selectedDevice,
+                  ),
+                  SensorDevicesList(
+                    side: Side.right,
+                    device: selectedDevice,
+                  ),
+                ],
+              ),
             )
-          ],
-        );
+
+            // ]);
+            );
       },
+    );
+  }
+}
+
+class SensorDevicesList extends StatelessWidget {
+  final Side side;
+  final SensorDevice? device;
+  const SensorDevicesList({
+    super.key,
+    required this.side,
+    this.device,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 140,
+      height: 200,
+      child: Consumer<BluetoothConnectionModel>(builder: (
+        BuildContext context,
+        BluetoothConnectionModel model,
+        Widget? child,
+      ) {
+        final List<BluetoothDeviceModel> devices = model.sensorDevices
+            .where(
+              (device) => device.side == side,
+            )
+            .toList();
+        return ListView.builder(
+          itemCount: devices.length,
+          itemBuilder: (context, index) {
+            return ListTile(
+              onTap: () {
+                DeviceIdModel().saveSensorDeviceId(
+                  device: device,
+                  id: devices[index].id?.str,
+                  side: side,
+                );
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('saving id...'),
+                  ),
+                );
+              },
+              leading: Text(
+                '#$index\n${devices[index].id?.str}',
+                style: const TextStyle(fontSize: 11),
+              ),
+            );
+          },
+        );
+      }),
     );
   }
 }

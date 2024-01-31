@@ -5,6 +5,7 @@ import 'package:feet_back_app/models/sensor_device_selector.dart';
 import 'package:feet_back_app/models/sensor_values.dart';
 
 import '../enums/side.dart';
+import '../services.dart';
 
 class SensorStateModel {
   static final SensorStateModel _instance = SensorStateModel._internal();
@@ -21,6 +22,9 @@ class SensorStateModel {
       StreamController<SensorValues>.broadcast();
   static final StreamController<int> _rightFrequencyStream =
       StreamController<int>.broadcast();
+
+  final SensorDeviceSelector _deviceSelector =
+      services.get<SensorDeviceSelector>();
 
   SensorValues? _leftValues;
   SensorValues? _rightValues;
@@ -104,7 +108,7 @@ class SensorStateModel {
           }
         }
         if (crc != 0 && _leftValues?.data.length == 12) {
-          _leftValues?.normalized = SensorDeviceSelector().normalizeData(
+          _leftValues?.normalized = _deviceSelector.normalizeData(
             _leftValues!.data,
           );
           _leftValuesStream.add(_leftValues!);
@@ -146,7 +150,7 @@ class SensorStateModel {
               }
           }
           if (crc != 0 && _rightValues?.data.length == 12) {
-            _rightValues?.normalized = SensorDeviceSelector().normalizeData(
+            _rightValues?.normalized = _deviceSelector.normalizeData(
               _rightValues!.data,
             );
             _rightValuesStream.add(_rightValues!);
@@ -176,7 +180,7 @@ class SensorStateModel {
               buffer.getInt32(i * 4, Endian.little),
             );
           }
-          _leftValues?.normalized = SensorDeviceSelector().normalizeData(
+          _leftValues?.normalized = _deviceSelector.normalizeData(
             _leftValues!.data,
           );
           _leftValuesStream.add(_leftValues!);
@@ -195,7 +199,7 @@ class SensorStateModel {
               buffer.getInt32(i * 4, Endian.little),
             );
           }
-          _rightValues?.normalized = SensorDeviceSelector().normalizeData(
+          _rightValues?.normalized = _deviceSelector.normalizeData(
             _rightValues!.data,
           );
           _rightValuesStream.add(_rightValues!);
