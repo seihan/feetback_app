@@ -5,7 +5,6 @@ import 'package:feet_back_app/models/sensor_device_selector.dart';
 import 'package:feet_back_app/models/sensor_values.dart';
 
 import '../enums/side.dart';
-import '../services.dart';
 
 class SensorStateModel {
   static final SensorStateModel _instance = SensorStateModel._internal();
@@ -23,8 +22,7 @@ class SensorStateModel {
   static final StreamController<int> _rightFrequencyStream =
       StreamController<int>.broadcast();
 
-  final SensorDeviceSelector _deviceSelector =
-      services.get<SensorDeviceSelector>();
+  final SensorDeviceSelector _deviceSelector = SensorDeviceSelector();
 
   SensorValues? _leftValues;
   SensorValues? _rightValues;

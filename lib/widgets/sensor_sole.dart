@@ -7,14 +7,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../enums/side.dart';
 import '../models/sensor_device_selector.dart';
-import '../services.dart';
 
 class SensorSole extends StatelessWidget {
   final Side side;
-  final SensorDeviceSelector deviceSelector =
-      services.get<SensorDeviceSelector>();
-  final SensorDevice device =
-      services.get<SensorDeviceSelector>().selectedDevice;
+  final SensorDevice device = SensorDeviceSelector().selectedDevice;
   final String assetName = 'assets/sole.svg';
   final Stream<SensorValues> values;
   final Stream<int> frequency;
@@ -26,8 +22,15 @@ class SensorSole extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    int length = 0;
+    switch (device) {
+      case SensorDevice.fsrtec:
+        length = 12;
+      case SensorDevice.salted:
+        length = 4;
+    }
     final List<double> indexList = List.generate(
-      device == SensorDevice.fsrtec ? 12 : 4,
+      length,
       (int index) => 0,
     );
 
@@ -45,7 +48,9 @@ class SensorSole extends StatelessWidget {
       ) {
         List<double> sensorValues = indexList;
         bool notEmptyData = snapshot.data?.normalized?.isNotEmpty ?? false;
-        if (snapshot.data != null && notEmptyData) {
+        if (snapshot.data != null &&
+            notEmptyData &&
+            (snapshot.data?.normalized?.length == length)) {
           sensorValues = snapshot.data!.normalized!;
         }
         return Stack(
@@ -64,7 +69,8 @@ class SensorSole extends StatelessWidget {
                 children: List.generate(
                   indexList.length,
                   (index) {
-                    List<double> position = deviceSelector.getPositionList(
+                    List<double> position =
+                        SensorDeviceSelector().getPositionList(
                       index,
                       side,
                     );

@@ -6,13 +6,18 @@ import '../enums/side.dart';
 import '../services.dart';
 
 class DeviceIdModel {
+  static final DeviceIdModel _instance = DeviceIdModel._internal();
+  DeviceIdModel._internal();
+  factory DeviceIdModel() {
+    return _instance;
+  }
   String leftSensorId = '';
   String rightSensorId = '';
   final prefs = services.get<SharedPreferences>();
-  final selectedDevice = services.get<SensorDeviceSelector>().selectedDevice;
+  final SensorDevice selectedDevice = SensorDeviceSelector().selectedDevice;
 
-  DeviceIdModel init() {
-    loadSensorDeviceIds(selectedDevice);
+  Future<DeviceIdModel> init() async {
+    await loadSensorDeviceIds(selectedDevice);
     return this;
   }
 

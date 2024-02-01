@@ -5,13 +5,15 @@ import '../enums/side.dart';
 import 'bluetooth_device_model.dart';
 
 class SensorDeviceSelector {
+  static final SensorDeviceSelector _instance =
+      SensorDeviceSelector._internal();
+  SensorDeviceSelector._internal();
+  factory SensorDeviceSelector() {
+    return _instance;
+  }
   SensorDevice _selectedDevice = SensorDevice.salted;
   SensorDevice get selectedDevice => _selectedDevice;
   List<BluetoothDeviceModel> selectedDevices = [];
-
-  SensorDeviceSelector init() {
-    return this;
-  }
 
   void selectDevice(SensorDevice? selectedDevice) {
     _selectedDevice = selectedDevice ?? _selectedDevice;

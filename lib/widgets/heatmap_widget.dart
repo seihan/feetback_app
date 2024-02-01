@@ -3,7 +3,6 @@ import 'dart:math' as math;
 import 'package:feet_back_app/enums/sensor_device.dart';
 import 'package:feet_back_app/models/sensor_state_model.dart';
 import 'package:feet_back_app/models/sensor_values.dart';
-import 'package:feet_back_app/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -32,7 +31,7 @@ class HeatmapPainter extends CustomPainter {
 
   Offset _getPosition(int index) {
     final Map<int, List<double>> sensorPositions =
-        services.get<SensorDeviceSelector>().getPositionMap(side);
+        SensorDeviceSelector().getPositionMap(side);
 
     return Offset(sensorPositions[index]![0], sensorPositions[index]![1]);
   }
@@ -124,8 +123,7 @@ class HeatmapSoles extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final SensorStateModel sensorStateModel = SensorStateModel();
-    final SensorDevice device =
-        services.get<SensorDeviceSelector>().selectedDevice;
+    final SensorDevice device = SensorDeviceSelector().selectedDevice;
     final List<double> indexList = List.generate(
       device == SensorDevice.fsrtec ? 12 : 4,
       (int index) => 0,

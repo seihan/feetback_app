@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:feet_back_app/enums/sensor_device.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 class PeripheralConstants {
@@ -67,6 +68,32 @@ class PeripheralConstants {
       [0x02, 0x06, 0x00, 0x00, 0xe1, 0x9d]); // not known so far
   static final List<double> saltedDefaultValues = [4095, 1335, 530, 446, 328];
   static final List<double> saltedDefaultSamples = [0, 100, 200, 300, 400];
+  static Guid getServiceChar(SensorDevice device) {
+    switch (device) {
+      case SensorDevice.fsrtec:
+        return fsrtecServiceGuid;
+      case SensorDevice.salted:
+        return saltedServiceGuid;
+    }
+  }
+
+  static Guid getRxTxChar(SensorDevice device) {
+    switch (device) {
+      case SensorDevice.fsrtec:
+        return fsrtecRxTxCharGuid;
+      case SensorDevice.salted:
+        return saltedRxTxCharGuid;
+    }
+  }
+
+  static Guid? getTxChar(SensorDevice device) {
+    switch (device) {
+      case SensorDevice.fsrtec:
+        return null;
+      case SensorDevice.salted:
+        return saltedTxCharGuid;
+    }
+  }
 
   /// Actor config
   /// vibrating output devices and it's custom values are stored here
@@ -87,6 +114,5 @@ class PeripheralConstants {
   static const String buzzOne = 'AT+MOTOR=11'; // 50ms vibration
   static const String buzzTwo = 'AT+MOTOR=12'; // 100ms vibration
   static const String buzzThree = 'AT+MOTOR=13'; // 150ms vibration
-
   static const String bat = 'AT+BATT0'; // get battery state %
 }

@@ -10,7 +10,6 @@ import 'package:provider/provider.dart';
 
 import '../enums/sensor_device.dart';
 import '../enums/side.dart';
-import '../services.dart';
 
 class SensorSettingsScreen extends StatefulWidget {
   const SensorSettingsScreen({super.key});
@@ -20,8 +19,7 @@ class SensorSettingsScreen extends StatefulWidget {
 }
 
 class _SensorSettingsScreenState extends State<SensorSettingsScreen> {
-  SensorDevice? selectedDevice =
-      services.get<SensorDeviceSelector>().selectedDevice;
+  SensorDevice? selectedDevice = SensorDeviceSelector().selectedDevice;
 
   @override
   Widget build(BuildContext context) {

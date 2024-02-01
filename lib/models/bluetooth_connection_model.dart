@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:feet_back_app/global_params.dart';
+import 'package:feet_back_app/models/device_id_model.dart';
 import 'package:feet_back_app/models/feedback_model.dart';
 import 'package:feet_back_app/models/log_model.dart';
 import 'package:feet_back_app/models/peripheral_constants.dart';
@@ -38,7 +39,6 @@ class BluetoothConnectionModel extends ChangeNotifier {
     ),
   ];
   static final List<BluetoothDeviceModel> _sensorDevices = [];
-
   TransmissionHandler? _leftHandler;
   TransmissionHandler? _rightHandler;
   final List<StreamSubscription<BluetoothConnectionState>?>
@@ -51,6 +51,8 @@ class BluetoothConnectionModel extends ChangeNotifier {
   StreamSubscription? _stateSubscription;
   BluetoothNotificationHandler? _leftNotificationHandler;
   BluetoothNotificationHandler? _rightNotificationHandler;
+  String _leftSensorId = '';
+  String _rightSensorId = '';
 
   bool _isNotifying = false;
   bool _isScanning = false;
@@ -70,15 +72,14 @@ class BluetoothConnectionModel extends ChangeNotifier {
 
   bool _enableFeedback = false;
   bool get enableFeedback => _enableFeedback;
-  SensorDevice get sensorDevice =>
-      services.get<SensorDeviceSelector>().selectedDevice;
+  SensorDevice get selectedDevice => SensorDeviceSelector().selectedDevice;
 
   BluetoothConnectionModel init() {
     disconnect();
     // add sensor devices
     //_sensorDevices.addAll(SensorDeviceSelector().getSelectedDevices());
     // add actor devices
-
+    DeviceIdModel().init();
     _feedbackModel.initialize();
     _stateSubscription =
         FlutterBluePlus.adapterState.listen(_listenBluetoothState);
@@ -149,6 +150,13 @@ class BluetoothConnectionModel extends ChangeNotifier {
       subscription?.cancel();
     }
     _deviceSubscriptions.clear();
+    _sensorDevices.clear();
+    _leftSensorId = DeviceIdModel().leftSensorId.isNotEmpty
+        ? DeviceIdModel().leftSensorId
+        : _leftSensorId;
+    _rightSensorId = DeviceIdModel().rightSensorId.isNotEmpty
+        ? DeviceIdModel().rightSensorId
+        : _rightSensorId;
     _scanResultSubscription = FlutterBluePlus.scanResults.listen(_onScanResult);
     _scanSubscription = FlutterBluePlus.isScanning.listen(_handleScanState);
     _logModel.add('start scanning');
@@ -166,7 +174,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
       if (results.isNotEmpty) {
         for (var result in results) {
           bool processedResult = _processedResults.contains(result);
-          switch (sensorDevice) {
+          switch (selectedDevice) {
             case SensorDevice.salted:
               {
                 sameNameLeft = result.device.platformName ==
@@ -257,27 +265,27 @@ class BluetoothConnectionModel extends ChangeNotifier {
   }
 
   Future<void> _startNotify({required Side side}) async {
+    final leftDevice = _sensorDevices.firstWhere(
+      (device) => device.side == Side.left,
+    );
+    final rightDevice = _sensorDevices.firstWhere(
+      (device) => device.side == Side.right,
+    );
     try {
-      switch (sensorDevice) {
+      switch (selectedDevice) {
         case SensorDevice.fsrtec:
           {
             switch (side) {
               case Side.left:
-                await _sensorDevices
-                    .firstWhere(
-                      (device) => device.side == Side.left,
-                    )
-                    .rxTxChar
-                    ?.write(PeripheralConstants.fsrtecLeftStart,
-                        withoutResponse: false);
+                await leftDevice.rxTxChar?.write(
+                  PeripheralConstants.fsrtecLeftStart,
+                  withoutResponse: false,
+                );
               case Side.right:
-                await _sensorDevices
-                    .firstWhere(
-                      (device) => device.side == Side.right,
-                    )
-                    .rxTxChar
-                    ?.write(PeripheralConstants.fsrtecRightStart,
-                        withoutResponse: false);
+                await rightDevice.rxTxChar?.write(
+                  PeripheralConstants.fsrtecRightStart,
+                  withoutResponse: false,
+                );
             }
           }
           break;
@@ -285,21 +293,15 @@ class BluetoothConnectionModel extends ChangeNotifier {
           {
             switch (side) {
               case Side.left:
-                await _sensorDevices
-                    .firstWhere(
-                      (device) => device.side == Side.left,
-                    )
-                    .rxTxChar
-                    ?.write(PeripheralConstants.saltedLeftStart,
-                        withoutResponse: false);
+                await leftDevice.txChar?.write(
+                  PeripheralConstants.saltedLeftStart,
+                  withoutResponse: false,
+                );
               case Side.right:
-                await _sensorDevices
-                    .firstWhere(
-                      (device) => device.side == Side.right,
-                    )
-                    .rxTxChar
-                    ?.write(PeripheralConstants.saltedRightStart,
-                        withoutResponse: false);
+                await rightDevice.txChar?.write(
+                  PeripheralConstants.saltedRightStart,
+                  withoutResponse: false,
+                );
             }
           }
         default:
@@ -313,27 +315,27 @@ class BluetoothConnectionModel extends ChangeNotifier {
   }
 
   Future<void> _stopNotify({required Side side}) async {
+    final leftDevice = _sensorDevices.firstWhere(
+      (device) => device.side == Side.left,
+    );
+    final rightDevice = _sensorDevices.firstWhere(
+      (device) => device.side == Side.right,
+    );
     try {
-      switch (sensorDevice) {
+      switch (selectedDevice) {
         case SensorDevice.fsrtec:
           {
             switch (side) {
               case Side.left:
-                await _sensorDevices
-                    .firstWhere(
-                      (device) => device.side == Side.left,
-                    )
-                    .rxTxChar
-                    ?.write(PeripheralConstants.fsrtecLeftStop,
-                        withoutResponse: false);
+                await leftDevice.rxTxChar?.write(
+                  PeripheralConstants.fsrtecLeftStop,
+                  withoutResponse: false,
+                );
               case Side.right:
-                await _sensorDevices
-                    .firstWhere(
-                      (device) => device.side == Side.right,
-                    )
-                    .rxTxChar
-                    ?.write(PeripheralConstants.fsrtecRightStop,
-                        withoutResponse: false);
+                await rightDevice.rxTxChar?.write(
+                  PeripheralConstants.fsrtecRightStop,
+                  withoutResponse: false,
+                );
             }
           }
           break;
@@ -341,28 +343,21 @@ class BluetoothConnectionModel extends ChangeNotifier {
           {
             switch (side) {
               case Side.left:
-                await _sensorDevices
-                    .firstWhere(
-                      (device) => device.side == Side.left,
-                    )
-                    .rxTxChar
-                    ?.write(PeripheralConstants.saltedLeftStop,
-                        withoutResponse: false);
+                await leftDevice.txChar?.write(
+                  PeripheralConstants.saltedLeftStop,
+                  withoutResponse: false,
+                );
               case Side.right:
-                await _sensorDevices
-                    .firstWhere(
-                      (device) => device.side == Side.right,
-                    )
-                    .rxTxChar
-                    ?.write(PeripheralConstants.saltedRightStop,
-                        withoutResponse: false);
+                await rightDevice.txChar?.write(
+                  PeripheralConstants.saltedRightStop,
+                  withoutResponse: false,
+                );
             }
           }
           break;
         default:
           break;
       }
-
       _logModel.add(
           '${side == Side.left ? 'Left' : 'Right'} stop sent successfully.');
     } catch (e) {
@@ -372,54 +367,36 @@ class BluetoothConnectionModel extends ChangeNotifier {
 
   Future<void> toggleNotify() async {
     _isNotifying = !_isNotifying;
+    final leftDevice = _sensorDevices.firstWhere(
+      (device) => device.side == Side.left,
+    );
+    final rightDevice = _sensorDevices.firstWhere(
+      (device) => device.side == Side.right,
+    );
     if (_isNotifying) {
-      if (_sensorDevices
-          .firstWhere(
-            (device) => device.side == Side.left,
-          )
-          .connected) {
-        _leftNotificationHandler = BluetoothNotificationHandler(
-            rxChar: _sensorDevices
-                .firstWhere(
-                  (device) => device.side == Side.left,
-                )
-                .rxTxChar);
+      if (leftDevice.connected) {
+        _leftNotificationHandler =
+            BluetoothNotificationHandler(rxChar: leftDevice.rxTxChar);
         await _startNotify(side: Side.left);
         _leftNotifyStreamSubscription = _leftNotificationHandler?.notifyValues
             ?.listen(_handleLeftNotifyValues);
         await _leftNotificationHandler?.setNotify(true);
       }
-      if (_sensorDevices
-          .firstWhere(
-            (device) => device.side == Side.right,
-          )
-          .connected) {
-        _rightNotificationHandler = BluetoothNotificationHandler(
-            rxChar: _sensorDevices
-                .firstWhere(
-                  (device) => device.side == Side.right,
-                )
-                .rxTxChar);
+      if (rightDevice.connected) {
+        _rightNotificationHandler =
+            BluetoothNotificationHandler(rxChar: rightDevice.rxTxChar);
         await _startNotify(side: Side.right);
         _rightNotifyStreamSubscription = _rightNotificationHandler?.notifyValues
             ?.listen(_handleRightNotifyValues);
         await _rightNotificationHandler?.setNotify(true);
       }
     } else {
-      if (_sensorDevices
-          .firstWhere(
-            (device) => device.side == Side.left,
-          )
-          .connected) {
+      if (leftDevice.connected) {
         _leftNotifyStreamSubscription?.cancel();
         await _stopNotify(side: Side.left);
         await _leftNotificationHandler?.setNotify(false);
       }
-      if (_sensorDevices
-          .firstWhere(
-            (device) => device.side == Side.right,
-          )
-          .connected) {
+      if (rightDevice.connected) {
         _rightNotifyStreamSubscription?.cancel();
         await _stopNotify(side: Side.right);
         await _rightNotificationHandler?.setNotify(false);
@@ -439,7 +416,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
 
   void _handleLeftNotifyValues(List<int> values) {
     if (values.isNotEmpty) {
-      switch (sensorDevice) {
+      switch (selectedDevice) {
         case SensorDevice.fsrtec:
           _sensorStateModel.updateFsrtecValues(values, Side.left);
           break;
@@ -454,7 +431,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
 
   void _handleRightNotifyValues(List<int> values) {
     if (values.isNotEmpty) {
-      switch (sensorDevice) {
+      switch (selectedDevice) {
         case SensorDevice.fsrtec:
           _sensorStateModel.updateFsrtecValues(values, Side.right);
           break;
@@ -512,7 +489,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
     if (deviceModel.rxTxChar != null) {
       _logModel.add('found ${deviceModel.device?.platformName} rx tx char');
     }
-    if (sensorDevice == SensorDevice.salted) {
+    if (selectedDevice == SensorDevice.salted) {
       deviceModel.txChar = deviceModel.service?.characteristics
           .firstWhereOrNull((characteristic) =>
               characteristic.uuid == deviceModel.txCharGuid);
@@ -530,6 +507,33 @@ class BluetoothConnectionModel extends ChangeNotifier {
   void _onScanResult(List<ScanResult> results) {
     if (results.isNotEmpty) {
       for (var result in results) {
+        bool sameIdLeft =
+            DeviceIdentifier(_leftSensorId) == result.device.remoteId;
+        bool sameIdRight =
+            DeviceIdentifier(_rightSensorId) == result.device.remoteId;
+        bool processedResult = _processedResults.contains(result);
+        Side? side = _getSide(left: sameIdLeft, right: sameIdRight);
+        if ((sameIdLeft || sameIdRight) && !processedResult) {
+          _logModel.add('found device: ${result.device.platformName}');
+          _sensorDevices.add(
+            BluetoothDeviceModel(
+              name: result.device.platformName,
+              id: result.device.remoteId,
+              side: side,
+              serviceGuid: PeripheralConstants.getServiceChar(selectedDevice),
+              rxTxCharGuid: PeripheralConstants.getRxTxChar(selectedDevice),
+              txCharGuid: PeripheralConstants.getTxChar(selectedDevice),
+            ),
+          );
+          _processedResults.add(result);
+          final device = _sensorDevices.last;
+          device.device = result.device;
+          _deviceSubscriptions.add(device.device?.connectionState
+              .listen((BluetoothConnectionState state) {
+            _handleDeviceState(state, device);
+          }));
+        }
+
         for (var device in _actorDevices) {
           bool sameId = result.device.remoteId == device.id;
           bool sameName = result.device.platformName == device.name;
@@ -542,7 +546,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
             _logModel.add('found device: ${result.device.platformName}');
             device.device = result.device;
             _processedResults.add(result);
-            if (_deviceSubscriptions.length < _sensorDevices.length) {
+            if (_deviceSubscriptions.length < _actorDevices.length) {
               _deviceSubscriptions.add(device.device?.connectionState
                   .listen((BluetoothConnectionState state) {
                 _handleDeviceState(state, device);
