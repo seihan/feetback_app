@@ -22,7 +22,7 @@ class SensorDeviceSelector {
   late List<BluetoothDeviceModel> saltedDevices;
 
   void init() {
-    _deviceIdModel.init(selectedDevice);
+    _deviceIdModel.initSensorDevices(selectedDevice);
     _initializeDevices();
   }
 

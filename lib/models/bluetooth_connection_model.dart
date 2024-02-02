@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
+import 'package:feet_back_app/enums/actor_device.dart';
 import 'package:feet_back_app/global_params.dart';
 import 'package:feet_back_app/models/feedback_model.dart';
 import 'package:feet_back_app/models/log_model.dart';
@@ -16,6 +17,7 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import '../enums/sensor_device.dart';
 import '../enums/side.dart';
 import '../widgets/bluetooth_alert_dialog.dart';
+import 'actor_device_selector.dart';
 import 'bluetooth_device_model.dart';
 import 'bluetooth_notification_handler.dart';
 import 'custom_error_handler.dart';
@@ -28,13 +30,15 @@ class BluetoothConnectionModel extends ChangeNotifier {
   static final List<BluetoothDeviceModel> _actorDevices = [
     BluetoothDeviceModel(
       id: PeripheralConstants.actorLeftId,
-      serviceGuid: PeripheralConstants.actorServiceGuid,
-      rxTxCharGuid: PeripheralConstants.actorRxTxCharGuid,
+      serviceGuid: PeripheralConstants.mpowServiceGuid,
+      rxTxCharGuid: PeripheralConstants.mpowRxTxCharGuid,
+      side: Side.left,
     ),
     BluetoothDeviceModel(
       id: PeripheralConstants.actorRightId,
-      serviceGuid: PeripheralConstants.actorServiceGuid,
-      rxTxCharGuid: PeripheralConstants.actorRxTxCharGuid,
+      serviceGuid: PeripheralConstants.mpowServiceGuid,
+      rxTxCharGuid: PeripheralConstants.mpowRxTxCharGuid,
+      side: Side.right,
     ),
   ];
   static final List<BluetoothDeviceModel> _sensorDevices = [];
@@ -60,7 +64,8 @@ class BluetoothConnectionModel extends ChangeNotifier {
       _sensorDevices.every((BluetoothDeviceModel device) => device.connected) &&
       _actorDevices.every((BluetoothDeviceModel device) => device.connected);
   final _navigatorKey = services.get<GlobalParams>().navigatorKey;
-  final _deviceSelector = services.get<SensorDeviceSelector>();
+  final _sensorSelector = services.get<SensorDeviceSelector>();
+  final _actorSelector = services.get<ActorDeviceSelector>();
 
   bool get isNotifying => _isNotifying;
   bool get isScanning => _isScanning;
@@ -70,11 +75,24 @@ class BluetoothConnectionModel extends ChangeNotifier {
 
   bool _enableFeedback = false;
   bool get enableFeedback => _enableFeedback;
-  SensorDevice get selectedDevice => _deviceSelector.selectedDevice;
+  SensorDevice get _sensorDevice => _sensorSelector.selectedDevice;
+  ActorDevice get _actorDevice => _actorSelector.selectedDevice;
+  bool? get noActorIds => (_actorDevices.any((device) => device.id == null) ||
+      _actorDevices.isEmpty);
+  bool? get noSensorIds => (_sensorDevices.any((device) => device.id == null) ||
+      _sensorDevices.isEmpty);
+  BluetoothDeviceModel? getActorDeviceOrNull(Side side) =>
+      _actorDevices.firstWhereOrNull(
+        (device) => device.side == side,
+      );
+  BluetoothDeviceModel? getSensorDeviceOrNull(Side side) =>
+      _sensorDevices.firstWhereOrNull(
+        (device) => device.side == side,
+      );
 
   BluetoothConnectionModel init() {
     disconnect();
-    _deviceSelector.init();
+    _sensorSelector.init();
     // add sensor devices
     resetSensorDevices();
     // add actor devices
@@ -93,12 +111,18 @@ class BluetoothConnectionModel extends ChangeNotifier {
         side: Side.right,
       )..initialize();
     }
+    notifyListeners();
     return this;
+  }
+
+  resetActorDevices() {
+    _actorDevices.clear();
+    _actorDevices.addAll(_actorSelector.getSelectedDevices());
   }
 
   resetSensorDevices() {
     _sensorDevices.clear();
-    _sensorDevices.addAll(_deviceSelector.getSelectedDevices());
+    _sensorDevices.addAll(_sensorSelector.getSelectedDevices());
   }
 
   void _listenBluetoothState(BluetoothAdapterState event) {
@@ -153,9 +177,47 @@ class BluetoothConnectionModel extends ChangeNotifier {
     FlutterBluePlus.startScan(timeout: const Duration(seconds: 13));
   }
 
+  void discoverNewActorDevices() {
+    _actorDevices.clear();
+    _processedResults.clear();
+    FlutterBluePlus.startScan(timeout: const Duration(seconds: 15));
+    FlutterBluePlus.scanResults.listen((List<ScanResult> results) {
+      bool sameName = false;
+      if (results.isNotEmpty) {
+        for (var result in results) {
+          bool processedResult = _processedResults.contains(result);
+          switch (_actorDevice) {
+            case ActorDevice.mpow:
+              {
+                sameName =
+                    result.device.platformName == PeripheralConstants.mpowName;
+                if (sameName && !processedResult) {
+                  _logModel.add('found device: ${result.device.platformName}');
+                  _actorDevices.add(
+                    BluetoothDeviceModel(
+                      name: result.device.platformName,
+                      id: result.device.remoteId,
+                      serviceGuid: PeripheralConstants.mpowServiceGuid,
+                      rxTxCharGuid: PeripheralConstants.mpowRxTxCharGuid,
+                    ),
+                  );
+                  _processedResults.add(result);
+                  notifyListeners();
+                }
+              }
+          }
+        }
+      }
+    });
+  }
+
+  void setActorDeviceSide({required int index, required Side side}) {
+    _actorDevices[index].side = side;
+    notifyListeners();
+  }
+
   void discoverNewSensorDevices() {
     _sensorDevices.clear();
-    _deviceSubscriptions.clear();
     _processedResults.clear();
     FlutterBluePlus.startScan(timeout: const Duration(seconds: 13));
     FlutterBluePlus.scanResults.listen((List<ScanResult> results) {
@@ -164,7 +226,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
       if (results.isNotEmpty) {
         for (var result in results) {
           bool processedResult = _processedResults.contains(result);
-          switch (selectedDevice) {
+          switch (_sensorDevice) {
             case SensorDevice.salted:
               {
                 sameNameLeft = result.device.platformName ==
@@ -216,17 +278,14 @@ class BluetoothConnectionModel extends ChangeNotifier {
                 }
               }
           }
-          for (var device in _sensorDevices) {
-            if (_deviceSubscriptions.length < _sensorDevices.length) {
-              _deviceSubscriptions.add(result.device.connectionState
-                  .listen((BluetoothConnectionState state) {
-                _handleDeviceState(state, device);
-              }));
-            }
-          }
         }
       }
     });
+  }
+
+  void clearActorDevices() {
+    _actorDevices.clear();
+    notifyListeners();
   }
 
   void clearSensorDevices() {
@@ -265,7 +324,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
     final device = _getSensorDeviceBySide(side: side);
     if (device != null) {
       try {
-        switch (selectedDevice) {
+        switch (_sensorDevice) {
           case SensorDevice.fsrtec:
             {
               switch (side) {
@@ -312,7 +371,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
     final device = _getSensorDeviceBySide(side: side);
     if (device != null) {
       try {
-        switch (selectedDevice) {
+        switch (_sensorDevice) {
           case SensorDevice.fsrtec:
             {
               switch (side) {
@@ -406,7 +465,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
 
   void _handleLeftNotifyValues(List<int> values) {
     if (values.isNotEmpty) {
-      switch (selectedDevice) {
+      switch (_sensorDevice) {
         case SensorDevice.fsrtec:
           _sensorStateModel.updateFsrtecValues(values, Side.left);
           break;
@@ -421,7 +480,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
 
   void _handleRightNotifyValues(List<int> values) {
     if (values.isNotEmpty) {
-      switch (selectedDevice) {
+      switch (_sensorDevice) {
         case SensorDevice.fsrtec:
           _sensorStateModel.updateFsrtecValues(values, Side.right);
           break;
@@ -479,7 +538,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
     if (deviceModel.rxTxChar != null) {
       _logModel.add('found ${deviceModel.device?.platformName} rx tx char');
     }
-    if (selectedDevice == SensorDevice.salted) {
+    if (_sensorDevice == SensorDevice.salted) {
       deviceModel.txChar = deviceModel.service?.characteristics
           .firstWhereOrNull((characteristic) =>
               characteristic.uuid == deviceModel.txCharGuid);
@@ -502,8 +561,8 @@ class BluetoothConnectionModel extends ChangeNotifier {
           bool sameId = result.device.remoteId == device.id;
           if (sameId && !processedResult) {
             _logModel.add('found device: ${result.device.platformName}');
-            _processedResults.add(result);
             device.device = result.device;
+            _processedResults.add(result);
             _deviceSubscriptions.add(device.device?.connectionState
                 .listen((BluetoothConnectionState state) {
               _handleDeviceState(state, device);
@@ -512,26 +571,14 @@ class BluetoothConnectionModel extends ChangeNotifier {
         }
         for (var device in _actorDevices) {
           bool sameId = result.device.remoteId == device.id;
-          bool sameName = result.device.platformName == device.name;
-          bool nullDevice = device.device == null;
-          bool existingDevice = device.device == result.device;
-          if ((sameName || sameId) &&
-              (nullDevice || existingDevice) &&
-              !processedResult) {
+          if (sameId && !processedResult) {
             _logModel.add('found device: ${result.device.platformName}');
             device.device = result.device;
             _processedResults.add(result);
-            if (_deviceSubscriptions.length < _actorDevices.length) {
-              _deviceSubscriptions.add(device.device?.connectionState
-                  .listen((BluetoothConnectionState state) {
-                _handleDeviceState(state, device);
-              }));
-            } else {
-              FlutterBluePlus.stopScan();
-              _scanSubscription?.cancel();
-              _scanResultSubscription?.cancel();
-              _logModel.add('stop scan');
-            }
+            _deviceSubscriptions.add(device.device?.connectionState
+                .listen((BluetoothConnectionState state) {
+              _handleDeviceState(state, device);
+            }));
           }
         }
       }

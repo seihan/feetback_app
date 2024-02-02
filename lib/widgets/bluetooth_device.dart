@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:feet_back_app/models/bluetooth_device_model.dart';
 import 'package:flutter/material.dart';
 
-class SensorDeviceWidget extends StatelessWidget {
+class BluetoothDeviceWidget extends StatelessWidget {
   final BluetoothDeviceModel device;
-  const SensorDeviceWidget({required this.device, super.key});
+  const BluetoothDeviceWidget({required this.device, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -14,21 +14,14 @@ class SensorDeviceWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Icon(
+            device.connected ? Icons.sensors : Icons.sensors_off,
+            color: device.connected ? Colors.blue : Colors.white,
+          ),
           Text('Name: ${device.name}'),
           Text('ID: ${device.id?.str}'),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(device.connected ? 'Connected' : 'Disconnected'),
-              /* Icon(
-                (device.connected ?? false) ? Icons.sensors : Icons.sensors_off,
-                color: (device.connected ?? false) ? Colors.blue : Colors.white,
-              ),
-
-              */
-            ],
-          ),
-          // BluetoothRssiWidget(device: device),
+          Text(device.connected ? 'Connected' : 'Disconnected'),
+          BluetoothRssiWidget(device: device),
         ],
       ),
     );

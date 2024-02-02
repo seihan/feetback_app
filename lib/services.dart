@@ -1,4 +1,5 @@
 import 'package:feet_back_app/global_params.dart';
+import 'package:feet_back_app/models/actor_device_selector.dart';
 import 'package:feet_back_app/models/bluetooth_connection_model.dart';
 import 'package:feet_back_app/models/device_id_model.dart';
 import 'package:feet_back_app/models/permission_model.dart';
@@ -27,6 +28,10 @@ Future<void> setupServices() async {
   services.registerSingletonWithDependencies<DeviceIdModel>(
       () => DeviceIdModel(),
       dependsOn: [SharedPreferences]);
+  // actor devices
+  services.registerSingletonWithDependencies<ActorDeviceSelector>(
+      () => ActorDeviceSelector(),
+      dependsOn: [DeviceIdModel]);
   // sensor devices
   services.registerSingletonWithDependencies<SensorDeviceSelector>(
       () => SensorDeviceSelector(),

@@ -100,15 +100,16 @@ class PeripheralConstants {
 
   /// MPOW DS-D6 fitness tracker
   /// https://androidpctv.com/review-mpow-d6/
+  static const String mpowName = 'DS-D6';
   static const String motorOff = 'AT+MOTOR=00'; // stop vibration
   static const DeviceIdentifier actorLeftId =
       DeviceIdentifier('EA:3F:FA:39:89:E4');
   static const DeviceIdentifier actorRightId =
       DeviceIdentifier('FC:77:F8:3E:B8:DA');
-  static final Guid actorServiceGuid =
+  static final Guid mpowServiceGuid =
       Guid('0000190b-0000-1000-8000-00805f9b34fb');
 
-  static final Guid actorRxTxCharGuid =
+  static final Guid mpowRxTxCharGuid =
       Guid('00000003-0000-1000-8000-00805f9b34fb');
   static const String motorOn = 'AT+MOTOR=1'; // start vibration
   static const String buzzOne = 'AT+MOTOR=11'; // 50ms vibration

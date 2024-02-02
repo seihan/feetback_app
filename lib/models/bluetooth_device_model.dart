@@ -5,7 +5,7 @@ import '../enums/side.dart';
 class BluetoothDeviceModel {
   final DeviceIdentifier? id;
   final String? name;
-  final Side? side;
+  Side? side;
   final Guid serviceGuid;
   final Guid rxTxCharGuid;
   final Guid? txCharGuid;

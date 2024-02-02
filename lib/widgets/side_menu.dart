@@ -8,6 +8,8 @@ import 'package:feet_back_app/widgets/record_list_tile.dart';
 import 'package:feet_back_app/widgets/scrollable_vertical_widget.dart';
 import 'package:flutter/material.dart';
 
+import '../screens/actor_device_settings.dart';
+
 class SideMenu extends StatelessWidget {
   final BluetoothConnectionModel model;
   const SideMenu({required this.model, super.key});
@@ -65,12 +67,22 @@ class SideMenu extends StatelessWidget {
                   ),
                 ),
                 ListTile(
-                  leading: const Icon(Icons.sensors),
+                  leading: const Icon(Icons.satellite_alt),
                   title: const Text('Sensor Settings'),
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (BuildContext context) =>
                           const SensorSettingsScreen(),
+                    ),
+                  ),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.satellite_alt),
+                  title: const Text('Actor Settings'),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (BuildContext context) =>
+                          const ActorSettingsScreen(),
                     ),
                   ),
                 ),
