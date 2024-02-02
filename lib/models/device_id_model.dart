@@ -1,5 +1,5 @@
 import 'package:feet_back_app/enums/sensor_device.dart';
-import 'package:feet_back_app/models/sensor_device_selector.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../enums/side.dart';
@@ -11,21 +11,30 @@ class DeviceIdModel {
   factory DeviceIdModel() {
     return _instance;
   }
-  String leftSensorId = '';
-  String rightSensorId = '';
+  String leftSensorIdStr = '';
+  String rightSensorIdStr = '';
+  DeviceIdentifier? get leftSensorId =>
+      leftSensorIdStr.isNotEmpty ? DeviceIdentifier(leftSensorIdStr) : null;
+  DeviceIdentifier? get rightSensorId =>
+      rightSensorIdStr.isNotEmpty ? DeviceIdentifier(rightSensorIdStr) : null;
   final prefs = services.get<SharedPreferences>();
-  final SensorDevice selectedDevice = SensorDeviceSelector().selectedDevice;
 
-  Future<DeviceIdModel> init() async {
-    await loadSensorDeviceIds(selectedDevice);
-    return this;
+  void init(SensorDevice selectedDevice) {
+    loadSensorDeviceIds(selectedDevice);
   }
 
-  Future<void> loadSensorDeviceIds(SensorDevice device) async {
-    final String leftId = '${device.description}leftId';
-    final String rightId = '${device.description}rightId';
-    leftSensorId = prefs.getString(leftId) ?? leftSensorId;
-    rightSensorId = prefs.getString(rightId) ?? rightSensorId;
+  bool loadSensorDeviceIds(SensorDevice? device) {
+    bool success = false;
+    final String leftIdentifier = '${device?.description}leftId';
+    final String rightIdentifier = '${device?.description}rightId';
+    final String? leftValue = prefs.getString(leftIdentifier);
+    final String? rightValue = prefs.getString(rightIdentifier);
+    leftSensorIdStr = leftValue ?? '';
+    rightSensorIdStr = rightValue ?? '';
+    if (leftValue != null && rightValue != null) {
+      success = true;
+    }
+    return success;
   }
 
   Future<void> saveSensorDeviceId({
@@ -33,20 +42,27 @@ class DeviceIdModel {
     String? id,
     required Side side,
   }) async {
-    String identifier = '';
     switch (side) {
       case Side.left:
         {
-          leftSensorId = id ?? leftSensorId;
-          identifier = '${device?.description}leftId';
-          await prefs.setString(identifier, leftSensorId);
+          leftSensorIdStr = id ?? leftSensorIdStr;
+          final identifier = '${device?.description}leftId';
+          await prefs.setString(identifier, leftSensorIdStr);
         }
       case Side.right:
         {
-          rightSensorId = id ?? rightSensorId;
-          identifier = '${device?.description}rightId';
-          await prefs.setString(identifier, rightSensorId);
+          rightSensorIdStr = id ?? rightSensorIdStr;
+          final identifier = '${device?.description}rightId';
+          await prefs.setString(identifier, rightSensorIdStr);
         }
     }
+  }
+
+  Future<void> deleteSensorIds({SensorDevice? device}) async {
+    final leftIdentifier = '${device?.description}leftId';
+    final rightIdentifier = '${device?.description}rightId';
+    await prefs.remove(leftIdentifier);
+    await prefs.remove(rightIdentifier);
+    leftSensorIdStr = rightSensorIdStr = '';
   }
 }

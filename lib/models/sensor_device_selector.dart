@@ -1,23 +1,35 @@
+import 'package:feet_back_app/models/device_id_model.dart';
 import 'package:feet_back_app/models/peripheral_constants.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 import '../enums/sensor_device.dart';
 import '../enums/side.dart';
+import '../services.dart';
 import 'bluetooth_device_model.dart';
 
 class SensorDeviceSelector {
   static final SensorDeviceSelector _instance =
       SensorDeviceSelector._internal();
   SensorDeviceSelector._internal();
+  final DeviceIdModel _deviceIdModel = services.get<DeviceIdModel>();
   factory SensorDeviceSelector() {
     return _instance;
   }
   SensorDevice _selectedDevice = SensorDevice.salted;
   SensorDevice get selectedDevice => _selectedDevice;
   List<BluetoothDeviceModel> selectedDevices = [];
+  late List<BluetoothDeviceModel> fsrtecDevices;
+  late List<BluetoothDeviceModel> saltedDevices;
+
+  void init() {
+    _deviceIdModel.init(selectedDevice);
+    _initializeDevices();
+  }
 
   void selectDevice(SensorDevice? selectedDevice) {
     _selectedDevice = selectedDevice ?? _selectedDevice;
     selectedDevices.clear();
+    _initializeDevices();
     switch (_selectedDevice) {
       case SensorDevice.salted:
         selectedDevices.addAll(saltedDevices);
@@ -109,31 +121,49 @@ class SensorDeviceSelector {
     }).toList();
   }
 
-  static final List<BluetoothDeviceModel> fsrtecDevices = [
-    BluetoothDeviceModel(
-      name: PeripheralConstants.fsrtecLeftName,
-      serviceGuid: PeripheralConstants.fsrtecServiceGuid,
-      rxTxCharGuid: PeripheralConstants.fsrtecRxTxCharGuid,
-    ),
-    BluetoothDeviceModel(
-      name: PeripheralConstants.fsrtecRightName,
-      serviceGuid: PeripheralConstants.fsrtecServiceGuid,
-      rxTxCharGuid: PeripheralConstants.fsrtecRxTxCharGuid,
-    ),
-  ];
+  DeviceIdentifier? _getIdBySide({required Side side}) {
+    switch (side) {
+      case Side.left:
+        return _deviceIdModel.leftSensorId;
+      case Side.right:
+        return _deviceIdModel.rightSensorId;
+    }
+  }
 
-  static final List<BluetoothDeviceModel> saltedDevices = [
-    BluetoothDeviceModel(
-      name: PeripheralConstants.saltedLeftName,
-      serviceGuid: PeripheralConstants.saltedServiceGuid,
-      txCharGuid: PeripheralConstants.saltedTxCharGuid,
-      rxTxCharGuid: PeripheralConstants.saltedRxTxCharGuid,
-    ),
-    BluetoothDeviceModel(
-      name: PeripheralConstants.saltedRightName,
-      serviceGuid: PeripheralConstants.saltedServiceGuid,
-      txCharGuid: PeripheralConstants.saltedTxCharGuid,
-      rxTxCharGuid: PeripheralConstants.saltedRxTxCharGuid,
-    ),
-  ];
+  void _initializeDevices() {
+    fsrtecDevices = [
+      BluetoothDeviceModel(
+        name: PeripheralConstants.fsrtecLeftName,
+        id: _getIdBySide(side: Side.left),
+        serviceGuid: PeripheralConstants.fsrtecServiceGuid,
+        rxTxCharGuid: PeripheralConstants.fsrtecRxTxCharGuid,
+        side: Side.left,
+      ),
+      BluetoothDeviceModel(
+        name: PeripheralConstants.fsrtecRightName,
+        id: _getIdBySide(side: Side.right),
+        serviceGuid: PeripheralConstants.fsrtecServiceGuid,
+        rxTxCharGuid: PeripheralConstants.fsrtecRxTxCharGuid,
+        side: Side.right,
+      ),
+    ];
+    saltedDevices = [
+      BluetoothDeviceModel(
+        name: PeripheralConstants.saltedLeftName,
+        id: _getIdBySide(side: Side.left),
+        serviceGuid: PeripheralConstants.saltedServiceGuid,
+        txCharGuid: PeripheralConstants.saltedTxCharGuid,
+        rxTxCharGuid: PeripheralConstants.saltedRxTxCharGuid,
+        side: Side.left,
+      ),
+      BluetoothDeviceModel(
+        name: PeripheralConstants.saltedRightName,
+        id: _getIdBySide(side: Side.right),
+        serviceGuid: PeripheralConstants.saltedServiceGuid,
+        txCharGuid: PeripheralConstants.saltedTxCharGuid,
+        rxTxCharGuid: PeripheralConstants.saltedRxTxCharGuid,
+        side: Side.right,
+      ),
+    ];
+  }
 }

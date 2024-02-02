@@ -13,7 +13,6 @@ import '../enums/sensor_device.dart';
 import '../enums/side.dart';
 
 class TransmissionHandler {
-  final BluetoothDeviceModel inputDevice;
   final BluetoothDeviceModel outputDevice;
   final Side side;
   final SensorStateModel sensorStateModel = SensorStateModel();
@@ -22,7 +21,6 @@ class TransmissionHandler {
   StreamSubscription? _sensorSubscription;
 
   TransmissionHandler({
-    required this.inputDevice,
     required this.outputDevice,
     required this.side,
   });

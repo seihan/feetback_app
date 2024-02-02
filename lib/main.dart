@@ -21,7 +21,7 @@ void main() {
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
     await setupServices();
-    await services.allReady(timeout: const Duration(seconds: 10));
+    await services.allReady(timeout: const Duration(seconds: 20));
     runApp(MultiProvider(
       providers: [
         ChangeNotifierProvider.value(

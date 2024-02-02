@@ -10,6 +10,8 @@ import 'package:provider/provider.dart';
 
 import '../enums/sensor_device.dart';
 import '../enums/side.dart';
+import '../services.dart';
+import '../widgets/sensor_device_list.dart';
 
 class SensorSettingsScreen extends StatefulWidget {
   const SensorSettingsScreen({super.key});
@@ -19,8 +21,8 @@ class SensorSettingsScreen extends StatefulWidget {
 }
 
 class _SensorSettingsScreenState extends State<SensorSettingsScreen> {
-  SensorDevice? selectedDevice = SensorDeviceSelector().selectedDevice;
-
+  SensorDevice? selectedDevice =
+      services.get<SensorDeviceSelector>().selectedDevice;
   @override
   Widget build(BuildContext context) {
     return Consumer<BluetoothConnectionModel>(builder: (
@@ -28,6 +30,7 @@ class _SensorSettingsScreenState extends State<SensorSettingsScreen> {
       BluetoothConnectionModel model,
       Widget? child,
     ) {
+      bool noIds = true;
       BluetoothDeviceModel? leftDevice;
       BluetoothDeviceModel? rightDevice;
       if (model.sensorDevices.isNotEmpty) {
@@ -36,6 +39,9 @@ class _SensorSettingsScreenState extends State<SensorSettingsScreen> {
         );
         rightDevice = model.sensorDevices.firstWhereOrNull(
           (device) => device.side == Side.right,
+        );
+        noIds = model.sensorDevices.any(
+          (device) => device.id == null,
         );
       }
       return Scaffold(
@@ -59,15 +65,10 @@ class _SensorSettingsScreenState extends State<SensorSettingsScreen> {
                     leading: Radio<SensorDevice>(
                       value: SensorDevice.salted,
                       groupValue: selectedDevice,
-                      onChanged: (SensorDevice? value) {
-                        setState(() {
-                          selectedDevice = value;
-                          SensorDeviceSelector().selectDevice(
-                            selectedDevice,
-                          );
-                          model.init();
-                        });
-                      },
+                      onChanged: (SensorDevice? value) => _onSelect(
+                        value,
+                        model,
+                      ),
                     ),
                   ),
                   ListTile(
@@ -75,15 +76,10 @@ class _SensorSettingsScreenState extends State<SensorSettingsScreen> {
                     leading: Radio<SensorDevice>(
                       value: SensorDevice.fsrtec,
                       groupValue: selectedDevice,
-                      onChanged: (SensorDevice? value) {
-                        setState(() {
-                          selectedDevice = value;
-                          SensorDeviceSelector().selectDevice(
-                            selectedDevice,
-                          );
-                          model.init();
-                        });
-                      },
+                      onChanged: (SensorDevice? value) => _onSelect(
+                        value,
+                        model,
+                      ),
                     ),
                   ),
                 ],
@@ -101,15 +97,9 @@ class _SensorSettingsScreenState extends State<SensorSettingsScreen> {
                         SensorDeviceWidget(
                           device: rightDevice,
                         ),
-                      if (model.sensorDevices.isNotEmpty)
+                      if (!noIds)
                         IconButton(
-                          onPressed: () async {
-                            bool delete =
-                                await _showDeleteConfirmationDialog(context);
-                            if (delete) {
-                              model.clearSensorDevices();
-                            }
-                          },
+                          onPressed: () => _deleteDevices(model),
                           icon: const Icon(Icons.delete),
                         )
                     ],
@@ -119,17 +109,43 @@ class _SensorSettingsScreenState extends State<SensorSettingsScreen> {
             ],
           ),
         ),
-        floatingActionButton: model.sensorDevices.isEmpty
+        floatingActionButton: (noIds && model.sensorDevices.isEmpty)
             ? FloatingActionButton(
-                onPressed: () => _discoverDevicesDialog(
-                  context,
-                  model,
-                ),
+                onPressed: () => _discoverDevices(context, model),
                 child: const Icon(Icons.search),
               )
             : null,
       );
     });
+  }
+
+  void _onSelect(SensorDevice? value, BluetoothConnectionModel model) {
+    setState(() => selectedDevice = value);
+    final deviceSelector = services.get<SensorDeviceSelector>();
+    final bool idsExist =
+        services.get<DeviceIdModel>().loadSensorDeviceIds(selectedDevice);
+    deviceSelector.selectDevice(selectedDevice);
+    if (idsExist) {
+      model.init();
+    } else {
+      model.resetSensorDevices();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('no sensor ids available'),
+        ),
+      );
+    }
+  }
+
+  Future<void> _deleteDevices(BluetoothConnectionModel model) async {
+    final bool delete = await _showDeleteConfirmationDialog(context);
+    if (delete) {
+      model.clearSensorDevices();
+      await services.get<DeviceIdModel>().deleteSensorIds(
+            device: selectedDevice,
+          );
+      setState(() {});
+    }
   }
 
   Future<bool> _showDeleteConfirmationDialog(BuildContext context) async {
@@ -159,87 +175,35 @@ class _SensorSettingsScreenState extends State<SensorSettingsScreen> {
         false;
   }
 
-  Future<void> _discoverDevicesDialog(
-    BuildContext context,
-    BluetoothConnectionModel model,
-  ) async {
+  Future<void> _discoverDevices(
+      BuildContext context, BluetoothConnectionModel model) async {
     model.discoverNewSensorDevices();
+    await _discoverDevicesDialog(context);
+  }
+
+  Future<void> _discoverDevicesDialog(BuildContext context) async {
     await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-            title: const Text('Discover New Devices'),
-            content: SizedBox(
-              width: double.maxFinite,
-              child: Row(
-                children: [
-                  SensorDevicesList(
-                    side: Side.left,
-                    device: selectedDevice,
-                  ),
-                  SensorDevicesList(
-                    side: Side.right,
-                    device: selectedDevice,
-                  ),
-                ],
-              ),
-            )
-
-            // ]);
-            );
-      },
-    );
-  }
-}
-
-class SensorDevicesList extends StatelessWidget {
-  final Side side;
-  final SensorDevice? device;
-  const SensorDevicesList({
-    super.key,
-    required this.side,
-    this.device,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 140,
-      height: 200,
-      child: Consumer<BluetoothConnectionModel>(builder: (
-        BuildContext context,
-        BluetoothConnectionModel model,
-        Widget? child,
-      ) {
-        final List<BluetoothDeviceModel> devices = model.sensorDevices
-            .where(
-              (device) => device.side == side,
-            )
-            .toList();
-        return ListView.builder(
-          itemCount: devices.length,
-          itemBuilder: (context, index) {
-            return ListTile(
-              onTap: () {
-                DeviceIdModel().saveSensorDeviceId(
-                  device: device,
-                  id: devices[index].id?.str,
-                  side: side,
-                );
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('saving id...'),
-                  ),
-                );
-              },
-              leading: Text(
-                '#$index\n${devices[index].id?.str}',
-                style: const TextStyle(fontSize: 11),
-              ),
-            );
-          },
+          title: const Text('Discover New Devices'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: Row(
+              children: [
+                SensorDevicesList(
+                  side: Side.left,
+                  device: selectedDevice,
+                ),
+                SensorDevicesList(
+                  side: Side.right,
+                  device: selectedDevice,
+                ),
+              ],
+            ),
+          ),
         );
-      }),
+      },
     );
   }
 }
