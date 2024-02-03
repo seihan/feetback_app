@@ -41,9 +41,6 @@ class SensorDeviceSelector {
   }
 
   List<BluetoothDeviceModel> getSelectedDevices() {
-    selectedDevices.isEmpty
-        ? _selectedDevice = SensorDevice.salted
-        : _selectedDevice;
     return selectedDevices.isNotEmpty ? selectedDevices : getDefaultDevices();
   }
 

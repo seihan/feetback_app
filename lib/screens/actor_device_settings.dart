@@ -1,8 +1,8 @@
 import 'package:feet_back_app/enums/actor_device.dart';
 import 'package:feet_back_app/models/bluetooth_connection_model.dart';
 import 'package:feet_back_app/models/device_id_model.dart';
-import 'package:feet_back_app/models/dialogs.dart';
 import 'package:feet_back_app/widgets/bluetooth_device.dart';
+import 'package:feet_back_app/widgets/dialogs.dart';
 import 'package:feet_back_app/widgets/scrollable_vertical_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -105,7 +105,7 @@ class _ActorSettingsScreenState extends State<ActorSettingsScreen> {
     if (idsExist) {
       model.init();
     } else {
-      model.resetSensorDevices();
+      model.resetActorDevices();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('No sensor IDs available, use search fab'),

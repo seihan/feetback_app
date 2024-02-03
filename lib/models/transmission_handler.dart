@@ -8,16 +8,18 @@ import 'package:feet_back_app/models/peripheral_constants.dart';
 import 'package:feet_back_app/models/sensor_device_selector.dart';
 import 'package:feet_back_app/models/sensor_state_model.dart';
 import 'package:feet_back_app/models/sensor_values.dart';
+import 'package:feet_back_app/services.dart';
 
 import '../enums/sensor_device.dart';
 import '../enums/side.dart';
 
 class TransmissionHandler {
-  final BluetoothDeviceModel outputDevice;
+  final BluetoothDeviceModel? outputDevice;
   final Side side;
   final SensorStateModel sensorStateModel = SensorStateModel();
   final FeedbackModel feedbackModel = FeedbackModel();
-  final SensorDevice device = SensorDeviceSelector().selectedDevice;
+  final SensorDevice device =
+      services.get<SensorDeviceSelector>().selectedDevice;
   StreamSubscription? _sensorSubscription;
 
   TransmissionHandler({
@@ -89,20 +91,20 @@ class TransmissionHandler {
           }
       }
 
-      if (outputDevice.connected) {
+      if (outputDevice?.connected ?? false) {
         bool frontExceedsThreshold = highestFront > feedbackModel.threshold;
         bool rearExceedsThreshold = highestRear > feedbackModel.threshold;
         if ((highestFront > highestRear) &&
             _canWrite &&
             frontExceedsThreshold) {
-          outputDevice.rxTxChar?.write(
+          outputDevice?.rxTxChar?.write(
             utf8.encode(PeripheralConstants.buzzOne),
             withoutResponse: true,
           );
           _canWrite = false;
           _startWriteTimer((highestRear * _factor).toInt());
         } else if (_canWrite && rearExceedsThreshold) {
-          outputDevice.rxTxChar?.write(
+          outputDevice?.rxTxChar?.write(
             utf8.encode(PeripheralConstants.buzzThree),
             withoutResponse: true,
           );

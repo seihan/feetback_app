@@ -17,7 +17,7 @@ class SideMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      width: 190,
+      width: 180,
       child: SafeArea(
         child: ScrollableVerticalWidget(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

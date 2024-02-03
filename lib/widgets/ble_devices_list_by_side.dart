@@ -76,14 +76,13 @@ class BluetoothDevicesListBySide extends StatelessWidget {
             id: devices[index].id?.str,
             side: side,
           );
-
-      if (sensorDevice != null) {
-        services.get<DeviceIdModel>().saveSensorDeviceId(
-              device: sensorDevice,
-              id: devices[index].id?.str,
-              side: side,
-            );
-      }
+    }
+    if (sensorDevice != null) {
+      services.get<DeviceIdModel>().saveSensorDeviceId(
+            device: sensorDevice,
+            id: devices[index].id?.str,
+            side: side,
+          );
     }
   }
 }

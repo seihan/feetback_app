@@ -36,9 +36,6 @@ class ActorDeviceSelector {
   }
 
   List<BluetoothDeviceModel> getSelectedDevices() {
-    selectedDevices.isEmpty
-        ? _selectedDevice = ActorDevice.mpow
-        : _selectedDevice;
     return selectedDevices.isNotEmpty ? selectedDevices : getDefaultDevices();
   }
 
@@ -65,10 +62,12 @@ class ActorDeviceSelector {
         side: Side.left,
       ),
       BluetoothDeviceModel(
-          name: PeripheralConstants.mpowName,
-          id: _getIdBySide(side: Side.right),
-          serviceGuid: PeripheralConstants.mpowServiceGuid,
-          rxTxCharGuid: PeripheralConstants.mpowRxTxCharGuid),
+        name: PeripheralConstants.mpowName,
+        id: _getIdBySide(side: Side.right),
+        serviceGuid: PeripheralConstants.mpowServiceGuid,
+        rxTxCharGuid: PeripheralConstants.mpowRxTxCharGuid,
+        side: Side.right,
+      ),
     ];
   }
 }

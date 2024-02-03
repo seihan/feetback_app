@@ -26,21 +26,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
   final SensorStateModel _sensorStateModel = SensorStateModel();
   final FeedbackModel _feedbackModel = FeedbackModel();
   final LogModel _logModel = LogModel();
-
-  static final List<BluetoothDeviceModel> _actorDevices = [
-    BluetoothDeviceModel(
-      id: PeripheralConstants.actorLeftId,
-      serviceGuid: PeripheralConstants.mpowServiceGuid,
-      rxTxCharGuid: PeripheralConstants.mpowRxTxCharGuid,
-      side: Side.left,
-    ),
-    BluetoothDeviceModel(
-      id: PeripheralConstants.actorRightId,
-      serviceGuid: PeripheralConstants.mpowServiceGuid,
-      rxTxCharGuid: PeripheralConstants.mpowRxTxCharGuid,
-      side: Side.right,
-    ),
-  ];
+  static final List<BluetoothDeviceModel> _actorDevices = [];
   static final List<BluetoothDeviceModel> _sensorDevices = [];
   TransmissionHandler? _leftHandler;
   TransmissionHandler? _rightHandler;
@@ -93,9 +79,17 @@ class BluetoothConnectionModel extends ChangeNotifier {
   BluetoothConnectionModel init() {
     disconnect();
     _sensorSelector.init();
+    _actorSelector.init();
+    // add actor devices
+    resetActorDevices();
     // add sensor devices
     resetSensorDevices();
-    // add actor devices
+    final leftActorDevice = _actorDevices.firstWhereOrNull(
+      (device) => device.side == Side.left,
+    );
+    final rightDevice = _actorDevices.firstWhereOrNull(
+      (device) => device.side == Side.right,
+    );
     _feedbackModel.initialize();
     _stateSubscription =
         FlutterBluePlus.adapterState.listen(_listenBluetoothState);
@@ -103,11 +97,11 @@ class BluetoothConnectionModel extends ChangeNotifier {
     _enableFeedback = _feedbackModel.enableFeedback;
     if (_sensorDevices.isNotEmpty) {
       _leftHandler = TransmissionHandler(
-        outputDevice: _actorDevices[0],
+        outputDevice: leftActorDevice,
         side: Side.left,
       )..initialize();
       _rightHandler = TransmissionHandler(
-        outputDevice: _actorDevices[1],
+        outputDevice: rightDevice,
         side: Side.right,
       )..initialize();
     }
@@ -180,107 +174,118 @@ class BluetoothConnectionModel extends ChangeNotifier {
   void discoverNewActorDevices() {
     _actorDevices.clear();
     _processedResults.clear();
+    _scanResultSubscription?.cancel();
+    _scanResultSubscription =
+        FlutterBluePlus.scanResults.listen(_onActorScanResult);
     FlutterBluePlus.startScan(timeout: const Duration(seconds: 15));
-    FlutterBluePlus.scanResults.listen((List<ScanResult> results) {
-      bool sameName = false;
-      if (results.isNotEmpty) {
-        for (var result in results) {
-          bool processedResult = _processedResults.contains(result);
-          switch (_actorDevice) {
-            case ActorDevice.mpow:
-              {
-                sameName =
-                    result.device.platformName == PeripheralConstants.mpowName;
-                if (sameName && !processedResult) {
-                  _logModel.add('found device: ${result.device.platformName}');
-                  _actorDevices.add(
-                    BluetoothDeviceModel(
-                      name: result.device.platformName,
-                      id: result.device.remoteId,
-                      serviceGuid: PeripheralConstants.mpowServiceGuid,
-                      rxTxCharGuid: PeripheralConstants.mpowRxTxCharGuid,
-                    ),
-                  );
-                  _processedResults.add(result);
-                  notifyListeners();
-                }
-              }
-          }
-        }
-      }
-    });
   }
 
-  void setActorDeviceSide({required int index, required Side side}) {
-    _actorDevices[index].side = side;
+  void setActorDeviceSide({
+    required BluetoothDeviceModel deviceModel,
+    required Side side,
+  }) {
+    _actorDevices.firstWhere((device) => device == deviceModel).side = side;
     notifyListeners();
   }
 
   void discoverNewSensorDevices() {
     _sensorDevices.clear();
     _processedResults.clear();
+    _scanResultSubscription?.cancel();
+    _scanResultSubscription =
+        FlutterBluePlus.scanResults.listen(_onSensorScanResult);
     FlutterBluePlus.startScan(timeout: const Duration(seconds: 13));
-    FlutterBluePlus.scanResults.listen((List<ScanResult> results) {
-      bool sameNameLeft = false;
-      bool sameNameRight = false;
-      if (results.isNotEmpty) {
-        for (var result in results) {
-          bool processedResult = _processedResults.contains(result);
-          switch (_sensorDevice) {
-            case SensorDevice.salted:
-              {
-                sameNameLeft = result.device.platformName ==
-                    PeripheralConstants.saltedLeftName;
-                sameNameRight = result.device.platformName ==
-                    PeripheralConstants.saltedRightName;
-                Side? side = _getSide(
-                  left: sameNameLeft,
-                  right: sameNameRight,
+  }
+
+  void _onActorScanResult(List<ScanResult> results) {
+    bool sameName = false;
+    if (results.isNotEmpty) {
+      for (var result in results) {
+        bool processedResult = _processedResults.contains(result);
+        switch (_actorDevice) {
+          case ActorDevice.mpow:
+            {
+              sameName =
+                  result.device.platformName == PeripheralConstants.mpowName;
+              if (sameName && !processedResult) {
+                _logModel.add('found device: ${result.device.platformName}');
+                _actorDevices.add(
+                  BluetoothDeviceModel(
+                    name: result.device.platformName,
+                    id: result.device.remoteId,
+                    serviceGuid: PeripheralConstants.mpowServiceGuid,
+                    rxTxCharGuid: PeripheralConstants.mpowRxTxCharGuid,
+                  ),
                 );
-                if ((sameNameLeft || sameNameRight) && !processedResult) {
-                  _logModel.add('found device: ${result.device.platformName}');
-                  _sensorDevices.add(
-                    BluetoothDeviceModel(
+                _processedResults.add(result);
+                notifyListeners();
+              }
+            }
+        }
+      }
+    }
+  }
+
+  void _onSensorScanResult(List<ScanResult> results) {
+    bool sameNameLeft = false;
+    bool sameNameRight = false;
+    if (results.isNotEmpty) {
+      for (var result in results) {
+        bool processedResult = _processedResults.contains(result);
+        switch (_sensorDevice) {
+          case SensorDevice.salted:
+            {
+              sameNameLeft = result.device.platformName ==
+                  PeripheralConstants.saltedLeftName;
+              sameNameRight = result.device.platformName ==
+                  PeripheralConstants.saltedRightName;
+              Side? side = _getSide(
+                left: sameNameLeft,
+                right: sameNameRight,
+              );
+              if ((sameNameLeft || sameNameRight) && !processedResult) {
+                _logModel.add('found device: ${result.device.platformName}');
+                _sensorDevices.add(
+                  BluetoothDeviceModel(
                       name: result.device.platformName,
                       id: result.device.remoteId,
                       side: side,
                       serviceGuid: PeripheralConstants.saltedServiceGuid,
-                      rxTxCharGuid: PeripheralConstants.saltedTxCharGuid,
-                    ),
-                  );
-                  _processedResults.add(result);
-                  notifyListeners();
-                }
-              }
-            case SensorDevice.fsrtec:
-              {
-                sameNameLeft = result.device.platformName ==
-                    PeripheralConstants.fsrtecLeftName;
-                sameNameRight = result.device.platformName ==
-                    PeripheralConstants.fsrtecRightName;
-                Side? side = _getSide(
-                  left: sameNameLeft,
-                  right: sameNameRight,
+                      rxTxCharGuid: PeripheralConstants.saltedRxTxCharGuid,
+                      txCharGuid: PeripheralConstants.saltedTxCharGuid),
                 );
-                if ((sameNameLeft || sameNameRight) && !processedResult) {
-                  _logModel.add('found device: ${result.device.platformName}');
-                  _sensorDevices.add(
-                    BluetoothDeviceModel(
-                      name: result.device.platformName,
-                      id: result.device.remoteId,
-                      side: side,
-                      serviceGuid: PeripheralConstants.fsrtecServiceGuid,
-                      rxTxCharGuid: PeripheralConstants.fsrtecRxTxCharGuid,
-                    ),
-                  );
-                  _processedResults.add(result);
-                  notifyListeners();
-                }
+                _processedResults.add(result);
+                notifyListeners();
               }
-          }
+            }
+          case SensorDevice.fsrtec:
+            {
+              sameNameLeft = result.device.platformName ==
+                  PeripheralConstants.fsrtecLeftName;
+              sameNameRight = result.device.platformName ==
+                  PeripheralConstants.fsrtecRightName;
+              Side? side = _getSide(
+                left: sameNameLeft,
+                right: sameNameRight,
+              );
+              if ((sameNameLeft || sameNameRight) && !processedResult) {
+                _logModel.add('found device: ${result.device.platformName}');
+                _sensorDevices.add(
+                  BluetoothDeviceModel(
+                    name: result.device.platformName,
+                    id: result.device.remoteId,
+                    side: side,
+                    serviceGuid: PeripheralConstants.fsrtecServiceGuid,
+                    rxTxCharGuid: PeripheralConstants.fsrtecRxTxCharGuid,
+                  ),
+                );
+                _processedResults.add(result);
+                notifyListeners();
+              }
+            }
         }
       }
-    });
+    }
   }
 
   void clearActorDevices() {

@@ -3,8 +3,8 @@ import 'package:feet_back_app/enums/sensor_device.dart';
 import 'package:flutter/material.dart';
 
 import '../enums/side.dart';
-import '../widgets/ble_devices_list_by_side.dart';
-import '../widgets/ble_devices_list_set_side.dart';
+import 'ble_devices_list_by_side.dart';
+import 'ble_devices_list_set_side.dart';
 
 class AppDialogs {
   static Future<bool?> showDeleteConfirmationDialog(

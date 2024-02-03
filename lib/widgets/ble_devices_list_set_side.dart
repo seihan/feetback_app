@@ -1,7 +1,7 @@
-import 'package:feet_back_app/enums/actor_device.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../enums/actor_device.dart';
 import '../enums/side.dart';
 import '../models/bluetooth_connection_model.dart';
 import '../models/bluetooth_device_model.dart';
@@ -44,17 +44,8 @@ class BluetoothDevicesListSetSide extends StatelessWidget {
                           child: Icon(Icons.swipe_right),
                         ),
                       ),
-                      onDismissed: (direction) {
-                        if (direction == DismissDirection.startToEnd) {
-                          // Swiped from left to right
-
-                          _setSide(model, Side.right, index);
-                        } else if (direction == DismissDirection.endToStart) {
-                          // Swiped from right to left
-                          _setSide(model, Side.left, index);
-                          // Call your function here
-                        }
-                      },
+                      onDismissed: (direction) =>
+                          _onDismissed(model, devices, index, direction),
                       child: ListTile(
                         leading: Text(
                           '#$index\n${devices[index].id?.str}',
@@ -77,7 +68,28 @@ class BluetoothDevicesListSetSide extends StatelessWidget {
     return null;
   }
 
-  void _setSide(BluetoothConnectionModel model, Side side, int index) {
-    model.setActorDeviceSide(index: index, side: side);
+  void _setSide(
+    BluetoothConnectionModel model,
+    Side side,
+    BluetoothDeviceModel removedItem,
+  ) {
+    model.setActorDeviceSide(deviceModel: removedItem, side: side);
+  }
+
+  void _onDismissed(
+    BluetoothConnectionModel model,
+    List<BluetoothDeviceModel> devices,
+    int index,
+    DismissDirection direction,
+  ) {
+    if (direction == DismissDirection.startToEnd) {
+      // Swiped from left to right
+      final removedItem = devices.removeAt(index);
+      _setSide(model, Side.right, removedItem);
+    } else if (direction == DismissDirection.endToStart) {
+      // Swiped from right to left
+      final removedItem = devices.removeAt(index);
+      _setSide(model, Side.left, removedItem);
+    }
   }
 }
