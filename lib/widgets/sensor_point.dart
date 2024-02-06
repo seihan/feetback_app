@@ -14,9 +14,8 @@ class SensorPoint extends StatelessWidget {
     } else if (value >= 1) {
       return Colors.white;
     } else {
-      final double factor = value;
-      final int red = (255 - (255 * factor)).toInt();
-      final int green = (255 * factor).toInt();
+      final int red = (255 * value).toInt();
+      final int green = (255 - (255 * value)).toInt();
       return Color.fromARGB(255, red, green, 0);
     }
   }

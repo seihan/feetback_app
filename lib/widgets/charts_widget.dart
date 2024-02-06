@@ -1,3 +1,4 @@
+import 'package:feet_back_app/services.dart';
 import 'package:feet_back_app/widgets/scrollable_vertical_widget.dart';
 import 'package:feet_back_app/widgets/sensor_chart.dart';
 import 'package:flutter/material.dart';
@@ -30,13 +31,13 @@ class RealTimeChartsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final SensorStateModel stateModel = SensorStateModel();
+    final sensorStateModel = services.get<SensorStateModel>();
     return Column(
       children: [
         const Text('Left Sensor'),
-        RealTimeSensorChart(stream: stateModel.leftValuesStream),
+        RealTimeSensorChart(stream: sensorStateModel.leftValuesStream),
         const Text('Right Sensor'),
-        RealTimeSensorChart(stream: stateModel.rightValuesStream),
+        RealTimeSensorChart(stream: sensorStateModel.rightValuesStream),
       ],
     );
   }

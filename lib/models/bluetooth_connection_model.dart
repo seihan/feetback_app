@@ -20,10 +20,10 @@ import '../widgets/bluetooth_alert_dialog.dart';
 import 'actor_device_selector.dart';
 import 'bluetooth_device_model.dart';
 import 'bluetooth_notification_handler.dart';
-import 'custom_error_handler.dart';
+import 'error_handler.dart';
 
 class BluetoothConnectionModel extends ChangeNotifier {
-  final SensorStateModel _sensorStateModel = SensorStateModel();
+  final SensorStateModel _sensorStateModel = services.get<SensorStateModel>();
   final FeedbackModel _feedbackModel = FeedbackModel();
   final LogModel _logModel = LogModel();
   static final List<BluetoothDeviceModel> _actorDevices = [];
@@ -366,8 +366,8 @@ class BluetoothConnectionModel extends ChangeNotifier {
         }
         _logModel.add(
             '${side == Side.left ? 'Left' : 'Right'} stop sent successfully.');
-      } catch (e) {
-        _logModel.add('Error sending data: $e');
+      } on Exception catch (error, stacktrace) {
+        ErrorHandler.handleFlutterError(error, stacktrace);
       }
     }
   }
@@ -414,8 +414,8 @@ class BluetoothConnectionModel extends ChangeNotifier {
         }
         _logModel.add(
             '${side == Side.left ? 'Left' : 'Right'} stop sent successfully.');
-      } catch (e) {
-        _logModel.add('Error sending data: $e');
+      } on Exception catch (error, stacktrace) {
+        ErrorHandler.handleFlutterError(error, stacktrace);
       }
     }
   }
@@ -519,7 +519,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
       _logModel.add('${deviceModel.device?.platformName} connecting');
       await deviceModel.device?.connect();
     } on Exception catch (error, stacktrace) {
-      CustomErrorHandler.handleFlutterError(error, stacktrace);
+      ErrorHandler.handleFlutterError(error, stacktrace);
       _logModel.add('${deviceModel.device?.platformName} Error: $error');
     }
   }
@@ -585,6 +585,10 @@ class BluetoothConnectionModel extends ChangeNotifier {
               _handleDeviceState(state, device);
             }));
           }
+        }
+        if (_deviceSubscriptions.length == 4) {
+          FlutterBluePlus.stopScan();
+          _scanResultSubscription?.cancel();
         }
       }
     }

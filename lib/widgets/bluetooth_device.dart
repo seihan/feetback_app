@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:feet_back_app/models/bluetooth_device_model.dart';
+import 'package:feet_back_app/models/error_handler.dart';
 import 'package:flutter/material.dart';
 
 class BluetoothDeviceWidget extends StatelessWidget {
@@ -58,9 +59,9 @@ class _BluetoothRssiWidgetState extends State<BluetoothRssiWidget> {
       try {
         _rssi = await widget.device?.device?.readRssi() ?? 0;
         return _rssi;
-      } catch (e) {
-        debugPrint('Error reading RSSI: $e');
-        rethrow; // Rethrow the error to be caught by the FutureBuilder
+      } on Exception catch (error, stacktrace) {
+        ErrorHandler.handleFlutterError(error, stacktrace);
+        return 0;
       }
     } else {
       return 0;

@@ -70,10 +70,10 @@ class SensorDeviceSelector {
     };
 
     final Map<int, List<double>> saltedSensorPositions = {
-      0: [side == Side.left ? 60 : 65, side == Side.left ? 60 : 60],
-      1: [side == Side.left ? 90 : 30, side == Side.left ? 360 : 360],
+      0: [side == Side.left ? 95 : 100, side == Side.left ? 140 : 150],
+      1: [side == Side.left ? 60 : 65, side == Side.left ? 60 : 60],
       2: [side == Side.left ? 25 : 30, side == Side.left ? 150 : 140],
-      3: [side == Side.left ? 95 : 100, side == Side.left ? 140 : 150],
+      3: [side == Side.left ? 90 : 30, side == Side.left ? 360 : 360],
     };
 
     switch (_selectedDevice) {
@@ -87,35 +87,23 @@ class SensorDeviceSelector {
   }
 
   List<double> normalizeData(List<int> data) {
-    const int min32 = -2147483648;
-    const int max32 = 2147483647;
-
     switch (_selectedDevice) {
       case SensorDevice.fsrtec:
-        return _normalizeInt16(data);
+        return _normalize12Bit(data);
       case SensorDevice.salted:
-        return _normalizeInt32(data, min32, max32);
+        return _normalize10Bit(data);
       default:
         return [];
     }
   }
 
 // Helper function to normalize int16 values
-  List<double> _normalizeInt16(List<int> data) {
+  List<double> _normalize12Bit(List<int> data) {
     return data.map((value) => value / 4095).toList();
   }
 
-// Helper function to normalize int32 values
-  List<double> _normalizeInt32(List<int> data, int min, int max) {
-    return data.map((value) {
-      if (value >= min && value <= max) {
-        return (value - min) / (max - min);
-      } else if (value < min) {
-        return 0.0; // Normalize to the minimum value if below the range
-      } else {
-        return 1.0; // Normalize to the maximum value if above the range
-      }
-    }).toList();
+  List<double> _normalize10Bit(List<int> data) {
+    return data.map((value) => value / 1023).toList();
   }
 
   DeviceIdentifier? _getIdBySide({required Side side}) {

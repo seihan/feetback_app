@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:feet_back_app/models/calibration_model.dart';
 import 'package:feet_back_app/models/sensor_state_model.dart';
+import 'package:feet_back_app/services.dart';
 import 'package:feet_back_app/widgets/scrollable_vertical_widget.dart';
 import 'package:feet_back_app/widgets/xy_chart.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +19,7 @@ class CalibrationScreen extends StatefulWidget {
 
 class _CalibrationScreenState extends State<CalibrationScreen> {
   final CalibrationModel model = CalibrationModel();
-  final SensorStateModel sensorStateModel = SensorStateModel();
+  final _sensorStateModel = services.get<SensorStateModel>();
   StreamSubscription? _subscription;
   List<int> _values = [];
   double _value = 0;
@@ -153,7 +154,7 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
     if (!_busy) {
       _busy = true;
       model.addSample(value: _sample);
-      _subscription = sensorStateModel.leftValuesStream.listen(
+      _subscription = _sensorStateModel.leftValuesStream.listen(
         (_onValue),
       );
     }

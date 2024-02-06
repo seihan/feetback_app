@@ -1,4 +1,5 @@
 import 'package:feet_back_app/models/sensor_state_model.dart';
+import 'package:feet_back_app/services.dart';
 import 'package:feet_back_app/widgets/balance_widget.dart';
 import 'package:feet_back_app/widgets/sensor_sole.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +11,7 @@ class SensorSoles extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final SensorStateModel stateModel = SensorStateModel();
+    final stateModel = services.get<SensorStateModel>();
     return Column(
       children: [
         Row(

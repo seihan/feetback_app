@@ -5,8 +5,10 @@ import 'package:feet_back_app/models/sensor_state_model.dart';
 import 'package:feet_back_app/models/sensor_values.dart';
 import 'package:flutter/cupertino.dart';
 
+import '../services.dart';
+
 class RecordModel extends ChangeNotifier {
-  final SensorStateModel sensorStateModel = SensorStateModel();
+  final _sensorStateModel = services.get<SensorStateModel>();
   final DatabaseHelper database = DatabaseHelper();
   StreamSubscription<SensorValues>? _leftSubscription;
   StreamSubscription<SensorValues>? _rightSubscription;
@@ -29,10 +31,10 @@ class RecordModel extends ChangeNotifier {
       // get last recordId
       recordId = await database.getNextRecordID();
       _startTime = DateTime.now();
-      _leftSubscription = sensorStateModel.leftValuesStream.listen(
+      _leftSubscription = _sensorStateModel.leftValuesStream.listen(
         _onValue,
       );
-      _rightSubscription = sensorStateModel.rightValuesStream.listen(
+      _rightSubscription = _sensorStateModel.rightValuesStream.listen(
         _onValue,
       );
     }

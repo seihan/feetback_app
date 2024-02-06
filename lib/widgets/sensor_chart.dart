@@ -155,7 +155,7 @@ class RealTimeSensorChart extends StatelessWidget {
             seconds: 1)); // Set the minimum time to 10 seconds ago
 
         return Container(
-          height: 250,
+          height: 300,
           padding: const EdgeInsets.all(16.0),
           child: charts.TimeSeriesChart(
             _createChartData(chartData),
@@ -201,7 +201,7 @@ class RealTimeSensorChart extends StatelessWidget {
   ) {
     final List<charts.Series<SensorValues, DateTime>> seriesList = [];
 
-    for (int i = 0; i < (data.first.normalized?.length ?? 0); i++) {
+    for (int i = 0; i < data.first.data.length; i++) {
       final List<SensorValues> seriesData = data.map((SensorValues values) {
         return SensorValues(
           time: values.time,

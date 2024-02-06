@@ -74,7 +74,6 @@ class SensorSole extends StatelessWidget {
                       index,
                       side,
                     );
-                    // Adjust the left position as needed
                     return Positioned(
                       left: position[0],
                       top: position[1],

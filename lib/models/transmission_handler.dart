@@ -16,7 +16,7 @@ import '../enums/side.dart';
 class TransmissionHandler {
   final BluetoothDeviceModel? outputDevice;
   final Side side;
-  final SensorStateModel sensorStateModel = SensorStateModel();
+  final _sensorStateModel = services.get<SensorStateModel>();
   final FeedbackModel feedbackModel = FeedbackModel();
   final SensorDevice device =
       services.get<SensorDeviceSelector>().selectedDevice;
@@ -42,10 +42,10 @@ class TransmissionHandler {
     switch (side) {
       case Side.left:
         _sensorSubscription =
-            sensorStateModel.leftValuesStream.listen(_onNewValue);
+            _sensorStateModel.leftValuesStream.listen(_onNewValue);
       case Side.right:
         _sensorSubscription =
-            sensorStateModel.leftValuesStream.listen(_onNewValue);
+            _sensorStateModel.leftValuesStream.listen(_onNewValue);
     }
     _enableFeedback = feedbackModel.enableFeedback;
   }

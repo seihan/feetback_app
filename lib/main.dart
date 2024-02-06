@@ -8,16 +8,17 @@ import 'package:feet_back_app/services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'models/custom_error_handler.dart';
+import 'models/error_handler.dart';
 import 'models/permission_model.dart';
 
 void main() {
   FlutterError.onError = (FlutterErrorDetails details) {
-    CustomErrorHandler.handleFlutterError(
+    ErrorHandler.handleFlutterError(
       details.exception,
       details.stack,
     );
   };
+  ErrorHandler.buildErrorWidget();
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
     await setupServices();
@@ -34,7 +35,7 @@ void main() {
       child: const FeetBackApp(),
     ));
   }, (error, stackTrace) {
-    CustomErrorHandler.handlePlatformError(error, stackTrace);
+    ErrorHandler.handlePlatformError(error, stackTrace);
   });
 }
 

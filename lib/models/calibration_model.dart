@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:scidart/numdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../services.dart';
+
 class CalibrationModel {
   static final CalibrationModel _instance = CalibrationModel._internal();
   CalibrationModel._internal();
@@ -15,7 +17,8 @@ class CalibrationModel {
     return _instance;
   }
 
-  final Stream<SensorValues> stream = SensorStateModel().leftValuesStream;
+  final Stream<SensorValues> stream =
+      services.get<SensorStateModel>().leftValuesStream;
 
   CalibrationTable _calibrationTable = CalibrationTable(
     values: [],

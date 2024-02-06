@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:feet_back_app/enums/sensor_device.dart';
 import 'package:feet_back_app/models/sensor_state_model.dart';
 import 'package:feet_back_app/models/sensor_values.dart';
+import 'package:feet_back_app/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -25,8 +26,7 @@ class HeatmapPainter extends CustomPainter {
   HeatmapPainter(this.sensorValues, this.gridSize, this.side);
 
   double mapSensorValueToIntensity(double sensorValue) {
-    // Invert the value and normalize it
-    return 1.0 - sensorValue;
+    return sensorValue;
   }
 
   Offset _getPosition(int index) {
@@ -122,7 +122,7 @@ class HeatmapSoles extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final SensorStateModel sensorStateModel = SensorStateModel();
+    final sensorStateModel = services.get<SensorStateModel>();
     final SensorDevice device = SensorDeviceSelector().selectedDevice;
     final List<double> indexList = List.generate(
       device == SensorDevice.fsrtec ? 12 : 4,
