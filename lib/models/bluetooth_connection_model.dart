@@ -181,7 +181,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
   }
 
   void setActorDeviceSide({
-    required BluetoothDeviceModel deviceModel,
+    required BluetoothDeviceModel? deviceModel,
     required Side side,
   }) {
     _actorDevices.firstWhere((device) => device == deviceModel).side = side;

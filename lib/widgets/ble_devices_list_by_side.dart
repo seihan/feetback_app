@@ -29,7 +29,7 @@ class BluetoothDevicesListBySide extends StatelessWidget {
         return devices != null
             ? SizedBox(
                 width: 140,
-                height: 200,
+                height: 150,
                 child: ListView.builder(
                   itemCount: devices.length,
                   itemBuilder: (context, index) {

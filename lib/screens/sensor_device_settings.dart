@@ -138,9 +138,14 @@ class _SensorSettingsScreenState extends State<SensorSettingsScreen> {
   Future<void> _discoverDevices(
       BuildContext context, BluetoothConnectionModel model) async {
     model.discoverNewSensorDevices();
-    await AppDialogs.discoverDevicesDialog(
+    final isDismissed = await AppDialogs.discoverDevicesDialog(
       context,
       sensorDevice: selectedDevice,
     );
+    if (isDismissed) {
+      {
+        model.stopScan();
+      }
+    }
   }
 }
