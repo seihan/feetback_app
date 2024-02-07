@@ -48,7 +48,7 @@ class BalanceModel {
   void _onLeftValues(SensorValues values) {
     // left / right devices balance
     _left = values.data.sum;
-    _leftBalanceController.add(100 - _toPercent(p: _left, q: sum));
+    _leftBalanceController.add(_toPercent(p: _left, q: sum));
     // front / rear on device balance
     switch (sensorDevice) {
       case SensorDevice.fsrtec:
@@ -71,7 +71,7 @@ class BalanceModel {
   void _onRightValues(SensorValues values) {
     // left / right devices balance
     _right = values.data.sum;
-    _rightBalanceController.add(100 - _toPercent(p: _right, q: sum));
+    _rightBalanceController.add(_toPercent(p: _right, q: sum));
     // front / rear on device balance
     switch (sensorDevice) {
       case SensorDevice.fsrtec:
