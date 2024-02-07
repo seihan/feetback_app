@@ -128,10 +128,10 @@ class _SensorSettingsScreenState extends State<SensorSettingsScreen> {
   Future<void> _deleteDevices(BluetoothConnectionModel model) async {
     final bool? delete = await AppDialogs.showDeleteConfirmationDialog(context);
     if (delete ?? false) {
+      model.clearSensorDevices();
       await services.get<DeviceIdModel>().deleteSensorIds(
             device: selectedDevice,
           );
-      model.clearSensorDevices();
     }
   }
 
@@ -142,7 +142,7 @@ class _SensorSettingsScreenState extends State<SensorSettingsScreen> {
       context,
       sensorDevice: selectedDevice,
     );
-    if (isDismissed) {
+    if (isDismissed && model.isScanning) {
       {
         model.stopScan();
       }

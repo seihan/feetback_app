@@ -121,7 +121,6 @@ class _ActorSettingsScreenState extends State<ActorSettingsScreen> {
       await services.get<DeviceIdModel>().deleteActorIds(
             device: selectedDevice,
           );
-      setState(() {});
     }
   }
 
@@ -132,7 +131,7 @@ class _ActorSettingsScreenState extends State<ActorSettingsScreen> {
       context,
       actorDevice: selectedDevice,
     );
-    if (isDismissed) {
+    if (isDismissed && model.isScanning) {
       {
         model.stopScan();
       }

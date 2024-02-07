@@ -27,20 +27,16 @@ class BluetoothDevicesListSetSide extends StatelessWidget {
                 return Dismissible(
                   key: Key(item ?? ''),
                   direction: DismissDirection.horizontal,
-                  background: Container(
-                    color: Colors.red,
-                    child: const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Icon(Icons.swipe_left),
-                    ),
+                  background: const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('Set RIGHT side'),
                   ),
-                  secondaryBackground: Container(
-                    color: Colors.green,
-                    child: const Align(
-                      alignment: Alignment.centerRight,
-                      child: Icon(Icons.swipe_right),
-                    ),
+                  secondaryBackground: const Align(
+                    alignment: Alignment.centerRight,
+                    child: Text('Set LEFT side'),
                   ),
+                  confirmDismiss: (direction) =>
+                      _confirmDismiss(model, context, direction),
                   onDismissed: (direction) =>
                       _onDismissed(model, devices, index, direction),
                   child: ListTile(
@@ -62,6 +58,34 @@ class BluetoothDevicesListSetSide extends StatelessWidget {
     BluetoothDeviceModel? removedItem,
   ) {
     model.setActorDeviceSide(deviceModel: removedItem, side: side);
+  }
+
+  Future<bool> _confirmDismiss(BluetoothConnectionModel model,
+      BuildContext context, DismissDirection direction) async {
+    Side? side;
+    if (direction == DismissDirection.startToEnd) {
+      side = Side.right;
+    } else if (direction == DismissDirection.endToStart) {
+      side = Side.left;
+    }
+    final sideIsSet = model.actorDevices.any((device) => device.side == side);
+    if (sideIsSet) {
+      return await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Warning'),
+          content: const Text('Side already set'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+          ],
+        ),
+      );
+    } else {
+      return true;
+    }
   }
 
   void _onDismissed(

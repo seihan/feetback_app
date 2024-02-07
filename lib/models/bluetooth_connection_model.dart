@@ -84,16 +84,12 @@ class BluetoothConnectionModel extends ChangeNotifier {
     resetActorDevices();
     // add sensor devices
     resetSensorDevices();
-    final leftActorDevice = _actorDevices.firstWhereOrNull(
-      (device) => device.side == Side.left,
-    );
-    final rightDevice = _actorDevices.firstWhereOrNull(
-      (device) => device.side == Side.right,
-    );
+    final leftActorDevice = getActorDeviceOrNull(Side.left);
+    final rightActorDevice = getActorDeviceOrNull(Side.right);
     _feedbackModel.initialize();
     _stateSubscription =
         FlutterBluePlus.adapterState.listen(_listenBluetoothState);
-    if (_state == BluetoothAdapterState.on) {}
+    _scanSubscription = FlutterBluePlus.isScanning.listen(_handleScanState);
     _enableFeedback = _feedbackModel.enableFeedback;
     if (_sensorDevices.isNotEmpty) {
       _leftHandler = TransmissionHandler(
@@ -101,7 +97,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
         side: Side.left,
       )..initialize();
       _rightHandler = TransmissionHandler(
-        outputDevice: rightDevice,
+        outputDevice: rightActorDevice,
         side: Side.right,
       )..initialize();
     }
@@ -159,14 +155,12 @@ class BluetoothConnectionModel extends ChangeNotifier {
       return;
     }
     _processedResults.clear();
-    _scanSubscription?.cancel();
     _scanResultSubscription?.cancel();
     for (var subscription in _deviceSubscriptions) {
       subscription?.cancel();
     }
     _deviceSubscriptions.clear();
     _scanResultSubscription = FlutterBluePlus.scanResults.listen(_onScanResult);
-    _scanSubscription = FlutterBluePlus.isScanning.listen(_handleScanState);
     _logModel.add('start scanning');
     FlutterBluePlus.startScan(timeout: const Duration(seconds: 13));
   }
@@ -221,6 +215,9 @@ class BluetoothConnectionModel extends ChangeNotifier {
                 notifyListeners();
               }
             }
+        }
+        if (_actorDevices.length > 1) {
+          FlutterBluePlus.stopScan();
         }
       }
     }
@@ -283,6 +280,9 @@ class BluetoothConnectionModel extends ChangeNotifier {
                 notifyListeners();
               }
             }
+        }
+        if (_sensorDevices.length > 1) {
+          FlutterBluePlus.stopScan();
         }
       }
     }

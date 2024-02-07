@@ -28,11 +28,27 @@ class BluetoothDevicesList extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Set side by swipe device'),
+              const Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Set side by swipe device'),
+                  Spacer(),
+                  Icon(Icons.swipe_left),
+                  Icon(Icons.swipe_right),
+                ],
+              ),
               BluetoothDevicesListSetSide(
                 model: model,
                 devices: nullSideDevices,
               )
+            ],
+          );
+        } else if (model.isScanning) {
+          return const Row(
+            children: [
+              Text('searching devices... '),
+              CircularProgressIndicator(),
             ],
           );
         } else {
