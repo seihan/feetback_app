@@ -35,9 +35,7 @@ class _VisualizationScreenState extends State<VisualizationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      endDrawer: SideMenu(
-        model: widget.model,
-      ),
+      endDrawer: const SideMenu(),
       appBar: AppBar(
         leading: const NotifyButton(),
         backgroundColor: Colors.transparent,

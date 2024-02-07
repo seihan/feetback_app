@@ -3,7 +3,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 import '../models/permission_model.dart';
-import 'home.dart';
+import '../routes.dart';
 
 class PermissionScreen extends StatefulWidget {
   const PermissionScreen({Key? key}) : super(key: key);
@@ -104,8 +104,9 @@ class _PermissionScreenState extends State<PermissionScreen>
   /// There is no need to came back, that's why the
   /// route will be removed
   void _goToHomeScreen() {
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => const HomeScreen()),
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      Routes.home,
       (route) => false,
     );
   }
