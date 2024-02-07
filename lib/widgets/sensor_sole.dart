@@ -63,7 +63,7 @@ class SensorSole extends StatelessWidget {
                 ),
             },
             SizedBox(
-              height: 450,
+              height: 480,
               width: 150,
               child: Stack(
                 children: List.generate(
@@ -87,21 +87,11 @@ class SensorSole extends StatelessWidget {
               ),
             ),
             Positioned(
-              top: 427,
-              left: 110,
+              top: 450,
               child: FrequencyWidget(
                 stream: frequency,
               ),
             ),
-            /*
-            Positioned(
-              top: 390,
-              child: PredictedValuesWidget(
-                sensorValues: sensorValues,
-              ),
-            ),
-
-             */
           ],
         );
       },

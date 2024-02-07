@@ -1,5 +1,4 @@
 import 'package:feet_back_app/widgets/charts_widget.dart';
-import 'package:feet_back_app/widgets/heatmap_widget.dart';
 import 'package:feet_back_app/widgets/notify_button.dart';
 import 'package:feet_back_app/widgets/scrollable_vertical_widget.dart';
 import 'package:feet_back_app/widgets/sensor_soles.dart';
@@ -8,6 +7,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/bluetooth_connection_model.dart';
 import '../models/calibration_model.dart';
+import '../widgets/balance_widget.dart';
 import '../widgets/connection_widgets.dart';
 
 class VisualizationScreen extends StatefulWidget {
@@ -22,9 +22,26 @@ class _VisualizationScreenState extends State<VisualizationScreen> {
   final CalibrationModel _calibrationModel = CalibrationModel();
   final List<Widget> _tabPages = [
     const SensorSoles(),
-    const HeatmapSoles(),
+    const BalanceWidget(),
     const RealTimeChartsWidget(),
   ];
+  static const _items = [
+    BottomNavigationBarItem(
+      icon: Icon(
+        Icons.display_settings,
+      ),
+      label: 'Soles',
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.scale),
+      label: 'Balance',
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.area_chart),
+      label: 'Chart',
+    ),
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -66,20 +83,7 @@ class _VisualizationScreenState extends State<VisualizationScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.display_settings),
-            label: 'Soles',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.map),
-            label: 'Heatmap',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.area_chart),
-            label: 'Chart',
-          ),
-        ],
+        items: _items,
       ),
     );
   }

@@ -123,7 +123,7 @@ class HeatmapSoles extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sensorStateModel = services.get<SensorStateModel>();
-    final SensorDevice device = SensorDeviceSelector().selectedDevice;
+    final device = services.get<SensorDeviceSelector>().selectedDevice;
     final List<double> indexList = List.generate(
       device == SensorDevice.fsrtec ? 12 : 4,
       (int index) => 0,
