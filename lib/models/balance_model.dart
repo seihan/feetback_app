@@ -60,8 +60,8 @@ class BalanceModel {
         }
       case SensorDevice.salted:
         {
-          _leftFront = values.data[0];
-          _leftRear = values.data[1];
+          _leftFront = values.data[1];
+          _leftRear = values.data[3];
           _leftFrontRearBalanceController
               .add(_toPercent(p: _leftFront, q: leftSum));
         }
@@ -73,10 +73,22 @@ class BalanceModel {
     _right = values.data.sum;
     _rightBalanceController.add(100 - _toPercent(p: _right, q: sum));
     // front / rear on device balance
-    _rightFront = values.data.sublist(0, values.data.length ~/ 2).sum;
-    _rightRear = values.data.sublist((values.data.length ~/ 2)).sum;
-    _rightFrontRearBalanceController
-        .add(_toPercent(p: _rightFront, q: rightSum));
+    switch (sensorDevice) {
+      case SensorDevice.fsrtec:
+        {
+          _rightFront = values.data.sublist(0, values.data.length ~/ 2 - 1).sum;
+          _rightRear = values.data.sublist((values.data.length ~/ 2)).sum;
+          _rightFrontRearBalanceController
+              .add(_toPercent(p: _rightFront, q: rightSum));
+        }
+      case SensorDevice.salted:
+        {
+          _rightFront = values.data[1];
+          _rightRear = values.data[3];
+          _rightFrontRearBalanceController
+              .add(_toPercent(p: _rightFront, q: rightSum));
+        }
+    }
   }
 
   double _toPercent({
