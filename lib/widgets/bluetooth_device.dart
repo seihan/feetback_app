@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:feet_back_app/enums/side.dart';
 import 'package:feet_back_app/models/bluetooth_device_model.dart';
 import 'package:feet_back_app/models/error_handler.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,7 @@ class BluetoothDeviceWidget extends StatelessWidget {
           ),
           Text('Name: ${device.name}'),
           Text('ID: ${device.id?.str}'),
+          Text('Side: ${device.side?.description}'),
           Text(device.connected ? 'Connected' : 'Disconnected'),
           BluetoothRssiWidget(device: device),
         ],
