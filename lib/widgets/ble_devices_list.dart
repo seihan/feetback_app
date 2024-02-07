@@ -22,7 +22,10 @@ class BluetoothDevicesList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<BluetoothConnectionModel>(
       builder: (context, model, child) {
-        final nullSideDevices = _getActorDevicesWithoutSide(model);
+        List<BluetoothDeviceModel>? nullSideDevices;
+        if (actorDevice != null) {
+          nullSideDevices = _getActorDevicesWithoutSide(model);
+        }
         if (nullSideDevices?.isNotEmpty ?? false) {
           return Column(
             mainAxisSize: MainAxisSize.min,
