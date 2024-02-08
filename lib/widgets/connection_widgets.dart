@@ -9,22 +9,6 @@ class ConnectionWidgets extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const DeviceWidget(),
-        //const Spacer(),
-        if (bluetoothConnectionModel.connected == false)
-          Container(
-            color: Colors.black.withAlpha(80),
-            child: const Center(
-              child: Icon(
-                Icons.sensors_off,
-                size: 50.0,
-                color: Colors.white54,
-              ),
-            ),
-          ),
-      ],
-    );
+    return const DeviceWidget();
   }
 }
