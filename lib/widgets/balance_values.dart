@@ -38,7 +38,7 @@ class BalanceValuesWidget extends StatelessWidget {
               children: [
                 if (growingTop)
                   Container(
-                    height: _getBarHeight(height, percent),
+                    height: _getBarSize(height, percent),
                     color: Colors.blue,
                   ),
                 if (growingTop)
@@ -51,8 +51,63 @@ class BalanceValuesWidget extends StatelessWidget {
                   ),
                 if (!growingTop)
                   Container(
-                    height: _getBarHeight(
+                    height: _getBarSize(
                       height,
+                      percent.toInt() != 0 ? 100 - percent : 50,
+                    ),
+                    color: Colors.blue,
+                  ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+  factory BalanceValuesWidget.horizontalBars({
+    Key? key,
+    required Stream<double> stream,
+    required double height,
+    required double width,
+  }) {
+    return BalanceValuesWidget(
+      key: key,
+      stream: stream,
+      child: StreamBuilder(
+        stream: stream,
+        builder: (
+          BuildContext context,
+          AsyncSnapshot<double> sensorState,
+        ) {
+          double percent = sensorState.data ?? 0;
+          final growingLeft = percent.toInt() > 50;
+          return Container(
+            padding: const EdgeInsets.all(1),
+            height: height,
+            width: width,
+            child: Row(
+              mainAxisAlignment:
+                  growingLeft ? MainAxisAlignment.end : MainAxisAlignment.start,
+              children: [
+                if (growingLeft)
+                  Container(
+                    height: height,
+                    width: _getBarSize(width, percent),
+                    color: Colors.blue,
+                  ),
+                if (growingLeft)
+                  SizedBox(
+                    width: width / 2 - 2,
+                  ),
+                if (!growingLeft)
+                  SizedBox(
+                    width: width / 2 - 2,
+                  ),
+                if (!growingLeft)
+                  Container(
+                    height: height,
+                    width: _getBarSize(
+                      width,
                       percent.toInt() != 0 ? 100 - percent : 50,
                     ),
                     color: Colors.blue,
@@ -66,6 +121,7 @@ class BalanceValuesWidget extends StatelessWidget {
   }
   factory BalanceValuesWidget.txt({
     Key? key,
+    double? fontSize,
     required Stream<double> stream,
   }) {
     return BalanceValuesWidget(
@@ -80,7 +136,7 @@ class BalanceValuesWidget extends StatelessWidget {
           final value = sensorState.data ?? 0;
           return Text(
             '${value.toStringAsFixed(0)}%',
-            style: const TextStyle(fontSize: 50),
+            style: TextStyle(fontSize: fontSize ?? 50),
           );
         },
       ),
@@ -89,6 +145,7 @@ class BalanceValuesWidget extends StatelessWidget {
 
   factory BalanceValuesWidget.txtInverted({
     Key? key,
+    double? fontSize,
     required Stream<double> stream,
   }) {
     return BalanceValuesWidget(
@@ -104,7 +161,7 @@ class BalanceValuesWidget extends StatelessWidget {
               sensorState.data != null ? 100 - (sensorState.data ?? 0) : 0;
           return Text(
             '${invertedValue.toStringAsFixed(0)}%',
-            style: const TextStyle(fontSize: 50),
+            style: TextStyle(fontSize: fontSize ?? 50),
           );
         },
       ),
@@ -115,7 +172,7 @@ class BalanceValuesWidget extends StatelessWidget {
     return child ?? const SizedBox.shrink();
   }
 
-  static double _getBarHeight(double height, double percent) {
+  static double _getBarSize(double height, double percent) {
     return (height / 2) *
         ((FeedbackModel.mapValueToRange(
               value: percent.toInt(),

@@ -24,6 +24,15 @@ class BalanceModel {
       StreamController<double>.broadcast();
   Stream<double> get rightFrontRearBalance =>
       _rightFrontRearBalanceController.stream;
+  static final StreamController<double> _leftLeftRightBalanceController =
+      StreamController<double>.broadcast();
+  Stream<double> get leftLeftRightBalance =>
+      _leftLeftRightBalanceController.stream;
+  static final StreamController<double> _rightLeftRightBalanceController =
+      StreamController<double>.broadcast();
+  Stream<double> get rightLeftRightBalance =>
+      _rightLeftRightBalanceController.stream;
+
   final sensorDevice = services.get<SensorDeviceSelector>().selectedDevice;
   StreamSubscription? _leftSubscription;
   StreamSubscription? _rightSubscription;
@@ -31,13 +40,19 @@ class BalanceModel {
   int _left = 0;
   int _leftFront = 0;
   int _leftRear = 0;
+  int _leftLeft = 0;
+  int _leftRight = 0;
   int _right = 0;
   int _rightFront = 0;
   int _rightRear = 0;
+  int _rightLeft = 0;
+  int _rightRight = 0;
 
   int get sum => _left + _right;
   int get leftSum => _leftFront + _leftRear;
+  int get leftLeftSum => _leftLeft + _leftRight;
   int get rightSum => _rightFront + _rightRear;
+  int get rightRightSum => _rightLeft + _rightRight;
   void initialize() {
     _leftSubscription =
         _sensorStateModel.leftValuesStream.listen(_onLeftValues);
@@ -60,10 +75,15 @@ class BalanceModel {
         }
       case SensorDevice.salted:
         {
+          _leftRight = values.data[0];
           _leftFront = values.data[1];
+          _leftLeft = values.data[2];
           _leftRear = values.data[3];
           _leftFrontRearBalanceController
               .add(_toPercent(p: _leftFront, q: leftSum));
+          _leftLeftRightBalanceController.add(
+            _toPercent(p: _leftLeft, q: leftLeftSum),
+          );
         }
     }
   }
@@ -83,10 +103,15 @@ class BalanceModel {
         }
       case SensorDevice.salted:
         {
+          _rightRight = values.data[0];
           _rightFront = values.data[1];
+          _rightLeft = values.data[2];
           _rightRear = values.data[3];
           _rightFrontRearBalanceController
               .add(_toPercent(p: _rightFront, q: rightSum));
+          _rightLeftRightBalanceController.add(
+            _toPercent(p: _rightRight, q: rightRightSum),
+          );
         }
     }
   }
