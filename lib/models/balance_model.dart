@@ -72,6 +72,7 @@ class BalanceModel {
           _leftRear = values.data.sublist((values.data.length ~/ 2)).sum;
           _leftFrontRearBalanceController
               .add(_toPercent(p: _leftFront, q: leftSum));
+          //todo: add left / right on device balance
         }
       case SensorDevice.salted:
         {
@@ -100,6 +101,7 @@ class BalanceModel {
           _rightRear = values.data.sublist((values.data.length ~/ 2)).sum;
           _rightFrontRearBalanceController
               .add(_toPercent(p: _rightFront, q: rightSum));
+          //todo: add left / right on device balance
         }
       case SensorDevice.salted:
         {
