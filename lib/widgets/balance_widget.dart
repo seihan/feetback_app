@@ -74,6 +74,7 @@ class _BalanceWidgetState extends State<BalanceWidget> {
                 ),
                 SizedBox(
                   height: height,
+                  width: width,
                   child: switchWidget
                       ? Row(
                           mainAxisSize: MainAxisSize.max,
@@ -135,6 +136,7 @@ class _BalanceWidgetState extends State<BalanceWidget> {
                 ),
                 SizedBox(
                   height: height,
+                  width: width,
                   child: switchWidget
                       ? Row(
                           mainAxisSize: MainAxisSize.max,
