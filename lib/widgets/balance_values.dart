@@ -1,3 +1,4 @@
+import 'package:feet_back_app/models/feedback_model.dart';
 import 'package:flutter/material.dart';
 
 class BalanceValuesWidget extends StatelessWidget {
@@ -10,7 +11,7 @@ class BalanceValuesWidget extends StatelessWidget {
     this.child,
   }) : super(key: key);
 
-  factory BalanceValuesWidget.box({
+  factory BalanceValuesWidget.verticalBars({
     Key? key,
     required Stream<double> stream,
     required double height,
@@ -26,34 +27,35 @@ class BalanceValuesWidget extends StatelessWidget {
           AsyncSnapshot<double> sensorState,
         ) {
           double percent = sensorState.data ?? 0;
-          final growingTop = percent > 50;
+          final growingTop = percent.toInt() > 50;
           return Container(
-            padding: const EdgeInsets.only(left: 1, top: 1, bottom: 1),
+            padding: const EdgeInsets.all(1),
             height: height,
             width: width,
             child: Column(
               mainAxisAlignment:
                   growingTop ? MainAxisAlignment.end : MainAxisAlignment.start,
               children: [
-                if (!growingTop)
+                if (growingTop)
                   Container(
-                    color: Colors.blueGrey,
-                    height: height / 2,
-                  ),
-                if (!growingTop)
-                  Container(
-                    height: (height / 2) * ((100 - percent) / 100) - 1,
+                    height: _getBarHeight(height, percent),
                     color: Colors.blue,
                   ),
                 if (growingTop)
-                  Container(
-                    height: (height / 2) * (percent / 100) - 1,
-                    color: Colors.blue,
+                  SizedBox(
+                    height: height / 2 - 2,
                   ),
-                if (growingTop)
+                if (!growingTop)
+                  SizedBox(
+                    height: height / 2 - 2,
+                  ),
+                if (!growingTop)
                   Container(
-                    color: Colors.blueGrey,
-                    height: height / 2,
+                    height: _getBarHeight(
+                      height,
+                      percent.toInt() != 0 ? 100 - percent : 50,
+                    ),
+                    color: Colors.blue,
                   ),
               ],
             ),
@@ -111,5 +113,17 @@ class BalanceValuesWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return child ?? const SizedBox.shrink();
+  }
+
+  static double _getBarHeight(double height, double percent) {
+    return (height / 2) *
+        ((FeedbackModel.mapValueToRange(
+              value: percent.toInt(),
+              inMin: 50,
+              inMax: 100,
+              outMin: 0,
+              outMax: 100,
+            )) /
+            100);
   }
 }

@@ -62,7 +62,7 @@ class TransmissionHandler {
 
   int _getTimerDuration(int highestValue) {
     int durationMilliseconds = 2000;
-    final double duration = feedbackModel.mapValueToRange(
+    final double duration = FeedbackModel.mapValueToRange(
       value: highestValue,
       inMin: 0,
       inMax: (feedbackModel.threshold * _factor).toInt(),

@@ -53,7 +53,7 @@ class FeedbackModel {
   /// Returns:
   ///   - The mapped value within the output range, or 0 if the input value is
   ///     outside the specified input range.
-  double mapValueToRange({
+  static double mapValueToRange({
     int value = 0,
     int inMin = 0,
     int inMax = 0,
@@ -62,7 +62,7 @@ class FeedbackModel {
   }) {
     // Perform linear interpolation to map the value to the output range.
     final int divisor = inMax - inMin;
-    if (divisor != 0) {
+    if (divisor != 0 && value >= inMin) {
       return (value - inMin) * (outMax - outMin) / divisor + outMin;
     } else {
       // The input value is outside the input range, so return 0.

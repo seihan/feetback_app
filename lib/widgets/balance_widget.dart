@@ -31,14 +31,22 @@ class _BalanceWidgetState extends State<BalanceWidget> {
           children: [
             Stack(
               children: [
-                BalanceValuesWidget.box(
+                Container(
+                  padding: const EdgeInsets.all(1),
+                  child: Container(
+                    height: height - 2,
+                    width: width,
+                    color: Colors.blueGrey,
+                  ),
+                ),
+                BalanceValuesWidget.verticalBars(
                   stream: balanceModel.leftFrontRearBalance,
                   height: height,
                   width: width,
                 ),
                 SvgPicture.asset(
                   'assets/sole_mask_left.svg',
-                  height: 420,
+                  height: height,
                 ),
                 SizedBox(
                   height: height,
@@ -57,7 +65,15 @@ class _BalanceWidgetState extends State<BalanceWidget> {
             ),
             Stack(
               children: [
-                BalanceValuesWidget.box(
+                Container(
+                  padding: const EdgeInsets.all(1),
+                  child: Container(
+                    height: height - 2,
+                    width: width,
+                    color: Colors.blueGrey,
+                  ),
+                ),
+                BalanceValuesWidget.verticalBars(
                   stream: balanceModel.rightFrontRearBalance,
                   height: height,
                   width: width,
