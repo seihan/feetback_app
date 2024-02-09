@@ -199,9 +199,6 @@ class _BalanceWidgetState extends State<BalanceWidget> {
 
   void _setSizes(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
-    debugPrint('Screen orientation: ${mediaQuery.orientation}');
-    debugPrint('Screen height: ${mediaQuery.size.height}');
-    debugPrint('Screen width: ${mediaQuery.size.width}');
     final screenWidth = mediaQuery.size.width;
     final screenHeight = mediaQuery.size.height;
     switch (mediaQuery.orientation) {
@@ -220,10 +217,6 @@ class _BalanceWidgetState extends State<BalanceWidget> {
           fontSizeSmall = screenWidth * fontWeightSmall;
         }
     }
-    debugPrint('height: $height');
-    debugPrint('width: $width');
-    debugPrint('fontSizeBig: $fontSizeBig');
-    debugPrint('fontSizeSmall $fontSizeSmall');
   }
 
   @override
