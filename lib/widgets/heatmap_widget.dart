@@ -9,7 +9,6 @@ import 'package:flutter_svg/svg.dart';
 
 import '../enums/side.dart';
 import '../models/sensor_device_selector.dart';
-import 'balance_widget.dart';
 
 class SensorDataPoint {
   final Offset position;
@@ -118,7 +117,9 @@ class HeatmapWidget extends StatelessWidget {
 }
 
 class HeatmapSoles extends StatelessWidget {
-  const HeatmapSoles({super.key});
+  final double height;
+  final double width;
+  const HeatmapSoles({super.key, required this.height, required this.width});
 
   @override
   Widget build(BuildContext context) {
@@ -150,8 +151,8 @@ class HeatmapSoles extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(
                               vertical: 1, horizontal: 1),
-                          height: 420,
-                          width: 140,
+                          height: height,
+                          width: width,
                           child: HeatmapWidget(
                             sensorValues,
                             80,
@@ -160,7 +161,7 @@ class HeatmapSoles extends StatelessWidget {
                         ),
                         SvgPicture.asset(
                           'assets/sole_mask_left.svg',
-                          height: 420,
+                          height: height,
                         ),
                       ],
                     ),
@@ -181,8 +182,8 @@ class HeatmapSoles extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(
                             vertical: 1, horizontal: 1),
-                        height: 420,
-                        width: 140,
+                        height: height,
+                        width: width,
                         child: HeatmapWidget(
                           sensorValues,
                           80,
@@ -191,16 +192,12 @@ class HeatmapSoles extends StatelessWidget {
                       ),
                       SvgPicture.asset(
                         'assets/sole_mask_right.svg',
-                        height: 420,
+                        height: height,
                       ),
                     ],
                   );
                 }),
           ],
-        ),
-        const Padding(
-          padding: EdgeInsets.only(top: 20),
-          child: BalanceWidget(),
         ),
       ],
     );

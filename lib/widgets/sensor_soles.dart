@@ -15,13 +15,18 @@ class SensorSoles extends StatefulWidget {
 
 class _SensorSolesState extends State<SensorSoles> {
   final stateModel = services.get<SensorStateModel>();
+  static const heightWeight = 0.5;
+  static const widthWeight = 0.35;
+  double height = 420.0;
+  double width = 140.0;
   bool switchWidget = false;
   @override
   Widget build(BuildContext context) {
+    _setSizes(context);
     return Stack(
       children: [
         switchWidget
-            ? const HeatmapSoles()
+            ? HeatmapSoles(width: width, height: height)
             : Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -54,5 +59,23 @@ class _SensorSolesState extends State<SensorSoles> {
             )),
       ],
     );
+  }
+
+  void _setSizes(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final screenWidth = mediaQuery.size.width;
+    final screenHeight = mediaQuery.size.height;
+    switch (mediaQuery.orientation) {
+      case Orientation.landscape:
+        {
+          height = screenWidth * heightWeight;
+          width = screenHeight * widthWeight;
+        }
+      case Orientation.portrait:
+        {
+          height = screenHeight * heightWeight;
+          width = screenWidth * widthWeight;
+        }
+    }
   }
 }

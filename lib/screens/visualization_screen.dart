@@ -60,11 +60,12 @@ class _VisualizationScreenState extends State<VisualizationScreen> {
       backgroundColor: Colors.transparent,
       body: SafeArea(
         child: ScrollableVerticalWidget(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             ConnectionWidgets(bluetoothConnectionModel: widget.model),
             _tabPages[_selectedIndex],
+            const SizedBox.shrink(), // placeholder to center widgets
           ],
         ),
       ),
