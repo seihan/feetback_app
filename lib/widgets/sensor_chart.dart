@@ -139,9 +139,6 @@ class RealTimeSensorChart extends StatelessWidget {
           data: List.filled(0, 0),
           side: 'UNKNOWN'), // Initialize with 12 zeros
       builder: (context, snapshot) {
-        if (snapshot.data == null) {
-          return Container();
-        }
         final newData = snapshot.data!;
         chartData.add(newData);
 
@@ -154,44 +151,57 @@ class RealTimeSensorChart extends StatelessWidget {
         final minTime = maxTime.subtract(const Duration(
             seconds: 1)); // Set the minimum time to 10 seconds ago
 
-        return Container(
-          height: 300,
-          padding: const EdgeInsets.all(16.0),
-          child: charts.TimeSeriesChart(
-            _createChartData(chartData),
-            animate: false,
-            // Disable animation for smoother scrolling
-            primaryMeasureAxis: const charts.NumericAxisSpec(
-              renderSpec: charts.GridlineRendererSpec(
-                labelAnchor: charts.TickLabelAnchor.before,
-              ),
-            ),
-            domainAxis: charts.DateTimeAxisSpec(
-              viewport: charts.DateTimeExtents(
-                start: minTime,
-                end: maxTime,
-              ),
-              renderSpec: const charts.SmallTickRendererSpec(
-                labelAnchor: charts.TickLabelAnchor.before,
-                labelJustification: charts.TickLabelJustification.outside,
-              ),
-            ),
-            defaultRenderer: charts.LineRendererConfig(
-              includeArea: false,
-              stacked: false,
-            ),
-            behaviors: [
-              charts.LinePointHighlighter(
-                symbolRenderer: charts.CircleSymbolRenderer(),
-              ),
-              charts.SeriesLegend(
-                position: charts.BehaviorPosition.end,
-                horizontalFirst: false,
-                cellPadding: const EdgeInsets.all(2.0),
-              ),
-            ],
-          ),
-        );
+        return snapshot.connectionState == ConnectionState.active
+            ? Container(
+                height: 300,
+                padding: const EdgeInsets.all(16.0),
+                child: chartData.length == maxDataPoints
+                    ? charts.TimeSeriesChart(
+                        _createChartData(chartData),
+                        animate: false,
+                        // Disable animation for smoother scrolling
+                        primaryMeasureAxis: const charts.NumericAxisSpec(
+                          renderSpec: charts.GridlineRendererSpec(
+                            labelAnchor: charts.TickLabelAnchor.before,
+                          ),
+                        ),
+                        domainAxis: charts.DateTimeAxisSpec(
+                          viewport: charts.DateTimeExtents(
+                            start: minTime,
+                            end: maxTime,
+                          ),
+                          renderSpec: const charts.SmallTickRendererSpec(
+                            labelAnchor: charts.TickLabelAnchor.before,
+                            labelJustification:
+                                charts.TickLabelJustification.outside,
+                          ),
+                        ),
+                        defaultRenderer: charts.LineRendererConfig(
+                          includeArea: false,
+                          stacked: false,
+                        ),
+                        behaviors: [
+                          charts.LinePointHighlighter(
+                            symbolRenderer: charts.CircleSymbolRenderer(),
+                          ),
+                          charts.SeriesLegend(
+                            position: charts.BehaviorPosition.end,
+                            horizontalFirst: false,
+                            cellPadding: const EdgeInsets.all(2.0),
+                          ),
+                        ],
+                      )
+                    : const Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('buffering'),
+                          CircularProgressIndicator(),
+                        ],
+                      ),
+              )
+            : const SizedBox(
+                height: 300,
+              );
       },
     );
   }
