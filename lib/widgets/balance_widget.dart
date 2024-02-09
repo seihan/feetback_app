@@ -13,8 +13,14 @@ class BalanceWidget extends StatefulWidget {
 
 class _BalanceWidgetState extends State<BalanceWidget> {
   final BalanceModel balanceModel = BalanceModel();
-  static const height = 420.0;
-  static const width = 140.0;
+  static const heightWeight = 0.57;
+  static const widthWeight = 0.4;
+  static const fontWeightSmall = 0.075;
+  static const fontWeightBig = 0.125;
+  double height = 420.0;
+  double width = 140.0;
+  double fontSizeBig = 50.0;
+  double fontSizeSmall = 30.0;
   bool switchWidget = false;
   @override
   void initState() {
@@ -24,6 +30,7 @@ class _BalanceWidgetState extends State<BalanceWidget> {
 
   @override
   Widget build(BuildContext context) {
+    _setSizes(context);
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -45,7 +52,7 @@ class _BalanceWidgetState extends State<BalanceWidget> {
               ],
             )),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Stack(
               children: [
@@ -75,31 +82,33 @@ class _BalanceWidgetState extends State<BalanceWidget> {
                 SizedBox(
                   height: height,
                   width: width,
-                  child: switchWidget
+                  child: switchWidget // left / right balance
                       ? Row(
                           mainAxisSize: MainAxisSize.max,
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             BalanceValuesWidget.txt(
-                              fontSize: 40,
+                              fontSize: fontSizeSmall,
                               stream: balanceModel.leftLeftRightBalance,
                             ),
                             BalanceValuesWidget.txtInverted(
-                              fontSize: 40,
+                              fontSize: fontSizeSmall,
                               stream: balanceModel.leftLeftRightBalance,
                             ),
                           ],
-                        )
+                        ) // front / rear balance
                       : Column(
                           mainAxisSize: MainAxisSize.max,
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             BalanceValuesWidget.txt(
+                              fontSize: fontSizeBig,
                               stream: switchWidget
                                   ? balanceModel.leftLeftRightBalance
                                   : balanceModel.leftFrontRearBalance,
                             ),
                             BalanceValuesWidget.txtInverted(
+                              fontSize: fontSizeBig,
                               stream: switchWidget
                                   ? balanceModel.leftLeftRightBalance
                                   : balanceModel.leftFrontRearBalance,
@@ -132,7 +141,7 @@ class _BalanceWidgetState extends State<BalanceWidget> {
                       ),
                 SvgPicture.asset(
                   'assets/sole_mask_right.svg',
-                  height: 420,
+                  height: height,
                 ),
                 SizedBox(
                   height: height,
@@ -143,11 +152,11 @@ class _BalanceWidgetState extends State<BalanceWidget> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             BalanceValuesWidget.txt(
-                              fontSize: 40,
+                              fontSize: fontSizeSmall,
                               stream: balanceModel.rightLeftRightBalance,
                             ),
                             BalanceValuesWidget.txtInverted(
-                              fontSize: 40,
+                              fontSize: fontSizeSmall,
                               stream: balanceModel.rightLeftRightBalance,
                             ),
                           ],
@@ -157,9 +166,11 @@ class _BalanceWidgetState extends State<BalanceWidget> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             BalanceValuesWidget.txt(
+                              fontSize: fontSizeBig,
                               stream: balanceModel.rightFrontRearBalance,
                             ),
                             BalanceValuesWidget.txtInverted(
+                              fontSize: fontSizeBig,
                               stream: balanceModel.rightFrontRearBalance,
                             ),
                           ],
@@ -172,12 +183,47 @@ class _BalanceWidgetState extends State<BalanceWidget> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            BalanceValuesWidget.txt(stream: balanceModel.leftBalance),
-            BalanceValuesWidget.txt(stream: balanceModel.rightBalance),
+            BalanceValuesWidget.txt(
+              fontSize: fontSizeBig,
+              stream: balanceModel.leftBalance,
+            ),
+            BalanceValuesWidget.txt(
+              fontSize: fontSizeBig,
+              stream: balanceModel.rightBalance,
+            ),
           ],
         )
       ],
     );
+  }
+
+  void _setSizes(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    debugPrint('Screen orientation: ${mediaQuery.orientation}');
+    debugPrint('Screen height: ${mediaQuery.size.height}');
+    debugPrint('Screen width: ${mediaQuery.size.width}');
+    final screenWidth = mediaQuery.size.width;
+    final screenHeight = mediaQuery.size.height;
+    switch (mediaQuery.orientation) {
+      case Orientation.landscape:
+        {
+          height = screenWidth * heightWeight;
+          width = screenHeight * widthWeight;
+          fontSizeBig = screenHeight * fontWeightBig;
+          fontSizeSmall = screenHeight * fontWeightSmall;
+        }
+      case Orientation.portrait:
+        {
+          height = screenHeight * heightWeight;
+          width = screenWidth * widthWeight;
+          fontSizeBig = screenWidth * fontWeightBig;
+          fontSizeSmall = screenWidth * fontWeightSmall;
+        }
+    }
+    debugPrint('height: $height');
+    debugPrint('width: $width');
+    debugPrint('fontSizeBig: $fontSizeBig');
+    debugPrint('fontSizeSmall $fontSizeSmall');
   }
 
   @override

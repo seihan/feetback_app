@@ -74,7 +74,7 @@ class _ActorSettingsScreenState extends State<ActorSettingsScreen> {
                         BluetoothDeviceWidget(
                           device: rightDevice,
                         ),
-                      if (!noIds)
+                      if (!noIds && (leftDevice != null && rightDevice != null))
                         IconButton(
                           onPressed: () => _deleteDevices(model),
                           icon: const Icon(Icons.delete),

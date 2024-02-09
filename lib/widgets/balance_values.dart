@@ -136,7 +136,7 @@ class BalanceValuesWidget extends StatelessWidget {
           final value = sensorState.data ?? 0;
           return Text(
             '${value.toStringAsFixed(0)}%',
-            style: TextStyle(fontSize: fontSize ?? 50),
+            style: TextStyle(fontSize: fontSize ?? 30),
           );
         },
       ),
@@ -161,7 +161,7 @@ class BalanceValuesWidget extends StatelessWidget {
               sensorState.data != null ? 100 - (sensorState.data ?? 0) : 0;
           return Text(
             '${invertedValue.toStringAsFixed(0)}%',
-            style: TextStyle(fontSize: fontSize ?? 50),
+            style: TextStyle(fontSize: fontSize ?? 30),
           );
         },
       ),
