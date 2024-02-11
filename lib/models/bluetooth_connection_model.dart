@@ -165,12 +165,14 @@ class BluetoothConnectionModel extends ChangeNotifier {
     if (_isScanning) {
       return;
     }
-    final noActorIds = _sensorDevices.any(
-      (device) => device.id == null,
-    );
-    final noSensorIds = _sensorDevices.any(
-      (device) => device.id == null,
-    );
+    final noActorIds = (_actorDevices.any(
+          (device) => device.id == null,
+        ) &&
+        _actorDevices.isNotEmpty);
+    final noSensorIds = (_sensorDevices.any(
+          (device) => device.id == null,
+        ) &&
+        _sensorDevices.isNotEmpty);
     if (noActorIds) {
       final addIds = await AppDialogs.noDeviceIdDialog(
           _navigatorKey.currentContext!, 'Actor');
@@ -219,6 +221,10 @@ class BluetoothConnectionModel extends ChangeNotifier {
     }
     _actorDevices.clear();
     _processedResults.clear();
+    _stateSubscription?.cancel();
+    _stateSubscription =
+        FlutterBluePlus.adapterState.listen(_listenBluetoothState);
+    _scanSubscription = FlutterBluePlus.isScanning.listen(_handleScanState);
     _scanResultSubscription?.cancel();
     _scanResultSubscription =
         FlutterBluePlus.scanResults.listen(_onActorScanResult);
@@ -240,6 +246,10 @@ class BluetoothConnectionModel extends ChangeNotifier {
     }
     _sensorDevices.clear();
     _processedResults.clear();
+    _stateSubscription?.cancel();
+    _stateSubscription =
+        FlutterBluePlus.adapterState.listen(_listenBluetoothState);
+    _scanSubscription = FlutterBluePlus.isScanning.listen(_handleScanState);
     _scanResultSubscription?.cancel();
     _scanResultSubscription =
         FlutterBluePlus.scanResults.listen(_onSensorScanResult);

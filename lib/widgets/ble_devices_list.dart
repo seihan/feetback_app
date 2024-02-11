@@ -23,10 +23,41 @@ class BluetoothDevicesList extends StatelessWidget {
     return Consumer<BluetoothConnectionModel>(
       builder: (context, model, child) {
         List<BluetoothDeviceModel>? nullSideDevices;
+        if (model.isScanning) {
+          // scan dialog
+          return const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('searching devices... '),
+              CircularProgressIndicator(),
+            ],
+          );
+        } else if ((((actorDevice != null) && (model.noActorIds ?? false))) ||
+            (((sensorDevice != null) && (model.noSensorIds ?? false)))) {
+          // no devices dialog
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('No device found'),
+              Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('Cancel')),
+                Padding(
+                  padding: const EdgeInsets.only(left: 20),
+                  child: TextButton(
+                      onPressed: () => _startScan(model),
+                      child: const Text('Scan')),
+                ),
+              ])
+            ],
+          );
+        }
         if (actorDevice != null) {
           nullSideDevices = _getActorDevicesWithoutSide(model);
         }
         if (nullSideDevices?.isNotEmpty ?? false) {
+          // set side dialog
           return Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,14 +78,8 @@ class BluetoothDevicesList extends StatelessWidget {
               )
             ],
           );
-        } else if (model.isScanning) {
-          return const Row(
-            children: [
-              Text('searching devices... '),
-              CircularProgressIndicator(),
-            ],
-          );
         } else {
+          // save device id dialog
           return Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,5 +109,14 @@ class BluetoothDevicesList extends StatelessWidget {
   List<BluetoothDeviceModel>? _getActorDevicesWithoutSide(
       BluetoothConnectionModel model) {
     return model.actorDevices.where((device) => device.side == null).toList();
+  }
+
+  void _startScan(BluetoothConnectionModel model) {
+    if (actorDevice != null) {
+      model.discoverNewActorDevices();
+    }
+    if (sensorDevice != null) {
+      model.discoverNewSensorDevices();
+    }
   }
 }
