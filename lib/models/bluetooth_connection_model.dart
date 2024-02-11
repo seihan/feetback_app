@@ -7,15 +7,18 @@ import 'package:feet_back_app/global_params.dart';
 import 'package:feet_back_app/models/feedback_model.dart';
 import 'package:feet_back_app/models/log_model.dart';
 import 'package:feet_back_app/models/peripheral_constants.dart';
+import 'package:feet_back_app/models/permission_model.dart';
 import 'package:feet_back_app/models/sensor_device_selector.dart';
 import 'package:feet_back_app/models/sensor_state_model.dart';
 import 'package:feet_back_app/models/transmission_handler.dart';
 import 'package:feet_back_app/services.dart';
+import 'package:feet_back_app/widgets/dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 import '../enums/sensor_device.dart';
 import '../enums/side.dart';
+import '../routes.dart';
 import '../widgets/bluetooth_alert_dialog.dart';
 import 'actor_device_selector.dart';
 import 'bluetooth_device_model.dart';
@@ -23,7 +26,12 @@ import 'bluetooth_notification_handler.dart';
 import 'error_handler.dart';
 
 class BluetoothConnectionModel extends ChangeNotifier {
-  final SensorStateModel _sensorStateModel = services.get<SensorStateModel>();
+  final _sensorStateModel = services.get<SensorStateModel>();
+  final _navigatorKey = services.get<GlobalParams>().navigatorKey;
+  final _sensorSelector = services.get<SensorDeviceSelector>();
+  final _actorSelector = services.get<ActorDeviceSelector>();
+  final _permissionHandler = services.get<PermissionModel>();
+
   final FeedbackModel _feedbackModel = FeedbackModel();
   final LogModel _logModel = LogModel();
   static final List<BluetoothDeviceModel> _actorDevices = [];
@@ -49,10 +57,6 @@ class BluetoothConnectionModel extends ChangeNotifier {
   bool get connected =>
       _sensorDevices.every((BluetoothDeviceModel device) => device.connected) &&
       _actorDevices.every((BluetoothDeviceModel device) => device.connected);
-  final _navigatorKey = services.get<GlobalParams>().navigatorKey;
-  final _sensorSelector = services.get<SensorDeviceSelector>();
-  final _actorSelector = services.get<ActorDeviceSelector>();
-
   bool get isNotifying => _isNotifying;
   bool get isScanning => _isScanning;
   List<bool> get activated => _activated;
@@ -87,9 +91,6 @@ class BluetoothConnectionModel extends ChangeNotifier {
     final leftActorDevice = getActorDeviceOrNull(Side.left);
     final rightActorDevice = getActorDeviceOrNull(Side.right);
     _feedbackModel.initialize();
-    _stateSubscription =
-        FlutterBluePlus.adapterState.listen(_listenBluetoothState);
-    _scanSubscription = FlutterBluePlus.isScanning.listen(_handleScanState);
     _enableFeedback = _feedbackModel.enableFeedback;
     if (_sensorDevices.isNotEmpty) {
       _leftHandler = TransmissionHandler(
@@ -150,12 +151,58 @@ class BluetoothConnectionModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void startScan() {
+  Future<void> _handlePermissions() async {
+    final section = await _permissionHandler.requestLocationPermission();
+    if (section != PermissionSection.permissionGranted) {
+      Navigator.pushNamed(
+        _navigatorKey.currentContext!,
+        Routes.permissions,
+      );
+    }
+  }
+
+  Future<void> startScan() async {
     if (_isScanning) {
       return;
     }
+    final noActorIds = _sensorDevices.any(
+      (device) => device.id == null,
+    );
+    final noSensorIds = _sensorDevices.any(
+      (device) => device.id == null,
+    );
+    if (noActorIds) {
+      final addIds = await AppDialogs.noDeviceIdDialog(
+          _navigatorKey.currentContext!, 'Actor');
+      if (addIds ?? false) {
+        Navigator.pushNamed(
+          _navigatorKey.currentContext!,
+          Routes.actorSettings,
+        );
+      }
+      return;
+    }
+    if (noSensorIds) {
+      final addIds = await AppDialogs.noDeviceIdDialog(
+          _navigatorKey.currentContext!, 'Sensor');
+      if (addIds ?? false) {
+        Navigator.pushNamed(
+          _navigatorKey.currentContext!,
+          Routes.sensorSettings,
+        );
+      }
+      return;
+    }
+    if (_permissionHandler.permissionSection !=
+        PermissionSection.permissionGranted) {
+      await _handlePermissions();
+    }
     _processedResults.clear();
     _scanResultSubscription?.cancel();
+    _stateSubscription?.cancel();
+    _stateSubscription =
+        FlutterBluePlus.adapterState.listen(_listenBluetoothState);
+    _scanSubscription = FlutterBluePlus.isScanning.listen(_handleScanState);
     for (var subscription in _deviceSubscriptions) {
       subscription?.cancel();
     }
@@ -165,7 +212,11 @@ class BluetoothConnectionModel extends ChangeNotifier {
     FlutterBluePlus.startScan(timeout: const Duration(seconds: 13));
   }
 
-  void discoverNewActorDevices() {
+  Future<void> discoverNewActorDevices() async {
+    if (_permissionHandler.permissionSection !=
+        PermissionSection.permissionGranted) {
+      await _handlePermissions();
+    }
     _actorDevices.clear();
     _processedResults.clear();
     _scanResultSubscription?.cancel();
@@ -182,7 +233,11 @@ class BluetoothConnectionModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void discoverNewSensorDevices() {
+  Future<void> discoverNewSensorDevices() async {
+    if (_permissionHandler.permissionSection !=
+        PermissionSection.permissionGranted) {
+      await _handlePermissions();
+    }
     _sensorDevices.clear();
     _processedResults.clear();
     _scanResultSubscription?.cancel();

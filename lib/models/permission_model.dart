@@ -24,11 +24,10 @@ class PermissionModel extends ChangeNotifier {
   }
 
   Future<PermissionModel> init() async {
-    await requestLocationPermission();
     return this;
   }
 
-  String guessInitialRoute() {
+  String getRoute() {
     switch (_permissionSection) {
       case PermissionSection.unknown:
         return Routes.permissions;
@@ -43,9 +42,7 @@ class PermissionModel extends ChangeNotifier {
 
   /// Request the location permission and updates the UI accordingly
   Future<PermissionSection> requestLocationPermission() async {
-    PermissionStatus result;
-    result = await Permission.location.request();
-
+    final result = await Permission.location.request();
     if (result.isGranted) {
       _permissionSection = PermissionSection.permissionGranted;
     } else if (result.isPermanentlyDenied) {
@@ -53,6 +50,7 @@ class PermissionModel extends ChangeNotifier {
     } else {
       _permissionSection = PermissionSection.noLocationPermission;
     }
+    notifyListeners();
     return _permissionSection;
   }
 }

@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'models/error_handler.dart';
-import 'models/permission_model.dart';
 
 void main() {
   FlutterError.onError = (FlutterErrorDetails details) {
@@ -22,7 +21,7 @@ void main() {
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
     await setupServices();
-    await services.allReady(timeout: const Duration(seconds: 20));
+    await services.allReady(timeout: const Duration(seconds: 3));
     runApp(MultiProvider(
       providers: [
         ChangeNotifierProvider.value(
@@ -49,7 +48,7 @@ class FeetBackApp extends StatelessWidget {
       navigatorKey: services.get<GlobalParams>().navigatorKey,
       theme: ThemeData.dark(),
       routes: Routes.routes,
-      initialRoute: services.get<PermissionModel>().guessInitialRoute(),
+      initialRoute: Routes.home,
       builder: (context, child) {
         return child ?? const CircularProgressIndicator();
       },

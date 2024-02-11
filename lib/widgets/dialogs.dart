@@ -31,6 +31,29 @@ class AppDialogs {
     );
   }
 
+  static Future<bool?> noDeviceIdDialog(
+      BuildContext context, String device) async {
+    return await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('No $device device ids available'),
+          content: Text('Go to $device Settings to add devices.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+            TextButton(
+              child: Text('$device Settings'),
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   static Future<bool> discoverDevicesDialog(
     BuildContext context, {
     SensorDevice? sensorDevice,

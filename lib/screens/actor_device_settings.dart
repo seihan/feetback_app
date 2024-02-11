@@ -108,7 +108,7 @@ class _ActorSettingsScreenState extends State<ActorSettingsScreen> {
       model.resetActorDevices();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('No sensor IDs available, use search fab'),
+          content: Text('No actor IDs available, use search fab'),
         ),
       );
     }

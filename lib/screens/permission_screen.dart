@@ -1,3 +1,4 @@
+import 'package:feet_back_app/services.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
@@ -14,14 +15,13 @@ class PermissionScreen extends StatefulWidget {
 
 class _PermissionScreenState extends State<PermissionScreen>
     with WidgetsBindingObserver {
-  late final PermissionModel _permissionModel;
+  final _permissionModel = services.get<PermissionModel>();
   bool _detectPermission = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _permissionModel = PermissionModel();
   }
 
   @override
@@ -56,7 +56,6 @@ class _PermissionScreenState extends State<PermissionScreen>
       child: Consumer<PermissionModel>(
         builder: (context, model, child) {
           Widget widget;
-
           switch (model.permissionSection) {
             case PermissionSection.noLocationPermission:
               widget = LocationPermissions(
@@ -71,7 +70,7 @@ class _PermissionScreenState extends State<PermissionScreen>
               );
               break;
             case PermissionSection.permissionGranted:
-              widget = StartButton(onPressed: _goToHomeScreen);
+              widget = Container(); // this will never reached
               break;
             case PermissionSection.unknown:
               widget = LocationPermissions(
@@ -80,7 +79,6 @@ class _PermissionScreenState extends State<PermissionScreen>
               );
               break;
           }
-
           return Scaffold(
             appBar: AppBar(
               title: const Text('Handle permissions'),
@@ -96,8 +94,11 @@ class _PermissionScreenState extends State<PermissionScreen>
   /// if it's not granted then request it.
   /// If it's granted then invoke the file picker
   Future<void> _checkPermissions() async {
-    await _permissionModel.requestLocationPermission();
-    debugPrint('Location permission: ');
+    final section = await _permissionModel.requestLocationPermission();
+    debugPrint('Location permission: $section');
+    if (section == PermissionSection.permissionGranted) {
+      _goToHomeScreen();
+    }
   }
 
   /// Leave permission screen and go to home screen
