@@ -28,17 +28,25 @@ class _SensorSolesState extends State<SensorSoles> {
         switchWidget
             ? HeatmapSoles(width: width, height: height)
             : Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SensorSole(
-                    values: stateModel.leftValuesStream,
-                    frequency: stateModel.leftFrequency,
-                    side: Side.left,
+                  Padding(
+                    padding: const EdgeInsets.only(right: 15),
+                    child: SensorSole(
+                      values: stateModel.leftValuesStream,
+                      frequency: stateModel.leftFrequency,
+                      side: Side.left,
+                    ),
                   ),
-                  SensorSole(
-                    values: stateModel.rightValuesStream,
-                    frequency: stateModel.rightFrequency,
-                    side: Side.right,
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      left: 15,
+                    ),
+                    child: SensorSole(
+                      values: stateModel.rightValuesStream,
+                      frequency: stateModel.rightFrequency,
+                      side: Side.right,
+                    ),
                   ),
                 ],
               ),

@@ -13,8 +13,8 @@ class BalanceWidget extends StatefulWidget {
 
 class _BalanceWidgetState extends State<BalanceWidget> {
   final BalanceModel balanceModel = BalanceModel();
-  static const heightWeight = 0.57;
-  static const widthWeight = 0.4;
+  static const heightWeight = 0.5;
+  static const widthWeight = 0.35;
   static const fontWeightSmall = 0.075;
   static const fontWeightBig = 0.125;
   double height = 420.0;
@@ -35,148 +35,43 @@ class _BalanceWidgetState extends State<BalanceWidget> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Align(
-            alignment: Alignment.topCenter,
-            child: Column(
-              children: [
-                Text(switchWidget
-                    ? 'Left / Right Balance'
-                    : 'Front / Rear Balance'),
-                Switch(
-                  onChanged: (bool value) {
-                    setState(() {
-                      switchWidget = value;
-                    });
-                  },
-                  value: switchWidget,
-                ),
-              ],
-            )),
+          alignment: Alignment.topCenter,
+          child: _SwitchWidget(
+            switchWidget: switchWidget,
+            onChanged: (value) {
+              setState(() {
+                switchWidget = value;
+              });
+            },
+          ),
+        ),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Stack(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(1),
-                  child: Container(
-                    height: height - 2,
-                    width: width,
-                    color: Colors.blueGrey,
-                  ),
-                ),
-                switchWidget
-                    ? BalanceValuesWidget.horizontalBars(
-                        stream: balanceModel.leftLeftRightBalance,
-                        height: height,
-                        width: width,
-                      )
-                    : BalanceValuesWidget.verticalBars(
-                        stream: balanceModel.leftFrontRearBalance,
-                        height: height,
-                        width: width,
-                      ),
-                SvgPicture.asset(
-                  'assets/sole_mask_left.svg',
-                  height: height,
-                ),
-                SizedBox(
-                  height: height,
-                  width: width,
-                  child: switchWidget // left / right balance
-                      ? Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            BalanceValuesWidget.txt(
-                              fontSize: fontSizeSmall,
-                              stream: balanceModel.leftLeftRightBalance,
-                            ),
-                            BalanceValuesWidget.txtInverted(
-                              fontSize: fontSizeSmall,
-                              stream: balanceModel.leftLeftRightBalance,
-                            ),
-                          ],
-                        ) // front / rear balance
-                      : Column(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            BalanceValuesWidget.txt(
-                              fontSize: fontSizeBig,
-                              stream: switchWidget
-                                  ? balanceModel.leftLeftRightBalance
-                                  : balanceModel.leftFrontRearBalance,
-                            ),
-                            BalanceValuesWidget.txtInverted(
-                              fontSize: fontSizeBig,
-                              stream: switchWidget
-                                  ? balanceModel.leftLeftRightBalance
-                                  : balanceModel.leftFrontRearBalance,
-                            ),
-                          ],
-                        ),
-                ),
-              ],
+            Padding(
+              padding: const EdgeInsets.only(left: 45),
+              child: _BalanceStack(
+                switchWidget: switchWidget,
+                stream: switchWidget
+                    ? balanceModel.leftLeftRightBalance
+                    : balanceModel.leftFrontRearBalance,
+                assetPath: 'assets/sole_mask_left.svg',
+                height: height,
+                width: width,
+                fontSizeBig: fontSizeBig,
+                fontSizeSmall: fontSizeSmall,
+              ),
             ),
-            Stack(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(1),
-                  child: Container(
-                    height: height - 2,
-                    width: width,
-                    color: Colors.blueGrey,
-                  ),
-                ),
-                switchWidget
-                    ? BalanceValuesWidget.horizontalBars(
-                        stream: balanceModel.rightLeftRightBalance,
-                        height: height,
-                        width: width,
-                      )
-                    : BalanceValuesWidget.verticalBars(
-                        stream: balanceModel.rightFrontRearBalance,
-                        height: height,
-                        width: width,
-                      ),
-                SvgPicture.asset(
-                  'assets/sole_mask_right.svg',
-                  height: height,
-                ),
-                SizedBox(
-                  height: height,
-                  width: width,
-                  child: switchWidget
-                      ? Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            BalanceValuesWidget.txt(
-                              fontSize: fontSizeSmall,
-                              stream: balanceModel.rightLeftRightBalance,
-                            ),
-                            BalanceValuesWidget.txtInverted(
-                              fontSize: fontSizeSmall,
-                              stream: balanceModel.rightLeftRightBalance,
-                            ),
-                          ],
-                        )
-                      : Column(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            BalanceValuesWidget.txt(
-                              fontSize: fontSizeBig,
-                              stream: balanceModel.rightFrontRearBalance,
-                            ),
-                            BalanceValuesWidget.txtInverted(
-                              fontSize: fontSizeBig,
-                              stream: balanceModel.rightFrontRearBalance,
-                            ),
-                          ],
-                        ),
-                ),
-              ],
+            _BalanceStack(
+              switchWidget: switchWidget,
+              stream: switchWidget
+                  ? balanceModel.rightLeftRightBalance
+                  : balanceModel.rightFrontRearBalance,
+              assetPath: 'assets/sole_mask_right.svg',
+              height: height,
+              width: width,
+              fontSizeBig: fontSizeBig,
+              fontSizeSmall: fontSizeSmall,
             ),
           ],
         ),
@@ -223,5 +118,114 @@ class _BalanceWidgetState extends State<BalanceWidget> {
   void dispose() {
     balanceModel.dispose();
     super.dispose();
+  }
+}
+
+class _SwitchWidget extends StatelessWidget {
+  final bool switchWidget;
+  final ValueChanged<bool> onChanged;
+
+  const _SwitchWidget({
+    Key? key,
+    required this.switchWidget,
+    required this.onChanged,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(switchWidget ? 'Left / Right Balance' : 'Front / Rear Balance'),
+        Switch(
+          onChanged: onChanged,
+          value: switchWidget,
+        ),
+      ],
+    );
+  }
+}
+
+class _BalanceStack extends StatelessWidget {
+  final bool switchWidget;
+  final Stream<double> stream;
+  final String assetPath;
+  final double height;
+  final double width;
+  final double fontSizeBig;
+  final double fontSizeSmall;
+
+  const _BalanceStack({
+    Key? key,
+    required this.switchWidget,
+    required this.stream,
+    required this.assetPath,
+    required this.height,
+    required this.width,
+    required this.fontSizeBig,
+    required this.fontSizeSmall,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(1),
+          child: Container(
+            height: height - 2,
+            width: width,
+            color: Colors.blueGrey,
+          ),
+        ),
+        switchWidget
+            ? BalanceValuesWidget.horizontalBars(
+                stream: stream,
+                height: height,
+                width: width,
+              )
+            : BalanceValuesWidget.verticalBars(
+                stream: stream,
+                height: height,
+                width: width,
+              ),
+        SvgPicture.asset(
+          assetPath,
+          height: height,
+        ),
+        SizedBox(
+          height: height,
+          width: width,
+          child: switchWidget
+              ? Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    BalanceValuesWidget.txt(
+                      fontSize: fontSizeSmall,
+                      stream: stream,
+                    ),
+                    BalanceValuesWidget.txtInverted(
+                      fontSize: fontSizeSmall,
+                      stream: stream,
+                    ),
+                  ],
+                )
+              : Column(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    BalanceValuesWidget.txt(
+                      fontSize: fontSizeBig,
+                      stream: stream,
+                    ),
+                    BalanceValuesWidget.txtInverted(
+                      fontSize: fontSizeBig,
+                      stream: stream,
+                    ),
+                  ],
+                ),
+        ),
+      ],
+    );
   }
 }

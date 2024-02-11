@@ -8,47 +8,55 @@ class DeviceWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<BluetoothConnectionModel>(builder: (context, model, child) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text('Sensors:'),
-          Row(
-            children: List.generate(
-              model.sensorDevices.length,
-              (index) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Icon(
-                    Icons.satellite_alt,
-                    color: model.sensorDevices[index].connected
-                        ? Colors.blue
-                        : Colors.grey,
-                  ),
-                );
-              },
+    return Consumer<BluetoothConnectionModel>(
+      builder: (context, model, child) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(left: 15),
+              child: Text('Sensors:'),
             ),
-          ),
-          const Spacer(),
-          const Text('Actors:'),
-          Row(
-            children: List.generate(
-              model.actorDevices.length,
-              (index) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Icon(
-                    Icons.satellite_alt,
-                    color: model.actorDevices[index].connected
-                        ? Colors.blue
-                        : Colors.grey,
-                  ),
-                );
-              },
+            Row(
+              children: List.generate(
+                model.sensorDevices.length,
+                (index) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Icon(
+                      Icons.satellite_alt,
+                      color: model.sensorDevices[index].connected
+                          ? Colors.blue
+                          : Colors.grey,
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-        ],
-      );
-    });
+            const Spacer(),
+            const Text('Actors:'),
+            Padding(
+              padding: const EdgeInsets.only(right: 15),
+              child: Row(
+                children: List.generate(
+                  model.actorDevices.length,
+                  (index) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Icon(
+                        Icons.satellite_alt,
+                        color: model.actorDevices[index].connected
+                            ? Colors.blue
+                            : Colors.grey,
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
