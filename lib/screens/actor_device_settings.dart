@@ -126,15 +126,14 @@ class _ActorSettingsScreenState extends State<ActorSettingsScreen> {
 
   Future<void> _discoverDevices(
       BuildContext context, BluetoothConnectionModel model) async {
-    model.discoverNewActorDevices();
-    final isDismissed = await AppDialogs.discoverDevicesDialog(
-      context,
-      actorDevice: selectedDevice,
-    );
-    if (isDismissed && model.isScanning) {
-      {
-        model.stopScan();
-      }
+    bool reScan = true;
+    while (reScan) {
+      model.discoverNewActorDevices();
+      reScan = await AppDialogs.discoverDevicesDialog(
+        context,
+        actorDevice: selectedDevice,
+      );
     }
+    model.isScanning ? model.stopScan() : null;
   }
 }

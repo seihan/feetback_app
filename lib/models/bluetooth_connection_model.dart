@@ -200,16 +200,11 @@ class BluetoothConnectionModel extends ChangeNotifier {
       await _handlePermissions();
     }
     _processedResults.clear();
-    _scanResultSubscription?.cancel();
-    _stateSubscription?.cancel();
-    _stateSubscription =
-        FlutterBluePlus.adapterState.listen(_listenBluetoothState);
-    _scanSubscription = FlutterBluePlus.isScanning.listen(_handleScanState);
     for (var subscription in _deviceSubscriptions) {
       subscription?.cancel();
     }
     _deviceSubscriptions.clear();
-    _scanResultSubscription = FlutterBluePlus.scanResults.listen(_onScanResult);
+    _subscribeScanSubscriptions(_onScanResult);
     _logModel.add('start scanning');
     FlutterBluePlus.startScan(timeout: const Duration(seconds: 13));
   }
@@ -219,15 +214,10 @@ class BluetoothConnectionModel extends ChangeNotifier {
         PermissionSection.permissionGranted) {
       await _handlePermissions();
     }
+    _isScanning ? FlutterBluePlus.stopScan() : null;
     _actorDevices.clear();
     _processedResults.clear();
-    _stateSubscription?.cancel();
-    _stateSubscription =
-        FlutterBluePlus.adapterState.listen(_listenBluetoothState);
-    _scanSubscription = FlutterBluePlus.isScanning.listen(_handleScanState);
-    _scanResultSubscription?.cancel();
-    _scanResultSubscription =
-        FlutterBluePlus.scanResults.listen(_onActorScanResult);
+    _subscribeScanSubscriptions(_onActorScanResult);
     FlutterBluePlus.startScan(timeout: const Duration(seconds: 15));
   }
 
@@ -244,16 +234,21 @@ class BluetoothConnectionModel extends ChangeNotifier {
         PermissionSection.permissionGranted) {
       await _handlePermissions();
     }
+    _isScanning ? FlutterBluePlus.stopScan() : null;
     _sensorDevices.clear();
     _processedResults.clear();
+    _subscribeScanSubscriptions(_onSensorScanResult);
+    FlutterBluePlus.startScan(timeout: const Duration(seconds: 13));
+  }
+
+  void _subscribeScanSubscriptions(Function(List<ScanResult>) onScanResult) {
     _stateSubscription?.cancel();
     _stateSubscription =
         FlutterBluePlus.adapterState.listen(_listenBluetoothState);
+    _scanSubscription?.cancel();
     _scanSubscription = FlutterBluePlus.isScanning.listen(_handleScanState);
     _scanResultSubscription?.cancel();
-    _scanResultSubscription =
-        FlutterBluePlus.scanResults.listen(_onSensorScanResult);
-    FlutterBluePlus.startScan(timeout: const Duration(seconds: 13));
+    _scanResultSubscription = FlutterBluePlus.scanResults.listen(onScanResult);
   }
 
   void _onActorScanResult(List<ScanResult> results) {

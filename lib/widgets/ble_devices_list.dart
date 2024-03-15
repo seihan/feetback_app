@@ -23,35 +23,23 @@ class BluetoothDevicesList extends StatelessWidget {
     return Consumer<BluetoothConnectionModel>(
       builder: (context, model, child) {
         List<BluetoothDeviceModel>? nullSideDevices;
+        bool noActorDevices =
+            (actorDevice != null && (model.noActorIds ?? false));
+        bool noSensorDevices =
+            (sensorDevice != null && (model.noSensorIds ?? false));
         if (model.isScanning) {
           // scan dialog
           return const Row(
             mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Text('searching devices... '),
               CircularProgressIndicator(),
             ],
           );
-        } else if ((((actorDevice != null) && (model.noActorIds ?? false))) ||
-            (((sensorDevice != null) && (model.noSensorIds ?? false)))) {
+        } else if (noActorDevices || noSensorDevices) {
           // no devices dialog
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('No device found'),
-              Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Cancel')),
-                Padding(
-                  padding: const EdgeInsets.only(left: 20),
-                  child: TextButton(
-                      onPressed: () => _startScan(model),
-                      child: const Text('Scan')),
-                ),
-              ])
-            ],
-          );
+          return const Text('No device found');
         }
         if (actorDevice != null) {
           nullSideDevices = _getActorDevicesWithoutSide(model);
@@ -109,14 +97,5 @@ class BluetoothDevicesList extends StatelessWidget {
   List<BluetoothDeviceModel>? _getActorDevicesWithoutSide(
       BluetoothConnectionModel model) {
     return model.actorDevices.where((device) => device.side == null).toList();
-  }
-
-  void _startScan(BluetoothConnectionModel model) {
-    if (actorDevice != null) {
-      model.discoverNewActorDevices();
-    }
-    if (sensorDevice != null) {
-      model.discoverNewSensorDevices();
-    }
   }
 }

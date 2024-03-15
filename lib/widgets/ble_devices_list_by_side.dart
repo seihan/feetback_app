@@ -28,7 +28,7 @@ class BluetoothDevicesListBySide extends StatelessWidget {
         final devices = _getDevices(model);
         return devices != null
             ? SizedBox(
-                width: 125,
+                width: 140,
                 height: 100,
                 child: ListView.builder(
                   itemCount: devices.length,
@@ -38,6 +38,7 @@ class BluetoothDevicesListBySide extends StatelessWidget {
                       leading: Text(
                         '#$index\n${devices[index].id?.str}',
                         style: const TextStyle(fontSize: 11),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     );
                   },

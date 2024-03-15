@@ -65,12 +65,26 @@ class AppDialogs {
             return AlertDialog(
               title: const Text('Discover New Devices'),
               content: SizedBox(
-                width: double.maxFinite,
+                width: 300,
                 child: BluetoothDevicesList(
                   actorDevice: actorDevice,
                   sensorDevice: sensorDevice,
                 ),
               ),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('Cancel'),
+                  onPressed: () {
+                    Navigator.of(context).pop(false);
+                  },
+                ),
+                TextButton(
+                  child: const Text('Scan'),
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                  },
+                ),
+              ],
             );
           },
         ) ??
