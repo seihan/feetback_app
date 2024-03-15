@@ -9,12 +9,12 @@ class LineChartWidget extends StatelessWidget {
   final List<double>? yTestValues;
 
   const LineChartWidget({
-    Key? key,
+    super.key,
     required this.xValues,
     required this.yValues,
     this.xTestValues,
     this.yTestValues,
-  }) : super(key: key);
+  });
   @override
   Widget build(BuildContext context) {
     return Padding(

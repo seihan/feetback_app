@@ -6,8 +6,7 @@ import '../models/bluetooth_connection_model.dart';
 class ActivateSwitch extends StatefulWidget {
   final BluetoothConnectionModel model;
   final Side side;
-  const ActivateSwitch({required this.side, Key? key, required this.model})
-      : super(key: key);
+  const ActivateSwitch({required this.side, super.key, required this.model});
 
   @override
   State<ActivateSwitch> createState() => _ActivateSwitchState();

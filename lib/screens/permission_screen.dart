@@ -7,7 +7,7 @@ import '../models/permission_model.dart';
 import '../routes.dart';
 
 class PermissionScreen extends StatefulWidget {
-  const PermissionScreen({Key? key}) : super(key: key);
+  const PermissionScreen({super.key});
 
   @override
   State<PermissionScreen> createState() => _PermissionScreenState();
@@ -122,10 +122,10 @@ class LocationPermissions extends StatelessWidget {
   final VoidCallback onPressed;
 
   const LocationPermissions({
-    Key? key,
+    super.key,
     required this.isPermanent,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -192,9 +192,9 @@ class StartButton extends StatelessWidget {
   final VoidCallback? onPressed;
 
   const StartButton({
-    Key? key,
+    super.key,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) => Center(

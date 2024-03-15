@@ -8,8 +8,7 @@ class BuzzButton extends StatelessWidget {
   final int mode;
   final Side side;
   const BuzzButton(
-      {this.mode = 0, required this.side, Key? key, required this.model})
-      : super(key: key);
+      {this.mode = 0, required this.side, super.key, required this.model});
 
   @override
   Widget build(BuildContext context) {

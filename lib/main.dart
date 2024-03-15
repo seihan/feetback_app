@@ -39,7 +39,7 @@ void main() {
 }
 
 class FeetBackApp extends StatelessWidget {
-  const FeetBackApp({Key? key}) : super(key: key);
+  const FeetBackApp({super.key});
 
   @override
   Widget build(BuildContext context) {

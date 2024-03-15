@@ -12,7 +12,7 @@ import '../widgets/connection_widgets.dart';
 
 class VisualizationScreen extends StatefulWidget {
   final BluetoothConnectionModel model;
-  const VisualizationScreen({Key? key, required this.model}) : super(key: key);
+  const VisualizationScreen({super.key, required this.model});
 
   @override
   State<VisualizationScreen> createState() => _VisualizationScreenState();

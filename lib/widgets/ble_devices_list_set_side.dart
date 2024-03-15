@@ -9,10 +9,10 @@ class BluetoothDevicesListSetSide extends StatelessWidget {
   final BluetoothConnectionModel model;
 
   const BluetoothDevicesListSetSide({
-    Key? key,
+    super.key,
     this.devices,
     required this.model,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

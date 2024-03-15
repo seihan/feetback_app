@@ -15,11 +15,11 @@ class BluetoothDevicesListBySide extends StatelessWidget {
   final ActorDevice? actorDevice;
 
   const BluetoothDevicesListBySide({
-    Key? key,
+    super.key,
     required this.side,
     this.actorDevice,
     this.sensorDevice,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -5,15 +5,11 @@ import '../models/sensor_values.dart';
 
 class DateTimeAxisSpecWorkaround extends charts.DateTimeAxisSpec {
   const DateTimeAxisSpecWorkaround({
-    charts.RenderSpec<DateTime>? renderSpec,
-    charts.DateTimeTickProviderSpec? tickProviderSpec,
-    charts.DateTimeTickFormatterSpec? tickFormatterSpec,
-    bool? showAxisLine,
-  }) : super(
-            renderSpec: renderSpec,
-            tickProviderSpec: tickProviderSpec,
-            tickFormatterSpec: tickFormatterSpec,
-            showAxisLine: showAxisLine);
+    super.renderSpec,
+    super.tickProviderSpec,
+    super.tickFormatterSpec,
+    super.showAxisLine,
+  });
 
   @override
   configure(charts.Axis<DateTime> axis, charts.ChartContext context,
@@ -26,7 +22,7 @@ class DateTimeAxisSpecWorkaround extends charts.DateTimeAxisSpec {
 class SensorChart extends StatelessWidget {
   final List<SensorValues> values;
 
-  const SensorChart({Key? key, required this.values}) : super(key: key);
+  const SensorChart({super.key, required this.values});
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +124,7 @@ class RealTimeSensorChart extends StatelessWidget {
   final int maxDataPoints = 100;
   final List<SensorValues> chartData = [];
 
-  RealTimeSensorChart({Key? key, required this.stream}) : super(key: key);
+  RealTimeSensorChart({super.key, required this.stream});
 
   @override
   Widget build(BuildContext context) {

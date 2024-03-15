@@ -33,7 +33,7 @@ class BluetoothDeviceWidget extends StatelessWidget {
 class BluetoothRssiWidget extends StatefulWidget {
   final BluetoothDeviceModel? device;
 
-  const BluetoothRssiWidget({Key? key, this.device}) : super(key: key);
+  const BluetoothRssiWidget({super.key, this.device});
 
   @override
   State<BluetoothRssiWidget> createState() => _BluetoothRssiWidgetState();

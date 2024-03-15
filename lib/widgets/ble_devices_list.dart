@@ -13,10 +13,10 @@ class BluetoothDevicesList extends StatelessWidget {
   final SensorDevice? sensorDevice;
   final ActorDevice? actorDevice;
   const BluetoothDevicesList({
-    Key? key,
+    super.key,
     this.sensorDevice,
     this.actorDevice,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

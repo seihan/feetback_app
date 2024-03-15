@@ -126,10 +126,9 @@ class _SwitchWidget extends StatelessWidget {
   final ValueChanged<bool> onChanged;
 
   const _SwitchWidget({
-    Key? key,
     required this.switchWidget,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -155,7 +154,6 @@ class _BalanceStack extends StatelessWidget {
   final double fontSizeSmall;
 
   const _BalanceStack({
-    Key? key,
     required this.switchWidget,
     required this.stream,
     required this.assetPath,
@@ -163,7 +161,7 @@ class _BalanceStack extends StatelessWidget {
     required this.width,
     required this.fontSizeBig,
     required this.fontSizeSmall,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

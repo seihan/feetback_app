@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/bluetooth_connection_model.dart';
 
 class DeviceWidget extends StatelessWidget {
-  const DeviceWidget({Key? key}) : super(key: key);
+  const DeviceWidget({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -6,11 +6,11 @@ class ScrollableVerticalWidget extends StatelessWidget {
   final List<Widget> children;
 
   const ScrollableVerticalWidget({
-    Key? key,
+    super.key,
     required this.children,
     this.mainAxisAlignment,
     this.crossAxisAlignment,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

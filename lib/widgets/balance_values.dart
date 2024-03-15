@@ -6,10 +6,10 @@ class BalanceValuesWidget extends StatelessWidget {
   final Widget? child;
 
   const BalanceValuesWidget({
-    Key? key,
+    super.key,
     required this.stream,
     this.child,
-  }) : super(key: key);
+  });
 
   factory BalanceValuesWidget.verticalBars({
     Key? key,

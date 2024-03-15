@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/bluetooth_connection_model.dart';
 
 class NotifyButton extends StatelessWidget {
-  const NotifyButton({Key? key}) : super(key: key);
+  const NotifyButton({super.key});
 
   @override
   Widget build(BuildContext context) {
