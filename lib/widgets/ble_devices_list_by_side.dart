@@ -1,13 +1,13 @@
-import '../enums/actor_device.dart';
-import '../services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../enums/actor_device.dart';
 import '../enums/sensor_device.dart';
 import '../enums/side.dart';
 import '../models/bluetooth_connection_model.dart';
 import '../models/bluetooth_device_model.dart';
 import '../models/device_id_model.dart';
+import '../services.dart';
 
 class BluetoothDevicesListBySide extends StatelessWidget {
   final Side side;
@@ -37,8 +37,7 @@ class BluetoothDevicesListBySide extends StatelessWidget {
                       onTap: () => _saveDevice(devices, index),
                       leading: Text(
                         '#$index\n${devices[index].id?.str}',
-                        style: const TextStyle(fontSize: 11),
-                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 8),
                       ),
                     );
                   },
