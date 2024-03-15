@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:feet_back_app/global_params.dart';
-import 'package:feet_back_app/models/bluetooth_connection_model.dart';
-import 'package:feet_back_app/models/record_model.dart';
-import 'package:feet_back_app/routes.dart';
-import 'package:feet_back_app/services.dart';
+import 'global_params.dart';
+import 'models/bluetooth_connection_model.dart';
+import 'models/record_model.dart';
+import 'routes.dart';
+import 'services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

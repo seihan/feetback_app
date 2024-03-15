@@ -1,9 +1,9 @@
-import 'package:feet_back_app/enums/actor_device.dart';
-import 'package:feet_back_app/models/bluetooth_connection_model.dart';
-import 'package:feet_back_app/models/device_id_model.dart';
-import 'package:feet_back_app/widgets/bluetooth_device.dart';
-import 'package:feet_back_app/widgets/dialogs.dart';
-import 'package:feet_back_app/widgets/scrollable_vertical_widget.dart';
+import '../enums/actor_device.dart';
+import '../models/bluetooth_connection_model.dart';
+import '../models/device_id_model.dart';
+import '../widgets/bluetooth_device.dart';
+import '../widgets/dialogs.dart';
+import '../widgets/scrollable_vertical_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

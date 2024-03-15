@@ -1,4 +1,4 @@
-import 'package:feet_back_app/widgets/database_view.dart';
+import '../widgets/database_view.dart';
 import 'package:flutter/material.dart';
 
 class AnalyticsScreen extends StatelessWidget {

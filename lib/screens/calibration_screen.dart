@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:feet_back_app/models/calibration_model.dart';
-import 'package:feet_back_app/models/sensor_state_model.dart';
-import 'package:feet_back_app/services.dart';
-import 'package:feet_back_app/widgets/scrollable_vertical_widget.dart';
-import 'package:feet_back_app/widgets/xy_chart.dart';
+import '../models/calibration_model.dart';
+import '../models/sensor_state_model.dart';
+import '../services.dart';
+import '../widgets/scrollable_vertical_widget.dart';
+import '../widgets/xy_chart.dart';
 import 'package:flutter/material.dart';
 
 import '../models/sensor_values.dart';

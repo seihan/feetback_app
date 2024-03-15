@@ -1,7 +1,7 @@
-import 'package:feet_back_app/models/sensor_state_model.dart';
-import 'package:feet_back_app/services.dart';
-import 'package:feet_back_app/widgets/heatmap_widget.dart';
-import 'package:feet_back_app/widgets/sensor_sole.dart';
+import '../models/sensor_state_model.dart';
+import '../services.dart';
+import 'heatmap_widget.dart';
+import 'sensor_sole.dart';
 import 'package:flutter/material.dart';
 
 import '../enums/side.dart';

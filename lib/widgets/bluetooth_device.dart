@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:feet_back_app/enums/side.dart';
-import 'package:feet_back_app/models/bluetooth_device_model.dart';
-import 'package:feet_back_app/models/error_handler.dart';
+import '../enums/side.dart';
+import '../models/bluetooth_device_model.dart';
+import '../models/error_handler.dart';
 import 'package:flutter/material.dart';
 
 class BluetoothDeviceWidget extends StatelessWidget {

@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:feet_back_app/enums/sensor_device.dart';
+import '../enums/sensor_device.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 class PeripheralConstants {

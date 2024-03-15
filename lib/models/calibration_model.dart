@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:feet_back_app/models/peripheral_constants.dart';
-import 'package:feet_back_app/models/sensor_state_model.dart';
-import 'package:feet_back_app/models/sensor_values.dart';
+import 'peripheral_constants.dart';
+import 'sensor_state_model.dart';
+import 'sensor_values.dart';
 import 'package:flutter/material.dart';
 import 'package:scidart/numdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';

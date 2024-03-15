@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:feet_back_app/models/sensor_device_selector.dart';
-import 'package:feet_back_app/models/sensor_values.dart';
-import 'package:feet_back_app/services.dart';
+import 'sensor_device_selector.dart';
+import 'sensor_values.dart';
+import '../services.dart';
 
 import '../enums/side.dart';
 

@@ -1,4 +1,4 @@
-import 'package:feet_back_app/models/feedback_model.dart';
+import '../models/feedback_model.dart';
 import 'package:flutter/material.dart';
 
 class BalanceValuesWidget extends StatelessWidget {

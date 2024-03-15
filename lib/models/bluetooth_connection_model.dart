@@ -2,17 +2,17 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
-import 'package:feet_back_app/enums/actor_device.dart';
-import 'package:feet_back_app/global_params.dart';
-import 'package:feet_back_app/models/feedback_model.dart';
-import 'package:feet_back_app/models/log_model.dart';
-import 'package:feet_back_app/models/peripheral_constants.dart';
-import 'package:feet_back_app/models/permission_model.dart';
-import 'package:feet_back_app/models/sensor_device_selector.dart';
-import 'package:feet_back_app/models/sensor_state_model.dart';
-import 'package:feet_back_app/models/transmission_handler.dart';
-import 'package:feet_back_app/services.dart';
-import 'package:feet_back_app/widgets/dialogs.dart';
+import '../enums/actor_device.dart';
+import '../global_params.dart';
+import 'feedback_model.dart';
+import 'log_model.dart';
+import 'peripheral_constants.dart';
+import 'permission_model.dart';
+import 'sensor_device_selector.dart';
+import 'sensor_state_model.dart';
+import 'transmission_handler.dart';
+import '../services.dart';
+import '../widgets/dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 

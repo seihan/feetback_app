@@ -1,5 +1,5 @@
-import 'package:feet_back_app/models/device_id_model.dart';
-import 'package:feet_back_app/models/peripheral_constants.dart';
+import 'device_id_model.dart';
+import 'peripheral_constants.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 import '../enums/actor_device.dart';

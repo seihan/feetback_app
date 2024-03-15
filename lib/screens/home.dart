@@ -1,4 +1,4 @@
-import 'package:feet_back_app/screens/visualization_screen.dart';
+import 'visualization_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

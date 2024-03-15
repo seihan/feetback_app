@@ -2,13 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
-import 'package:feet_back_app/models/bluetooth_device_model.dart';
-import 'package:feet_back_app/models/feedback_model.dart';
-import 'package:feet_back_app/models/peripheral_constants.dart';
-import 'package:feet_back_app/models/sensor_device_selector.dart';
-import 'package:feet_back_app/models/sensor_state_model.dart';
-import 'package:feet_back_app/models/sensor_values.dart';
-import 'package:feet_back_app/services.dart';
+import 'bluetooth_device_model.dart';
+import 'feedback_model.dart';
+import 'peripheral_constants.dart';
+import 'sensor_device_selector.dart';
+import 'sensor_state_model.dart';
+import 'sensor_values.dart';
+import '../services.dart';
 
 import '../enums/sensor_device.dart';
 import '../enums/side.dart';

@@ -1,4 +1,4 @@
-import 'package:feet_back_app/models/log_model.dart';
+import 'log_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 

@@ -1,9 +1,9 @@
 import 'dart:math' as math;
 
-import 'package:feet_back_app/enums/sensor_device.dart';
-import 'package:feet_back_app/models/sensor_state_model.dart';
-import 'package:feet_back_app/models/sensor_values.dart';
-import 'package:feet_back_app/services.dart';
+import '../enums/sensor_device.dart';
+import '../models/sensor_state_model.dart';
+import '../models/sensor_values.dart';
+import '../services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 

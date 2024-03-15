@@ -1,4 +1,4 @@
-import 'package:feet_back_app/services.dart';
+import '../services.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';

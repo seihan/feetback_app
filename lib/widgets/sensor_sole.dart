@@ -1,7 +1,7 @@
-import 'package:feet_back_app/enums/sensor_device.dart';
-import 'package:feet_back_app/models/sensor_values.dart';
-import 'package:feet_back_app/widgets/frequency_widget.dart';
-import 'package:feet_back_app/widgets/sensor_point.dart';
+import '../enums/sensor_device.dart';
+import '../models/sensor_values.dart';
+import 'frequency_widget.dart';
+import 'sensor_point.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 

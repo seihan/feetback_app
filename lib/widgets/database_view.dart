@@ -1,5 +1,5 @@
-import 'package:feet_back_app/models/database_helper.dart';
-import 'package:feet_back_app/screens/charts_screen.dart';
+import '../models/database_helper.dart';
+import '../screens/charts_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../models/record_info.dart';

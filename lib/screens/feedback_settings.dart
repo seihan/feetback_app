@@ -1,6 +1,6 @@
-import 'package:feet_back_app/models/bluetooth_connection_model.dart';
-import 'package:feet_back_app/models/feedback_model.dart';
-import 'package:feet_back_app/widgets/scrollable_vertical_widget.dart';
+import '../models/bluetooth_connection_model.dart';
+import '../models/feedback_model.dart';
+import '../widgets/scrollable_vertical_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

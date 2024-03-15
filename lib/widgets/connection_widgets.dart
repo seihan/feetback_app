@@ -1,4 +1,4 @@
-import 'package:feet_back_app/models/bluetooth_connection_model.dart';
+import '../models/bluetooth_connection_model.dart';
 import 'package:flutter/material.dart';
 
 import 'devices.dart';

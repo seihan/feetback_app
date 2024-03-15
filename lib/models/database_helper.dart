@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:feet_back_app/models/sensor_values.dart';
+import 'sensor_values.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 

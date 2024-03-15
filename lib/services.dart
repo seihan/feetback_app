@@ -1,10 +1,10 @@
-import 'package:feet_back_app/global_params.dart';
-import 'package:feet_back_app/models/actor_device_selector.dart';
-import 'package:feet_back_app/models/bluetooth_connection_model.dart';
-import 'package:feet_back_app/models/device_id_model.dart';
-import 'package:feet_back_app/models/permission_model.dart';
-import 'package:feet_back_app/models/sensor_device_selector.dart';
-import 'package:feet_back_app/models/sensor_state_model.dart';
+import 'global_params.dart';
+import 'models/actor_device_selector.dart';
+import 'models/bluetooth_connection_model.dart';
+import 'models/device_id_model.dart';
+import 'models/permission_model.dart';
+import 'models/sensor_device_selector.dart';
+import 'models/sensor_state_model.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

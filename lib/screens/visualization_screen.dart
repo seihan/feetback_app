@@ -1,8 +1,8 @@
-import 'package:feet_back_app/widgets/charts_widget.dart';
-import 'package:feet_back_app/widgets/notify_button.dart';
-import 'package:feet_back_app/widgets/scrollable_vertical_widget.dart';
-import 'package:feet_back_app/widgets/sensor_soles.dart';
-import 'package:feet_back_app/widgets/side_menu.dart';
+import '../widgets/charts_widget.dart';
+import '../widgets/notify_button.dart';
+import '../widgets/scrollable_vertical_widget.dart';
+import '../widgets/sensor_soles.dart';
+import '../widgets/side_menu.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/bluetooth_connection_model.dart';

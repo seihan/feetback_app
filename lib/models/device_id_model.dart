@@ -1,5 +1,5 @@
-import 'package:feet_back_app/enums/actor_device.dart';
-import 'package:feet_back_app/enums/sensor_device.dart';
+import '../enums/actor_device.dart';
+import '../enums/sensor_device.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

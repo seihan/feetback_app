@@ -1,4 +1,4 @@
-import 'package:feet_back_app/models/log_model.dart';
+import '../models/log_model.dart';
 import 'package:flutter/material.dart';
 
 class LogScreen extends StatelessWidget {

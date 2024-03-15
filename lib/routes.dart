@@ -1,11 +1,11 @@
-import 'package:feet_back_app/screens/actor_device_settings.dart';
-import 'package:feet_back_app/screens/analytics_screen.dart';
-import 'package:feet_back_app/screens/calibration_screen.dart';
-import 'package:feet_back_app/screens/feedback_settings.dart';
-import 'package:feet_back_app/screens/home.dart';
-import 'package:feet_back_app/screens/log_screen.dart';
-import 'package:feet_back_app/screens/permission_screen.dart';
-import 'package:feet_back_app/screens/sensor_device_settings.dart';
+import 'screens/actor_device_settings.dart';
+import 'screens/analytics_screen.dart';
+import 'screens/calibration_screen.dart';
+import 'screens/feedback_settings.dart';
+import 'screens/home.dart';
+import 'screens/log_screen.dart';
+import 'screens/permission_screen.dart';
+import 'screens/sensor_device_settings.dart';
 import 'package:flutter/cupertino.dart';
 
 class Routes {

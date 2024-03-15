@@ -1,6 +1,6 @@
-import 'package:feet_back_app/services.dart';
-import 'package:feet_back_app/widgets/scrollable_vertical_widget.dart';
-import 'package:feet_back_app/widgets/sensor_chart.dart';
+import '../services.dart';
+import 'scrollable_vertical_widget.dart';
+import 'sensor_chart.dart';
 import 'package:flutter/material.dart';
 
 import '../models/sensor_state_model.dart';

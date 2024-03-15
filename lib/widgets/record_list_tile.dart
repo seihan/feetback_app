@@ -1,4 +1,4 @@
-import 'package:feet_back_app/models/record_model.dart';
+import '../models/record_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

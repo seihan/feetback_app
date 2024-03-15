@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:feet_back_app/models/database_helper.dart';
-import 'package:feet_back_app/models/sensor_state_model.dart';
-import 'package:feet_back_app/models/sensor_values.dart';
+import 'database_helper.dart';
+import 'sensor_state_model.dart';
+import 'sensor_values.dart';
 import 'package:flutter/cupertino.dart';
 
 import '../services.dart';
