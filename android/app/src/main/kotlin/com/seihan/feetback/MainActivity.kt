@@ -1,4 +1,4 @@
-package com.seihan.feet_back_app
+package com.seihan.feetback
 
 import io.flutter.embedding.android.FlutterActivity
 
