@@ -1,6 +1,8 @@
-import '../models/record_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../generated/l10n.dart';
+import '../models/record_model.dart';
 
 class RecordListTile extends StatelessWidget {
   const RecordListTile({super.key});
@@ -14,8 +16,8 @@ class RecordListTile extends StatelessWidget {
             Icons.fiber_manual_record_rounded,
             color: model.record ? Colors.red : Colors.white,
           ),
-          title: const Text('Record'),
-          subtitle: Text('Duration: ${model.duration} s'),
+          title: Text(S.of(context).record),
+          subtitle: Text(S.of(context).duration(model.duration)),
           onTap: model.record ? model.stopRecord : model.startRecord,
         );
       },

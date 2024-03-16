@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../enums/side.dart';
+import '../generated/l10n.dart';
 import '../models/bluetooth_connection_model.dart';
 
 class ActivateSwitch extends StatefulWidget {
@@ -27,7 +28,9 @@ class _ActivateSwitchState extends State<ActivateSwitch> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(widget.model.activated[selection] ? 'Turn off' : 'Turn on'),
+        Text(widget.model.activated[selection]
+            ? S.of(context).turnOff
+            : S.of(context).turnOn),
         Switch(
           value: widget.model.activated[selection],
           onChanged: (newValue) => newValue

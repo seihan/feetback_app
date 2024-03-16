@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
+import '../generated/l10n.dart';
 import '../models/calibration_model.dart';
 
 class PredictedValuesWidget extends StatelessWidget {
@@ -14,17 +15,19 @@ class PredictedValuesWidget extends StatelessWidget {
     double predictedValue = values.predictedValue;
     double sum = values.sum;
     bool isGram = predictedValue < 999;
-    return Text(isGram
-        ? 'Raw: $minValue\nPredicted: ${predictedValue.toStringAsFixed(
-            2,
-          )}g\nSum: ${sum.toStringAsFixed(
-            2,
-          )}g'
-        : 'Raw: $minValue\nPredicted: ${(predictedValue / 1000).toStringAsFixed(
-            2,
-          )}kg\nSum: ${(sum / 1000).toStringAsFixed(
-            2,
-          )}kg');
+    return Text(
+      isGram
+          ? S.of(context).rawMinValueInGram(
+                minValue,
+                predictedValue.toStringAsFixed(2),
+                sum.toStringAsFixed(2),
+              )
+          : S.of(context).rawMinValueInKg(
+                minValue,
+                (predictedValue / 1000).toStringAsFixed(2),
+                (sum / 1000).toStringAsFixed(2),
+              ),
+    );
   }
 
   PredictedValuesSum sumPredictedValues(List<int> sensorValues, int index) {

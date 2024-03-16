@@ -1,10 +1,11 @@
+import 'package:flutter/material.dart';
+
+import '../enums/side.dart';
+import '../generated/l10n.dart';
 import '../models/sensor_state_model.dart';
 import '../services.dart';
 import 'heatmap_widget.dart';
 import 'sensor_sole.dart';
-import 'package:flutter/material.dart';
-
-import '../enums/side.dart';
 
 class SensorSoles extends StatefulWidget {
   const SensorSoles({super.key});
@@ -54,7 +55,9 @@ class _SensorSolesState extends State<SensorSoles> {
             alignment: Alignment.topCenter,
             child: Column(
               children: [
-                Text(switchWidget ? 'Heatmap' : 'Sensor Points'),
+                Text(switchWidget
+                    ? S.of(context).heatmap
+                    : S.of(context).sensorPoints),
                 Switch(
                   onChanged: (bool value) {
                     setState(() {

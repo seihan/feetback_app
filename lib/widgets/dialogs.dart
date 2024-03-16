@@ -1,7 +1,9 @@
+import 'package:flutter/material.dart';
+
 import '../enums/actor_device.dart';
 import '../enums/sensor_device.dart';
+import '../generated/l10n.dart';
 import 'ble_devices_list.dart';
-import 'package:flutter/material.dart';
 
 class AppDialogs {
   static Future<bool?> showDeleteConfirmationDialog(
@@ -10,17 +12,17 @@ class AppDialogs {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Delete Confirmation'),
-          content: const Text('Are you sure you want to delete?'),
+          title: Text(S.of(context).deleteConfirmation),
+          content: Text(S.of(context).areYouSure),
           actions: <Widget>[
             TextButton(
-              child: const Text('Cancel'),
+              child: Text(S.of(context).cancel),
               onPressed: () {
                 Navigator.of(context).pop(false);
               },
             ),
             TextButton(
-              child: const Text('Delete'),
+              child: Text(S.of(context).delete),
               onPressed: () {
                 Navigator.of(context).pop(true);
               },
@@ -37,15 +39,15 @@ class AppDialogs {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('No $device device ids available'),
-          content: Text('Go to $device Settings to add devices.'),
+          title: Text(S.of(context).noDeviceDeviceIdsAvailable(device)),
+          content: Text(S.of(context).goToDeviceSettings(device)),
           actions: <Widget>[
             TextButton(
-              child: const Text('Cancel'),
+              child: Text(S.of(context).cancel),
               onPressed: () => Navigator.of(context).pop(false),
             ),
             TextButton(
-              child: Text('$device Settings'),
+              child: Text(S.of(context).deviceSettings(device)),
               onPressed: () => Navigator.of(context).pop(true),
             ),
           ],
@@ -63,7 +65,7 @@ class AppDialogs {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: const Text('Discover New Devices'),
+              title: Text(S.of(context).discoverDevices),
               content: SizedBox(
                 width: 300,
                 child: BluetoothDevicesList(
@@ -73,13 +75,13 @@ class AppDialogs {
               ),
               actions: <Widget>[
                 TextButton(
-                  child: const Text('Cancel'),
+                  child: Text(S.of(context).cancel),
                   onPressed: () {
                     Navigator.of(context).pop(false);
                   },
                 ),
                 TextButton(
-                  child: const Text('Scan'),
+                  child: Text(S.of(context).scan),
                   onPressed: () {
                     Navigator.of(context).pop(true);
                   },

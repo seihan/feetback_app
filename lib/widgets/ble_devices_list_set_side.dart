@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../enums/side.dart';
+import '../generated/l10n.dart';
 import '../models/bluetooth_connection_model.dart';
 import '../models/bluetooth_device_model.dart';
 
@@ -26,13 +27,13 @@ class BluetoothDevicesListSetSide extends StatelessWidget {
                 return Dismissible(
                   key: Key(item ?? ''),
                   direction: DismissDirection.horizontal,
-                  background: const Align(
+                  background: Align(
                     alignment: Alignment.centerLeft,
-                    child: Text('Set RIGHT side'),
+                    child: Text(S.of(context).setRightSide),
                   ),
-                  secondaryBackground: const Align(
+                  secondaryBackground: Align(
                     alignment: Alignment.centerRight,
-                    child: Text('Set LEFT side'),
+                    child: Text(S.of(context).setLeftSide),
                   ),
                   confirmDismiss: (direction) =>
                       _confirmDismiss(model, context, direction),
@@ -72,12 +73,12 @@ class BluetoothDevicesListSetSide extends StatelessWidget {
       return await showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Warning'),
-          content: const Text('Side already set'),
+          title: Text(S.of(context).warning),
+          content: Text(S.of(context).sideAlreadySet),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              child: Text(S.of(context).cancel),
             ),
           ],
         ),

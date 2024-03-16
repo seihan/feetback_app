@@ -1,6 +1,7 @@
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 
+import '../generated/l10n.dart';
 import '../models/sensor_values.dart';
 
 class DateTimeAxisSpecWorkaround extends charts.DateTimeAxisSpec {
@@ -187,11 +188,11 @@ class RealTimeSensorChart extends StatelessWidget {
                           ),
                         ],
                       )
-                    : const Column(
+                    : Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text('buffering'),
-                          CircularProgressIndicator(),
+                          Text(S.of(context).buffering),
+                          const CircularProgressIndicator(),
                         ],
                       ),
               )

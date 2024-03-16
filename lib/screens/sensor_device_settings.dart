@@ -1,15 +1,16 @@
-import '../models/bluetooth_connection_model.dart';
-import '../models/device_id_model.dart';
-import '../models/sensor_device_selector.dart';
-import '../widgets/bluetooth_device.dart';
-import '../widgets/dialogs.dart';
-import '../widgets/scrollable_vertical_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../enums/sensor_device.dart';
 import '../enums/side.dart';
+import '../generated/l10n.dart';
+import '../models/bluetooth_connection_model.dart';
+import '../models/device_id_model.dart';
+import '../models/sensor_device_selector.dart';
 import '../services.dart';
+import '../widgets/bluetooth_device.dart';
+import '../widgets/dialogs.dart';
+import '../widgets/scrollable_vertical_widget.dart';
 
 class SensorSettingsScreen extends StatefulWidget {
   const SensorSettingsScreen({super.key});
@@ -33,7 +34,7 @@ class _SensorSettingsScreenState extends State<SensorSettingsScreen> {
       final rightDevice = model.getSensorDeviceOrNull(Side.right);
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Sensor Device Settings'),
+          title: Text(S.of(context).sensorDeviceSettings),
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -44,12 +45,13 @@ class _SensorSettingsScreenState extends State<SensorSettingsScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Select Device:',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  Text(
+                    S.of(context).selectDevice,
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   ListTile(
-                    title: const Text('SALTED'),
+                    title: Text(S.of(context).salted),
                     leading: Radio<SensorDevice>(
                       value: SensorDevice.salted,
                       groupValue: selectedDevice,
@@ -60,7 +62,7 @@ class _SensorSettingsScreenState extends State<SensorSettingsScreen> {
                     ),
                   ),
                   ListTile(
-                    title: const Text('FSRTEC'),
+                    title: Text(S.of(context).fsrtec),
                     leading: Radio<SensorDevice>(
                       value: SensorDevice.fsrtec,
                       groupValue: selectedDevice,
@@ -118,8 +120,8 @@ class _SensorSettingsScreenState extends State<SensorSettingsScreen> {
     } else {
       model.resetSensorDevices();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No sensor IDs available, use search fab'),
+        SnackBar(
+          content: Text(S.of(context).noSensorIdsAvailable),
         ),
       );
     }

@@ -1,15 +1,16 @@
-import '../enums/actor_device.dart';
-import '../models/bluetooth_connection_model.dart';
-import '../models/device_id_model.dart';
-import '../widgets/bluetooth_device.dart';
-import '../widgets/dialogs.dart';
-import '../widgets/scrollable_vertical_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../enums/actor_device.dart';
 import '../enums/side.dart';
+import '../generated/l10n.dart';
 import '../models/actor_device_selector.dart';
+import '../models/bluetooth_connection_model.dart';
+import '../models/device_id_model.dart';
 import '../services.dart';
+import '../widgets/bluetooth_device.dart';
+import '../widgets/dialogs.dart';
+import '../widgets/scrollable_vertical_widget.dart';
 
 class ActorSettingsScreen extends StatefulWidget {
   const ActorSettingsScreen({super.key});
@@ -33,7 +34,7 @@ class _ActorSettingsScreenState extends State<ActorSettingsScreen> {
       final rightDevice = model.getActorDeviceOrNull(Side.right);
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Actor Device Settings'),
+          title: Text(S.of(context).actorDeviceSettings),
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -44,12 +45,15 @@ class _ActorSettingsScreenState extends State<ActorSettingsScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Select Device:',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  Text(
+                    S.of(context).selectDevice,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   ListTile(
-                    title: const Text('MPOW'),
+                    title: Text(S.of(context).mpow),
                     leading: Radio<ActorDevice>(
                       value: ActorDevice.mpow,
                       groupValue: selectedDevice,
@@ -107,8 +111,8 @@ class _ActorSettingsScreenState extends State<ActorSettingsScreen> {
     } else {
       model.resetActorDevices();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No actor IDs available, use search fab'),
+        SnackBar(
+          content: Text(S.of(context).noActorIdsAvailable),
         ),
       );
     }

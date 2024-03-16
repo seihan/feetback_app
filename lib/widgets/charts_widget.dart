@@ -1,10 +1,11 @@
+import 'package:flutter/material.dart';
+
+import '../generated/l10n.dart';
+import '../models/sensor_state_model.dart';
+import '../models/sensor_values.dart';
 import '../services.dart';
 import 'scrollable_vertical_widget.dart';
 import 'sensor_chart.dart';
-import 'package:flutter/material.dart';
-
-import '../models/sensor_state_model.dart';
-import '../models/sensor_values.dart';
 
 class ChartsWidget extends StatelessWidget {
   final List<SensorValues> values;
@@ -17,9 +18,9 @@ class ChartsWidget extends StatelessWidget {
         values.where((element) => element.side == 'RIGHT').toList();
     return ScrollableVerticalWidget(
       children: [
-        const Text('Left Sensor'),
+        Text(S.of(context).leftSensor),
         if (leftValues.isNotEmpty) SensorChart(values: leftValues),
-        const Text('Right Sensor'),
+        Text(S.of(context).rightSensor),
         if (rightValues.isNotEmpty) SensorChart(values: rightValues),
       ],
     );
@@ -34,9 +35,9 @@ class RealTimeChartsWidget extends StatelessWidget {
     final sensorStateModel = services.get<SensorStateModel>();
     return Column(
       children: [
-        const Text('Left Sensor'),
+        Text(S.of(context).leftSensor),
         RealTimeSensorChart(stream: sensorStateModel.leftValuesStream),
-        const Text('Right Sensor'),
+        Text(S.of(context).rightSensor),
         RealTimeSensorChart(stream: sensorStateModel.rightValuesStream),
       ],
     );

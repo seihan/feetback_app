@@ -1,14 +1,15 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
+
+import '../generated/l10n.dart';
 import '../models/calibration_model.dart';
 import '../models/sensor_state_model.dart';
+import '../models/sensor_values.dart';
 import '../services.dart';
 import '../widgets/scrollable_vertical_widget.dart';
 import '../widgets/xy_chart.dart';
-import 'package:flutter/material.dart';
-
-import '../models/sensor_values.dart';
 
 class CalibrationScreen extends StatefulWidget {
   const CalibrationScreen({super.key});
@@ -38,7 +39,7 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Force Calibration'),
+        title: Text(S.of(context).forceCalibration),
         actions: [
           if (model.calibrationTable.samples.isNotEmpty)
             IconButton(
@@ -71,29 +72,29 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
                   const Spacer(),
                   OutlinedButton(
                     onPressed: _addValue,
-                    child: const Text('Add sample'),
+                    child: Text(S.of(context).addSample),
                   ),
                 ],
               ),
             ),
-          const SizedBox(
+          SizedBox(
             width: 300,
             child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 10),
+              padding: const EdgeInsets.symmetric(vertical: 10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     '#',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    'Value',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    S.of(context).value,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    'Sample [g]',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    S.of(context).sampleG,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -144,7 +145,9 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
                   : () async => model
                       .saveCalibrationTable()
                       .then((value) => setState(() {})),
-              child: Text(model.canTested ? 'Calibrate' : 'Save'),
+              child: Text(model.canTested
+                  ? S.of(context).calibrate
+                  : S.of(context).save),
             )
           : null,
     );

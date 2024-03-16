@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
+import '../generated/l10n.dart';
 import '../models/balance_model.dart';
 import 'balance_values.dart';
 
@@ -134,7 +135,9 @@ class _SwitchWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(switchWidget ? 'Left / Right Balance' : 'Front / Rear Balance'),
+        Text(switchWidget
+            ? S.of(context).leftRightBalance
+            : S.of(context).frontRearBalance),
         Switch(
           onChanged: onChanged,
           value: switchWidget,

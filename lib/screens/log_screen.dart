@@ -1,5 +1,7 @@
-import '../models/log_model.dart';
 import 'package:flutter/material.dart';
+
+import '../generated/l10n.dart';
+import '../models/log_model.dart';
 
 class LogScreen extends StatelessWidget {
   const LogScreen({super.key});
@@ -9,7 +11,7 @@ class LogScreen extends StatelessWidget {
     final LogModel logModel = LogModel();
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Log'),
+        title: Text(S.of(context).log),
       ),
       body: StreamBuilder(
           stream: logModel.log,
@@ -20,19 +22,23 @@ class LogScreen extends StatelessWidget {
             if (log.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             } else if (log.hasError) {
-              return Center(child: Text('Error: ${log.error}'));
-            } else if (!log.hasData) {
-              return const Center(
+              return Center(
                 child: Text(
-                  'No data available.',
+                  S.of(context).error(log.error.toString()),
                 ),
+              );
+            } else if (!log.hasData) {
+              return Center(
+                child: Text(S.of(context).noDataAvailable),
               );
             }
             return ListView.builder(
               itemCount: log.data?.length,
               itemBuilder: (BuildContext context, int index) {
                 final int reversedIndex = (log.data?.length ?? 0) - index - 1;
-                return Text(log.data?[reversedIndex] ?? 'no data');
+                return Text(
+                  log.data?[reversedIndex] ?? S.of(context).noData,
+                );
               },
             );
           }),

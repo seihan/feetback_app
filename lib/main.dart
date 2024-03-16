@@ -1,14 +1,15 @@
 import 'dart:async';
 
-import 'global_params.dart';
-import 'models/bluetooth_connection_model.dart';
-import 'models/record_model.dart';
-import 'routes.dart';
-import 'services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'generated/l10n.dart';
+import 'global_params.dart';
+import 'models/bluetooth_connection_model.dart';
 import 'models/error_handler.dart';
+import 'models/record_model.dart';
+import 'routes.dart';
+import 'services.dart';
 
 void main() {
   FlutterError.onError = (FlutterErrorDetails details) {
@@ -44,7 +45,11 @@ class FeetBackApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'FeetBack',
+      localizationsDelegates: const [
+        S.delegate,
+      ],
+      supportedLocales: S.delegate.supportedLocales,
+      title: 'Feetback',
       navigatorKey: services.get<GlobalParams>().navigatorKey,
       theme: ThemeData.dark(),
       routes: Routes.routes,

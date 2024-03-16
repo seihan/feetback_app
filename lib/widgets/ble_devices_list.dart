@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../enums/actor_device.dart';
 import '../enums/sensor_device.dart';
 import '../enums/side.dart';
+import '../generated/l10n.dart';
 import '../models/bluetooth_connection_model.dart';
 import '../models/bluetooth_device_model.dart';
 import 'ble_devices_list_by_side.dart';
@@ -29,17 +30,17 @@ class BluetoothDevicesList extends StatelessWidget {
             (sensorDevice != null && (model.noSensorIds ?? false));
         if (model.isScanning) {
           // scan dialog
-          return const Row(
+          return Row(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Text('searching devices... '),
-              CircularProgressIndicator(),
+              Text(S.of(context).searchingDevices),
+              const CircularProgressIndicator(),
             ],
           );
         } else if (noActorDevices || noSensorDevices) {
           // no devices dialog
-          return const Text('No device found');
+          return Text(S.of(context).noDeviceFound);
         }
         if (actorDevice != null) {
           nullSideDevices = _getActorDevicesWithoutSide(model);
@@ -50,14 +51,14 @@ class BluetoothDevicesList extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Row(
+              Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Set side by swipe device'),
-                  Spacer(),
-                  Icon(Icons.swipe_left),
-                  Icon(Icons.swipe_right),
+                  Text(S.of(context).swipeDeviceToAssignSide),
+                  const Spacer(),
+                  const Icon(Icons.swipe_left),
+                  const Icon(Icons.swipe_right),
                 ],
               ),
               BluetoothDevicesListSetSide(
@@ -72,7 +73,7 @@ class BluetoothDevicesList extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Tap to save ID on device storage'),
+              Text(S.of(context).tapToSaveIdInApp),
               Row(
                 children: [
                   BluetoothDevicesListBySide(

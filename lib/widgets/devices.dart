@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../generated/l10n.dart';
 import '../models/bluetooth_connection_model.dart';
 
 class DeviceWidget extends StatelessWidget {
@@ -13,9 +14,9 @@ class DeviceWidget extends StatelessWidget {
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Padding(
-              padding: EdgeInsets.only(left: 15),
-              child: Text('Sensors:'),
+            Padding(
+              padding: const EdgeInsets.only(left: 15),
+              child: Text(S.of(context).sensors),
             ),
             Row(
               children: List.generate(
@@ -34,7 +35,7 @@ class DeviceWidget extends StatelessWidget {
               ),
             ),
             const Spacer(),
-            const Text('Actors:'),
+            Text(S.of(context).actors),
             Padding(
               padding: const EdgeInsets.only(right: 15),
               child: Row(

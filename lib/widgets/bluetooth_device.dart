@@ -1,9 +1,11 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
+
 import '../enums/side.dart';
+import '../generated/l10n.dart';
 import '../models/bluetooth_device_model.dart';
 import '../models/error_handler.dart';
-import 'package:flutter/material.dart';
 
 class BluetoothDeviceWidget extends StatelessWidget {
   final BluetoothDeviceModel device;
@@ -19,10 +21,12 @@ class BluetoothDeviceWidget extends StatelessWidget {
             device.connected ? Icons.sensors : Icons.sensors_off,
             color: device.connected ? Colors.blue : Colors.white,
           ),
-          Text('Name: ${device.name}'),
-          Text('ID: ${device.id?.str}'),
-          Text('Side: ${device.side?.description}'),
-          Text(device.connected ? 'Connected' : 'Disconnected'),
+          Text(S.of(context).deviceName(device.name.toString())),
+          Text(S.of(context).deviceId('${device.id?.str}')),
+          Text(S.of(context).deviceSide('${device.side?.description}')),
+          Text(device.connected
+              ? S.of(context).connected
+              : S.of(context).disconnected),
           BluetoothRssiWidget(device: device),
         ],
       ),
@@ -75,12 +79,12 @@ class _BluetoothRssiWidgetState extends State<BluetoothRssiWidget> {
       future: _rssiFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Text('RSSI: $_rssi');
+          return Text(S.of(context).rssi(_rssi));
         } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
+          return Text(S.of(context).error(snapshot.error.toString()));
         } else {
           final int rssiValue = snapshot.data!;
-          return Text('RSSI: $rssiValue');
+          return Text(S.of(context).rssi(rssiValue));
         }
       },
     );

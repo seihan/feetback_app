@@ -1,14 +1,15 @@
+import 'package:flutter/material.dart';
+
+import '../../models/bluetooth_connection_model.dart';
+import '../generated/l10n.dart';
+import '../models/calibration_model.dart';
+import '../widgets/balance_widget.dart';
 import '../widgets/charts_widget.dart';
+import '../widgets/devices.dart';
 import '../widgets/notify_button.dart';
 import '../widgets/scrollable_vertical_widget.dart';
 import '../widgets/sensor_soles.dart';
 import '../widgets/side_menu.dart';
-import 'package:flutter/material.dart';
-
-import '../../models/bluetooth_connection_model.dart';
-import '../models/calibration_model.dart';
-import '../widgets/balance_widget.dart';
-import '../widgets/connection_widgets.dart';
 
 class VisualizationScreen extends StatefulWidget {
   final BluetoothConnectionModel model;
@@ -25,20 +26,20 @@ class _VisualizationScreenState extends State<VisualizationScreen> {
     const BalanceWidget(),
     const RealTimeChartsWidget(),
   ];
-  static const _items = [
+  static final _items = [
     BottomNavigationBarItem(
-      icon: Icon(
+      icon: const Icon(
         Icons.display_settings,
       ),
-      label: 'Soles',
+      label: S.current.soles,
     ),
     BottomNavigationBarItem(
-      icon: Icon(Icons.scale),
-      label: 'Balance',
+      icon: const Icon(Icons.scale),
+      label: S.current.balance,
     ),
     BottomNavigationBarItem(
-      icon: Icon(Icons.area_chart),
-      label: 'Chart',
+      icon: const Icon(Icons.area_chart),
+      label: S.current.chart,
     ),
   ];
 
@@ -63,7 +64,7 @@ class _VisualizationScreenState extends State<VisualizationScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            ConnectionWidgets(bluetoothConnectionModel: widget.model),
+            const DeviceWidget(),
             _tabPages[_selectedIndex],
             const SizedBox.shrink(), // placeholder to center widgets
           ],

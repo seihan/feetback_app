@@ -1,26 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
+import '../generated/l10n.dart';
+
 class BluetoothAlertDialog extends StatelessWidget {
   const BluetoothAlertDialog({super.key});
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Bluetooth Adapter is not available.'),
+      title: Text(S.of(context).bluetoothAdapterIsNotAvailable),
       actions: <Widget>[
         TextButton(
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: const Text('Cancel'),
+          child: Text(S.of(context).cancel),
         ),
         TextButton(
           onPressed: () async {
             Navigator.of(context).pop();
             await FlutterBluePlus.turnOn();
           },
-          child: const Text('Turn On'),
+          child: Text(S.of(context).turnOn),
         ),
       ],
     );

@@ -1,10 +1,12 @@
-import '../services.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
+import '../generated/l10n.dart';
+import '../models/log_model.dart';
 import '../models/permission_model.dart';
 import '../routes.dart';
+import '../services.dart';
 
 class PermissionScreen extends StatefulWidget {
   const PermissionScreen({super.key});
@@ -81,7 +83,7 @@ class _PermissionScreenState extends State<PermissionScreen>
           }
           return Scaffold(
             appBar: AppBar(
-              title: const Text('Handle permissions'),
+              title: Text(S.of(context).handlePermissions),
             ),
             body: widget,
           );
@@ -95,7 +97,7 @@ class _PermissionScreenState extends State<PermissionScreen>
   /// If it's granted then invoke the file picker
   Future<void> _checkPermissions() async {
     final section = await _permissionModel.requestLocationPermission();
-    debugPrint('Location permission: $section');
+    LogModel().add('Location permission: $section');
     if (section == PermissionSection.permissionGranted) {
       _goToHomeScreen();
     }
@@ -140,7 +142,7 @@ class LocationPermissions extends StatelessWidget {
               right: 16.0,
             ),
             child: Text(
-              'Location service permission',
+              S.of(context).locationServicePermission,
               style: Theme.of(context).textTheme.titleLarge,
             ),
           ),
@@ -150,9 +152,8 @@ class LocationPermissions extends StatelessWidget {
               top: 24.0,
               right: 16.0,
             ),
-            child: const Text(
-              'We need to request your permission for '
-              'location service in order to use the app.',
+            child: Text(
+              S.of(context).requestYourPermission,
               textAlign: TextAlign.center,
             ),
           ),
@@ -163,8 +164,8 @@ class LocationPermissions extends StatelessWidget {
                 top: 24.0,
                 right: 16.0,
               ),
-              child: const Text(
-                'You need to give this permission from the system settings.',
+              child: Text(
+                S.of(context).giveThisPermission,
                 textAlign: TextAlign.center,
               ),
             ),
@@ -176,7 +177,9 @@ class LocationPermissions extends StatelessWidget {
               bottom: 24.0,
             ),
             child: ElevatedButton(
-              child: Text(isPermanent ? 'Open settings' : 'Allow access'),
+              child: Text(isPermanent
+                  ? S.of(context).openSettings
+                  : S.of(context).allowAccess),
               onPressed: () => isPermanent ? openAppSettings() : onPressed(),
             ),
           ),
@@ -208,7 +211,7 @@ class StartButton extends StatelessWidget {
                 right: 16.0,
               ),
               child: Text(
-                'Permissions are granted',
+                S.of(context).permissionsAreGranted,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
             ),
@@ -218,14 +221,14 @@ class StartButton extends StatelessWidget {
                 top: 24.0,
                 right: 16.0,
               ),
-              child: const Text(
-                'Prepare yourself and push the button!',
+              child: Text(
+                S.of(context).prepareYourself,
                 textAlign: TextAlign.center,
               ),
             ),
             ElevatedButton(
               onPressed: onPressed,
-              child: const Text('Let\'s start'),
+              child: Text(S.of(context).letsStart),
             ),
           ],
         ),

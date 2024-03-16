@@ -1,8 +1,9 @@
-import '../models/database_helper.dart';
-import '../screens/charts_screen.dart';
 import 'package:flutter/material.dart';
 
+import '../generated/l10n.dart';
+import '../models/database_helper.dart';
 import '../models/record_info.dart';
+import '../screens/charts_screen.dart';
 
 class DatabaseView extends StatelessWidget {
   const DatabaseView({super.key});
@@ -16,11 +17,14 @@ class DatabaseView extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
+          return Center(
+              child: Text(S.of(context).error(
+                    snapshot.error.toString(),
+                  )));
         } else if (!snapshot.hasData || (snapshot.data?.isEmpty ?? false)) {
-          return const Center(
+          return Center(
             child: Text(
-              'No data available.',
+              S.of(context).noDataAvailable,
             ),
           );
         } else {
@@ -43,9 +47,18 @@ class DatabaseView extends StatelessWidget {
                       ),
                       child: ListTile(
                         title: Text(
-                            '#${entry.recordId} Date: ${entry.startTime.toString()}'),
+                          S.of(context).entryRecordIdDate(
+                              entry.recordId, entry.startTime),
+                        ),
                         subtitle: Text(
-                            'Length: ${((entry.endTime.millisecondsSinceEpoch - entry.startTime.millisecondsSinceEpoch) / 1000).toStringAsFixed(2)}s'),
+                          S.of(context).length(
+                                ((entry.endTime.millisecondsSinceEpoch -
+                                            entry.startTime
+                                                .millisecondsSinceEpoch) /
+                                        1000)
+                                    .toStringAsFixed(2),
+                              ),
+                        ),
                         onTap: () => Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => ChartsScreen(
@@ -54,9 +67,7 @@ class DatabaseView extends StatelessWidget {
                           ),
                         ),
                       ))
-                  : const ListTile(
-                      title: Text('no data'),
-                    );
+                  : ListTile(title: Text(S.of(context).noData));
             },
           );
         }

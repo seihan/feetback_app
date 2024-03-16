@@ -1,12 +1,13 @@
-import '../models/bluetooth_connection_model.dart';
-import '../models/feedback_model.dart';
-import '../widgets/scrollable_vertical_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../enums/side.dart';
+import '../generated/l10n.dart';
+import '../models/bluetooth_connection_model.dart';
+import '../models/feedback_model.dart';
 import '../widgets/activate_switch.dart';
 import '../widgets/buzz_button.dart';
+import '../widgets/scrollable_vertical_widget.dart';
 
 class FeedbackSettings extends StatefulWidget {
   const FeedbackSettings({super.key});
@@ -21,7 +22,7 @@ class _FeedbackSettingsState extends State<FeedbackSettings> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Feedback Settings'),
+        title: Text(S.of(context).feedbackSettings),
       ),
       body: SafeArea(
         child: Consumer<BluetoothConnectionModel>(builder:
@@ -33,7 +34,9 @@ class _FeedbackSettingsState extends State<FeedbackSettings> {
             children: [
               Padding(
                 padding: const EdgeInsets.only(left: 20, bottom: 10),
-                child: Text('Maximum Duration: ${feedbackModel.maxDuration}ms'),
+                child: Text(
+                  S.of(context).maximumDuration(feedbackModel.maxDuration),
+                ),
               ),
               Slider(
                 label: feedbackModel.maxDuration.toString(),
@@ -44,7 +47,9 @@ class _FeedbackSettingsState extends State<FeedbackSettings> {
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 20, bottom: 10),
-                child: Text('Minimum Duration: ${feedbackModel.minDuration}ms'),
+                child: Text(
+                  S.of(context).minimumDuration(feedbackModel.minDuration),
+                ),
               ),
               Slider(
                 label: feedbackModel.minDuration.toString(),
@@ -56,10 +61,13 @@ class _FeedbackSettingsState extends State<FeedbackSettings> {
               Padding(
                 padding: const EdgeInsets.only(left: 20, bottom: 10),
                 child: Text(
-                    'Threshold: ${(feedbackModel.threshold * 100).toStringAsFixed(0)}%'),
+                  S.of(context).thresholdValue(
+                        (feedbackModel.threshold * 100).toStringAsFixed(0),
+                      ),
+                ),
               ),
               Slider(
-                label: 'Threshold',
+                label: S.of(context).threshold,
                 value: feedbackModel.threshold.toDouble(),
                 min: 0,
                 max: 1,
@@ -68,8 +76,8 @@ class _FeedbackSettingsState extends State<FeedbackSettings> {
               Padding(
                 padding: const EdgeInsets.only(left: 20, top: 10),
                 child: Text(model.enableFeedback
-                    ? 'Feedback enabled'
-                    : 'Feedback disabled'),
+                    ? S.of(context).feedbackEnabled
+                    : S.of(context).feedbackDisabled),
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 20, top: 10),
@@ -83,7 +91,7 @@ class _FeedbackSettingsState extends State<FeedbackSettings> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Test vibration'),
+                      Text(S.of(context).testVibration),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -131,7 +139,7 @@ class _FeedbackSettingsState extends State<FeedbackSettings> {
                 });
               },
               elevation: 2,
-              child: const Text('Save'),
+              child: Text(S.of(context).save),
             )
           : null,
     );

@@ -1,10 +1,11 @@
-import '../models/bluetooth_connection_model.dart';
-import 'record_list_tile.dart';
-import 'scrollable_vertical_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../generated/l10n.dart';
+import '../models/bluetooth_connection_model.dart';
 import '../routes.dart';
+import 'record_list_tile.dart';
+import 'scrollable_vertical_widget.dart';
 
 class SideMenu extends StatelessWidget {
   const SideMenu({super.key});
@@ -28,13 +29,13 @@ class SideMenu extends StatelessWidget {
                       Icons.sensors_off,
                       color: model.connected ? Colors.blue : Colors.white,
                     ),
-                    title: const Text('Disconnect'),
+                    title: Text(S.of(context).disconnect),
                     onTap: model.disconnect,
                   );
                 }),
                 ListTile(
                   leading: const Icon(Icons.analytics),
-                  title: const Text('Analytics'),
+                  title: Text(S.of(context).analytics),
                   onTap: () => Navigator.pushNamed(
                     context,
                     Routes.analytics,
@@ -43,7 +44,7 @@ class SideMenu extends StatelessWidget {
                 const RecordListTile(),
                 ListTile(
                   leading: const Icon(Icons.calculate),
-                  title: const Text('Calibration'),
+                  title: Text(S.of(context).calibration),
                   onTap: () => Navigator.pushNamed(
                     context,
                     Routes.calibration,
@@ -51,7 +52,7 @@ class SideMenu extends StatelessWidget {
                 ),
                 ListTile(
                   leading: const Icon(Icons.settings),
-                  title: const Text('Feedback Settings'),
+                  title: Text(S.of(context).feedbackSettings),
                   onTap: () => Navigator.pushNamed(
                     context,
                     Routes.feedback,
@@ -59,7 +60,7 @@ class SideMenu extends StatelessWidget {
                 ),
                 ListTile(
                   leading: const Icon(Icons.satellite_alt),
-                  title: const Text('Sensor Settings'),
+                  title: Text(S.of(context).sensorSettings),
                   onTap: () => Navigator.pushNamed(
                     context,
                     Routes.sensorSettings,
@@ -67,7 +68,7 @@ class SideMenu extends StatelessWidget {
                 ),
                 ListTile(
                   leading: const Icon(Icons.satellite_alt),
-                  title: const Text('Actor Settings'),
+                  title: Text(S.of(context).actorSettings),
                   onTap: () => Navigator.pushNamed(
                     context,
                     Routes.actorSettings,
@@ -75,7 +76,7 @@ class SideMenu extends StatelessWidget {
                 ),
                 ListTile(
                   leading: const Icon(Icons.list),
-                  title: const Text('Log'),
+                  title: Text(S.of(context).log),
                   onTap: () => Navigator.pushNamed(
                     context,
                     Routes.logs,
@@ -85,7 +86,7 @@ class SideMenu extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.arrow_forward),
-              title: const Text('Close Menu'),
+              title: Text(S.of(context).closeMenu),
               onTap: () => Navigator.of(context).pop(),
             ),
           ],

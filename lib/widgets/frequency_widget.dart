@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../generated/l10n.dart';
+
 class FrequencyWidget extends StatelessWidget {
   final Stream<int> stream;
   const FrequencyWidget({required this.stream, super.key});
@@ -13,7 +15,7 @@ class FrequencyWidget extends StatelessWidget {
           AsyncSnapshot<int> frequency,
         ) {
           int freq = frequency.data ?? 0;
-          return Text('Frequency: ${freq}Hz');
+          return Text(S.of(context).frequency(freq));
         });
   }
 }

@@ -1,6 +1,7 @@
-import '../models/database_helper.dart';
 import 'package:flutter/material.dart';
 
+import '../generated/l10n.dart';
+import '../models/database_helper.dart';
 import '../models/record_info.dart';
 import '../models/sensor_values.dart';
 import '../widgets/charts_widget.dart';
@@ -25,11 +26,13 @@ class ChartsScreen extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(
+              child: Text(S.of(context).error(snapshot.error.toString())),
+            );
           } else if (!snapshot.hasData || (snapshot.data?.isEmpty ?? false)) {
-            return const Center(
+            return Center(
               child: Text(
-                'No data available.',
+                S.of(context).noDataAvailable,
               ),
             );
           } else {
