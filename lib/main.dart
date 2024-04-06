@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:provider/provider.dart';
 
 import 'generated/l10n.dart';
@@ -20,9 +21,11 @@ void main() {
   };
   ErrorHandler.buildErrorWidget();
   runZonedGuarded(() async {
-    WidgetsFlutterBinding.ensureInitialized();
+    final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+    FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
     await setupServices();
     await services.allReady(timeout: const Duration(seconds: 3));
+    FlutterNativeSplash.remove();
     runApp(MultiProvider(
       providers: [
         ChangeNotifierProvider.value(
