@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import '../../models/bluetooth_connection_model.dart';
 import '../generated/l10n.dart';
@@ -47,6 +48,7 @@ class _VisualizationScreenState extends State<VisualizationScreen> {
   void initState() {
     super.initState();
     _calibrationModel.getPredictedValues();
+    initializeDateFormatting();
   }
 
   int _selectedIndex = 0;
