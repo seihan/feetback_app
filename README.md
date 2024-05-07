@@ -11,7 +11,7 @@ And people who are looking for ways to develop synaesthetic applications.
 
 ## How it works
 
-The pressure under the feet is recorded by sensors and output as feedback through vibrations on the upper body.
+The pressure under the feet is recorded by sensors and output as feedback through vibrations at sensitive body parts. Like arm wrist, neck, etc.
 
 Sensor -> App -> Actor
 
@@ -21,7 +21,7 @@ Bluetooth low energy devices are connected via the app. Continuous reading of th
 
 ## Parts
 
-* 2 pressure resistive soles
+* 2 pressure resistive insoles
 * 2 fitness tracker with vibrations
 * 1 smartphone
 
@@ -31,7 +31,7 @@ Flutter
 
 ## Platforms
 
-* Android, min SDK 21 (Android 7)
+* Android, min SDK 21 (Android 5)
 
 ## Supported Devices
 
@@ -43,9 +43,9 @@ Currently only one device is supported. The code base is prepared to add more.
 
 Available on eBay and other stores.
 
-<img src="https://static-data2.manualslib.com/product-images/ae3/1365287/mpow-ds-d6-fitness-electronics.jpg" height=501 alt="MPOW DS-D6 fintess tracker">
+![MPOW DS-D6](assets/peripherals/MPOW-DS-D6_separated.png)
 
-*Source: manualslib.com*
+*MPOW DS-D6 Fitness Tracker*
 
 This device is well known from other reverse engineering projects. No customized firmware is required for this purpose. The essential function is vibration. Three vibration pulses of different lengths can be sent. The two pulses with the minimum and maximum length are used to represent two different regions on the foot.
 
@@ -53,15 +53,15 @@ This device is well known from other reverse engineering projects. No customized
 
 Currently are two devices supported. One is still under development and the other is not always available in the EU.
 
-#### FSRTEC - under development
+#### FSRTEK - under development
 
 Piezo resistive insole with 12 sensor points. 
 
 [Wearable FSR Sensor](https://www.fsrtek.com/flexible-gait-analysis-piezoresistive-insole-force-sensitive-resistor)
 
-<img src="https://www.fsrtek.com/wp-content/uploads/2021/06/5%E9%9E%8B%E5%9E%AB%EF%BC%881%EF%BC%89.jpg" height=501 alt="FSRTEK fsr sensor">
+![MPOW DS-D6](assets/peripherals/FSRTEC-12.png)
 
-*Source: fsrtek.com*
+*FSRTEK flexible gait analysis piezoresistive insole - prototype*
 
 This device is **fully** supported.
 
@@ -73,9 +73,9 @@ Piezo resistive insole with 4 sensor points, vibration output, accelerometer, gy
 
 [SALTED Golf Insoles](https://en.salted.shop/#none)
 
-<img src="https://simulatedsports.ie/wp-content/uploads/2023/08/f7431c_005422dd57544adb8f1cb68e12412602_mv2.webp" alt="Salted Golf">
+![MPOW DS-D6](assets/peripherals/SALTED-Golf_both-sides.png)
 
-*Source: simulatedsports.ie*
+*SALTED Golf insoles*
 
 This device is **partly** supported.
 
@@ -93,7 +93,7 @@ Not working or tested
 Due to the high price of this product, only the necessary functions were researched. The hcidump of the original app was evaluated for this purpose. The connection setup and the start/stop commands for notify are known.
 No try and error attempt was made due to the risk of bricking the device
 
-The exact transmission protocol is unknown. About 80% of the incoming values cannot be interpreted. The detected sensor values are in a narrow range. In addition, a change in the value range appears to occur from a certain pressure. This jump has not yet been systematically recorded and interpreted. Any help on this topic is very welcome.
+The original transmission protocol is unknown. About 80% of the incoming values cannot be used, because of their static behavior. This means  The detected sensor values are in a narrow range. In addition, a change in the value range appears to occur from a certain pressure. This jump has not yet been systematically recorded and interpreted. Any help on this topic is very welcome.
 
 ## Code Details
 
@@ -108,3 +108,21 @@ The incoming ble notify values are converted to sensor values in the SensorState
 ### Transmission
 
 The *TransmissionHandler* listens for incoming sensor values and writes to the actor devices. The timing and selection of write commands is orchestrated using the *FeedbackModel*.
+
+# Screenshots
+
+**Sensor Insoles Widget**
+
+<img src="assets/screenshots/sensor-insoles-widget.jpg" height=501 alt="Sensor Insoles Widget">
+
+**Realtime Chart Widget**
+
+<img src="assets/screenshots/realtime-chart-widget.jpg" height=501 alt="Realtime Chart Widget">
+
+**Heatmap Widget**
+
+<img src="assets/screenshots/heatmap-widget.jpg" height=501 alt="Heatmap Widget">
+
+**Balance Widget**
+
+<img src="assets/screenshots/balance-widget.jpg" height=501 alt="Balance Widget">
