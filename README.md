@@ -69,7 +69,7 @@ Thanks to the support from this company.
 
 #### SALTED
 
-Piezo resistive insole with 4 sensor points, vibration output, accelerometer, gyroscope.
+Piezo resistive insole with 4 sensor points, vibration output.
 
 [SALTED Golf Insoles](https://en.salted.shop/#none)
 
@@ -85,17 +85,15 @@ So far following tasks are working:
 * Switch on Notify
 * Interpret values - wip
 
-Not working or tested
-* Vibration output
-* Accelerometer readings
-* Gyroscope readings
+Not working
+* Vibration output (turn vibration on is working, off sequence is unknown)
 
 Due to the high price of this product, only the necessary functions were researched. The hcidump of the original app was evaluated for this purpose. The connection setup and the start/stop commands for notify are known.
 No try and error attempt was made due to the risk of bricking the device
 
 The original transmission protocol is unknown. About 80% of the incoming values cannot be used, because of their static behavior. This means  The detected sensor values are in a narrow range. In addition, a change in the value range appears to occur from a certain pressure. This jump has not yet been systematically recorded and interpreted. Any help on this topic is very welcome.
 
-## Code Details
+## Models
 
 ### Connection
 
@@ -109,7 +107,13 @@ The incoming ble notify values are converted to sensor values in the SensorState
 
 The *TransmissionHandler* listens for incoming sensor values and writes to the actor devices. The timing and selection of write commands is orchestrated using the *FeedbackModel*.
 
-# Screenshots
+### Feedback
+
+The goal of generating dynamic haptic feedback can only be realized to a limited extent with the available actuators. The manufacturer's firmware of the mpow dsd6 fitness trackers only allows three different vibration impulses: short, medium and long. The first and last pulses are used for local differentiation between the front and rear foot area. The pressure intensity is represented by the intervals between the pulses. The greater the pressure, the shorter the intervals. For this approach, the normalized sensor values are mapped to time values. These are used to control timers in order to send commands to the actuators above a certain threshold value.
+As complicated as this implementation sounds, as poor is the current result. Further revisions are necessary in this area.
+
+
+## Screenshots
 
 **Sensor Insoles Widget**
 
@@ -118,6 +122,11 @@ The *TransmissionHandler* listens for incoming sensor values and writes to the a
 **Realtime Chart Widget**
 
 <img src="assets/screenshots/realtime-chart-widget.jpg" height=501 alt="Realtime Chart Widget">
+
+**Feedback Settings**
+
+<img src="assets/screenshots/feedback-settings.jpg" height=501 alt="Feedback Settings">
+
 
 **Heatmap Widget**
 
