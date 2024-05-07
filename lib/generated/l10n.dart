@@ -550,6 +550,16 @@ class S {
     );
   }
 
+  /// `Close`
+  String get close {
+    return Intl.message(
+      'Close',
+      name: 'close',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Set RIGHT side`
   String get setRightSide {
     return Intl.message(

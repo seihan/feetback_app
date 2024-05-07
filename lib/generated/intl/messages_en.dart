@@ -75,6 +75,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "calibration": MessageLookupByLibrary.simpleMessage("Calibration"),
         "cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
         "chart": MessageLookupByLibrary.simpleMessage("Chart"),
+        "close": MessageLookupByLibrary.simpleMessage("Close"),
         "closeMenu": MessageLookupByLibrary.simpleMessage("Close Menu"),
         "connected": MessageLookupByLibrary.simpleMessage("Connected"),
         "delete": MessageLookupByLibrary.simpleMessage("Delete"),

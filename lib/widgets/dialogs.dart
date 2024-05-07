@@ -75,7 +75,7 @@ class AppDialogs {
               ),
               actions: <Widget>[
                 TextButton(
-                  child: Text(S.of(context).cancel),
+                  child: Text(S.of(context).close),
                   onPressed: () {
                     Navigator.of(context).pop(false);
                   },

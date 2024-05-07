@@ -50,6 +50,7 @@
   "warning": "Warning",
   "sideAlreadySet": "Side already set",
   "cancel": "Cancel",
+  "close": "Close",
   "setRightSide": "Set RIGHT side",
   "setLeftSide": "Set LEFT side",
   "bluetoothAdapterIsNotAvailable": "Bluetooth Adapter is not available.",

@@ -78,7 +78,7 @@ class BluetoothDevicesListSetSide extends StatelessWidget {
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: Text(S.of(context).cancel),
+              child: Text(S.of(context).close),
             ),
           ],
         ),
