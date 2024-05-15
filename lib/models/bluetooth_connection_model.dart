@@ -2,8 +2,21 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+
 import '../enums/actor_device.dart';
+import '../enums/sensor_device.dart';
+import '../enums/side.dart';
 import '../global_params.dart';
+import '../routes.dart';
+import '../services.dart';
+import '../widgets/bluetooth_alert_dialog.dart';
+import '../widgets/dialogs.dart';
+import 'actor_device_selector.dart';
+import 'bluetooth_device_model.dart';
+import 'bluetooth_notification_handler.dart';
+import 'error_handler.dart';
 import 'feedback_model.dart';
 import 'log_model.dart';
 import 'peripheral_constants.dart';
@@ -11,19 +24,6 @@ import 'permission_model.dart';
 import 'sensor_device_selector.dart';
 import 'sensor_state_model.dart';
 import 'transmission_handler.dart';
-import '../services.dart';
-import '../widgets/dialogs.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-
-import '../enums/sensor_device.dart';
-import '../enums/side.dart';
-import '../routes.dart';
-import '../widgets/bluetooth_alert_dialog.dart';
-import 'actor_device_selector.dart';
-import 'bluetooth_device_model.dart';
-import 'bluetooth_notification_handler.dart';
-import 'error_handler.dart';
 
 class BluetoothConnectionModel extends ChangeNotifier {
   final _sensorStateModel = services.get<SensorStateModel>();
@@ -31,8 +31,7 @@ class BluetoothConnectionModel extends ChangeNotifier {
   final _sensorSelector = services.get<SensorDeviceSelector>();
   final _actorSelector = services.get<ActorDeviceSelector>();
   final _permissionHandler = services.get<PermissionModel>();
-
-  final FeedbackModel _feedbackModel = FeedbackModel();
+  final FeedbackModel _feedbackModel = services.get<FeedbackModel>();
   final LogModel _logModel = LogModel();
   static final List<BluetoothDeviceModel> _actorDevices = [];
   static final List<BluetoothDeviceModel> _sensorDevices = [];
@@ -90,7 +89,6 @@ class BluetoothConnectionModel extends ChangeNotifier {
     resetSensorDevices();
     final leftActorDevice = getActorDeviceOrNull(Side.left);
     final rightActorDevice = getActorDeviceOrNull(Side.right);
-    _feedbackModel.initialize();
     _enableFeedback = _feedbackModel.enableFeedback;
     if (_sensorDevices.isNotEmpty) {
       _leftHandler = TransmissionHandler(
@@ -165,25 +163,11 @@ class BluetoothConnectionModel extends ChangeNotifier {
     if (_isScanning) {
       return;
     }
-    final noActorIds = (_actorDevices.any(
-          (device) => device.id == null,
-        ) &&
-        _actorDevices.isNotEmpty);
     final noSensorIds = (_sensorDevices.any(
           (device) => device.id == null,
         ) &&
         _sensorDevices.isNotEmpty);
-    if (noActorIds) {
-      final addIds = await AppDialogs.noDeviceIdDialog(
-          _navigatorKey.currentContext!, 'Actor');
-      if (addIds ?? false) {
-        Navigator.pushNamed(
-          _navigatorKey.currentContext!,
-          Routes.actorSettings,
-        );
-      }
-      return;
-    }
+
     if (noSensorIds) {
       final addIds = await AppDialogs.noDeviceIdDialog(
           _navigatorKey.currentContext!, 'Sensor');

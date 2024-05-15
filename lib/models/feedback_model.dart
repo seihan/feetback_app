@@ -6,8 +6,9 @@ class FeedbackModel {
   factory FeedbackModel() {
     return _instance;
   }
-  void initialize() async {
+  Future<FeedbackModel> init() async {
     await _loadFromLocalStorage();
+    return this;
   }
 
   // Default values

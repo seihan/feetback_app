@@ -5,8 +5,11 @@ import '../enums/side.dart';
 import '../generated/l10n.dart';
 import '../models/bluetooth_connection_model.dart';
 import '../models/feedback_model.dart';
+import '../routes.dart';
+import '../services.dart';
 import '../widgets/activate_switch.dart';
 import '../widgets/buzz_button.dart';
+import '../widgets/dialogs.dart';
 import '../widgets/scrollable_vertical_widget.dart';
 
 class FeedbackSettings extends StatefulWidget {
@@ -16,7 +19,7 @@ class FeedbackSettings extends StatefulWidget {
 }
 
 class _FeedbackSettingsState extends State<FeedbackSettings> {
-  final FeedbackModel feedbackModel = FeedbackModel();
+  final feedbackModel = services.get<FeedbackModel>();
   bool hasChanged = false;
   @override
   Widget build(BuildContext context) {
@@ -166,11 +169,31 @@ class _FeedbackSettingsState extends State<FeedbackSettings> {
     });
   }
 
-  void _onChangedFeedback(BluetoothConnectionModel model, bool value) {
+  void _onChangedFeedback(BluetoothConnectionModel model, bool value) async {
+    if (value) {
+      final available = await _checkAvailableActors(model);
+      if (available == false) {
+        return;
+      }
+    }
     feedbackModel.enableFeedback = value;
     setState(() {
       hasChanged = true;
     });
     model.toggleFeedback(value);
+  }
+
+  Future<bool> _checkAvailableActors(BluetoothConnectionModel model) async {
+    final bool noActorIds = model.noActorIds ?? false;
+    if (noActorIds) {
+      final addIds = await AppDialogs.noDeviceIdDialog(context, 'Actor');
+      if ((addIds ?? false) && mounted) {
+        Navigator.pushNamed(
+          context,
+          Routes.actorSettings,
+        );
+      }
+    }
+    return !noActorIds;
   }
 }
