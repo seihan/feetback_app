@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'global_params.dart';
 import 'models/actor_device_selector.dart';
 import 'models/bluetooth_connection_model.dart';
+import 'models/calibration_model.dart';
 import 'models/device_id_model.dart';
 import 'models/feedback_model.dart';
 import 'models/permission_model.dart';
@@ -42,6 +43,10 @@ Future<void> setupServices() async {
   services.registerSingletonWithDependencies<SensorStateModel>(
       () => SensorStateModel(),
       dependsOn: [SensorDeviceSelector]);
+  // calibration model
+  services.registerSingletonWithDependencies<CalibrationModel>(
+      () => CalibrationModel(),
+      dependsOn: [SensorStateModel]);
   // feedback model
   services.registerSingletonAsync<FeedbackModel>(
     () => FeedbackModel().init(),

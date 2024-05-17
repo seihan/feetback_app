@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../generated/l10n.dart';
 import '../models/calibration_model.dart';
+import '../services.dart';
 
 class PredictedValuesWidget extends StatelessWidget {
   final List<int> sensorValues;
@@ -36,7 +37,7 @@ class PredictedValuesWidget extends StatelessWidget {
       predictedValue: 0,
       sum: 0,
     );
-    final CalibrationModel calibrationModel = CalibrationModel();
+    final calibrationModel = services.get<CalibrationModel>();
     double? predictedValue = 0;
     if (calibrationModel.predictedValues?.length == 4096) {
       predictedValue =

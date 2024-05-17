@@ -4,6 +4,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import '../../models/bluetooth_connection_model.dart';
 import '../generated/l10n.dart';
 import '../models/calibration_model.dart';
+import '../services.dart';
 import '../widgets/balance_widget.dart';
 import '../widgets/charts_widget.dart';
 import '../widgets/devices.dart';
@@ -21,7 +22,7 @@ class VisualizationScreen extends StatefulWidget {
 }
 
 class _VisualizationScreenState extends State<VisualizationScreen> {
-  final CalibrationModel _calibrationModel = CalibrationModel();
+  final _calibrationModel = services.get<CalibrationModel>();
   final List<Widget> _tabPages = [
     const SensorSoles(),
     const BalanceWidget(),

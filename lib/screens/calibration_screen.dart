@@ -19,7 +19,7 @@ class CalibrationScreen extends StatefulWidget {
 }
 
 class _CalibrationScreenState extends State<CalibrationScreen> {
-  final CalibrationModel model = CalibrationModel();
+  final model = services.get<CalibrationModel>();
   final _sensorStateModel = services.get<SensorStateModel>();
   StreamSubscription? _subscription;
   List<int> _values = [];
