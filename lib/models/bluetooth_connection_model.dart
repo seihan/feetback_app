@@ -497,12 +497,13 @@ class BluetoothConnectionModel extends ChangeNotifier {
         await _rightNotificationHandler?.setNotify(false);
       }
     }
-    final bool isNotifying = _sensorDevices.every(
+    final bool isNotifying = _sensorDevices.any(
       (BluetoothDeviceModel device) => device.rxTxChar?.isNotifying ?? false,
     );
     _logModel.add(
       'is notifying; $isNotifying',
     );
+    _isNotifying = isNotifying;
     notifyListeners();
   }
 

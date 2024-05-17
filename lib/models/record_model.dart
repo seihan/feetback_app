@@ -1,11 +1,12 @@
 import 'dart:async';
 
-import 'database_helper.dart';
-import 'sensor_state_model.dart';
-import 'sensor_values.dart';
 import 'package:flutter/cupertino.dart';
 
 import '../services.dart';
+import 'bluetooth_connection_model.dart';
+import 'database_helper.dart';
+import 'sensor_state_model.dart';
+import 'sensor_values.dart';
 
 class RecordModel extends ChangeNotifier {
   final _sensorStateModel = services.get<SensorStateModel>();
@@ -27,7 +28,8 @@ class RecordModel extends ChangeNotifier {
 
   int recordId = -1;
   void startRecord() async {
-    if (!_record) {
+    final isNotifying = services.get<BluetoothConnectionModel>().isNotifying;
+    if (!_record && isNotifying) {
       // get last recordId
       recordId = await database.getNextRecordID();
       _startTime = DateTime.now();
@@ -37,8 +39,8 @@ class RecordModel extends ChangeNotifier {
       _rightSubscription = _sensorStateModel.rightValuesStream.listen(
         _onValue,
       );
+      _record = true;
     }
-    _record = true;
     notifyListeners();
   }
 
