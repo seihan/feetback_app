@@ -247,15 +247,18 @@ class BluetoothConnectionModel extends ChangeNotifier {
                   result.device.platformName == PeripheralConstants.mpowName;
               if (sameName && !processedResult) {
                 _logModel.add('found device: ${result.device.platformName}');
-                _actorDevices.add(
-                  BluetoothDeviceModel(
-                    name: result.device.platformName,
-                    id: result.device.remoteId,
-                    serviceGuid: PeripheralConstants.mpowServiceGuid,
-                    rxTxCharGuid: PeripheralConstants.mpowRxTxCharGuid,
-                  ),
+                final device = BluetoothDeviceModel(
+                  name: result.device.platformName,
+                  id: result.device.remoteId,
+                  serviceGuid: PeripheralConstants.mpowServiceGuid,
+                  rxTxCharGuid: PeripheralConstants.mpowRxTxCharGuid,
                 );
+                _actorDevices.add(device);
                 _processedResults.add(result);
+                _deviceSubscriptions.add(device.device?.connectionState
+                    .listen((BluetoothConnectionState state) {
+                  _handleDeviceState(state, device);
+                }));
                 notifyListeners();
               }
             }
@@ -286,16 +289,19 @@ class BluetoothConnectionModel extends ChangeNotifier {
               );
               if ((sameNameLeft || sameNameRight) && !processedResult) {
                 _logModel.add('found device: ${result.device.platformName}');
-                _sensorDevices.add(
-                  BluetoothDeviceModel(
-                      name: result.device.platformName,
-                      id: result.device.remoteId,
-                      side: side,
-                      serviceGuid: PeripheralConstants.saltedServiceGuid,
-                      rxTxCharGuid: PeripheralConstants.saltedRxTxCharGuid,
-                      txCharGuid: PeripheralConstants.saltedTxCharGuid),
-                );
+                final device = BluetoothDeviceModel(
+                    name: result.device.platformName,
+                    id: result.device.remoteId,
+                    side: side,
+                    serviceGuid: PeripheralConstants.saltedServiceGuid,
+                    rxTxCharGuid: PeripheralConstants.saltedRxTxCharGuid,
+                    txCharGuid: PeripheralConstants.saltedTxCharGuid);
+                _sensorDevices.add(device);
                 _processedResults.add(result);
+                _deviceSubscriptions.add(device.device?.connectionState
+                    .listen((BluetoothConnectionState state) {
+                  _handleDeviceState(state, device);
+                }));
                 notifyListeners();
               }
             }
