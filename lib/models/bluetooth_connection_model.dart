@@ -11,7 +11,6 @@ import '../enums/side.dart';
 import '../global_params.dart';
 import '../routes.dart';
 import '../services.dart';
-import '../widgets/bluetooth_alert_dialog.dart';
 import '../widgets/dialogs.dart';
 import 'actor_device_selector.dart';
 import 'bluetooth_device_model.dart';
@@ -116,14 +115,9 @@ class BluetoothConnectionModel extends ChangeNotifier {
 
   void _listenBluetoothState(BluetoothAdapterState event) {
     _state = event;
-    if (_state == BluetoothAdapterState.off &&
-        _navigatorKey.currentState != null) {
-      showDialog(
-        context: _navigatorKey.currentState!.overlay!.context,
-        builder: (BuildContext context) {
-          return const BluetoothAlertDialog();
-        },
-      );
+    final context = _navigatorKey.currentContext;
+    if (_state == BluetoothAdapterState.off && context != null) {
+      AppDialogs.bluetoothAlertDialog(context);
     }
     notifyListeners();
   }

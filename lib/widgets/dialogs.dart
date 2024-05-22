@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 import '../enums/actor_device.dart';
 import '../enums/sensor_device.dart';
@@ -91,5 +92,30 @@ class AppDialogs {
           },
         ) ??
         false; // Return false if the dialog was dismissed
+  }
+
+  static Future<bool?> bluetoothAlertDialog(BuildContext context) async {
+    return await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(S.of(context).bluetoothAdapterIsNotAvailable),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text(S.of(context).cancel),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  await FlutterBluePlus.turnOn();
+                },
+                child: Text(S.of(context).turnOn),
+              ),
+            ],
+          );
+        });
   }
 }
